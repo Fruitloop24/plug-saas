@@ -1,0 +1,252 @@
+import { createClerkClient, verifyToken } from '@clerk/backend';
+import { handleStripeWebhook as stripeWebhookHandler } from './stripe-webhook';
+
+interface Env {
+	CLERK_SECRET_KEY: string;
+	CLERK_PUBLISHABLE_KEY: string;
+	STRIPE_SECRET_KEY: string;
+	STRIPE_WEBHOOK_SECRET?: string;
+	STRIPE_PRICE_ID: string;
+	FRONTEND_URL: string;
+	USAGE_KV: KVNamespace;
+	CLERK_JWT_TEMPLATE: string;
+}
+
+interface UsageData {
+	usageCount: number;
+	plan: 'free' | 'pro';
+	lastUpdated: string;
+}
+
+const FREE_TIER_LIMIT = 5;
+
+export default {
+	async fetch(request: Request, env: Env): Promise<Response> {
+		// CORS headers
+		const corsHeaders = {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		};
+
+		// Handle CORS preflight
+		if (request.method === 'OPTIONS') {
+			return new Response(null, { headers: corsHeaders });
+		}
+
+		const url = new URL(request.url);
+
+		// Health check endpoint
+		if (url.pathname === '/health') {
+			return new Response(JSON.stringify({ status: 'ok' }), {
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
+		// Stripe webhook doesn't require JWT auth
+		if (url.pathname === '/webhook/stripe' && request.method === 'POST') {
+			return await stripeWebhookHandler(request, env);
+		}
+
+		// Verify JWT token
+		const authHeader = request.headers.get('Authorization');
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			return new Response(JSON.stringify({ error: 'Missing or invalid Authorization header' }), {
+				status: 401,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
+		const token = authHeader.replace('Bearer ', '');
+
+		try {
+			// Create Clerk client
+			const clerkClient = createClerkClient({
+				secretKey: env.CLERK_SECRET_KEY,
+				publishableKey: env.CLERK_PUBLISHABLE_KEY,
+			});
+
+			// Authenticate the request
+			const { toAuth } = await clerkClient.authenticateRequest(request, {
+				secretKey: env.CLERK_SECRET_KEY,
+				publishableKey: env.CLERK_PUBLISHABLE_KEY,
+			});
+
+			const auth = toAuth();
+
+			if (!auth || !auth.userId) {
+				throw new Error('Unauthorized');
+			}
+
+			const userId = auth.userId;
+
+			// Get user to check plan from metadata
+			const user = await clerkClient.users.getUser(userId);
+			const plan = (user.publicMetadata?.plan as 'free' | 'pro') || 'free';
+
+			// Route handlers
+			if (url.pathname === '/api/data' && request.method === 'POST') {
+				return await handleDataRequest(userId, plan, env, corsHeaders);
+			}
+
+			if (url.pathname === '/api/usage' && request.method === 'GET') {
+				return await handleUsageCheck(userId, plan, env, corsHeaders);
+			}
+
+			if (url.pathname === '/api/create-checkout' && request.method === 'POST') {
+				return await handleCreateCheckout(userId, clerkClient, env, corsHeaders);
+			}
+
+			return new Response(JSON.stringify({ error: 'Not found' }), {
+				status: 404,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		} catch (error) {
+			console.error('Token verification failed:', error);
+			return new Response(JSON.stringify({ error: 'Invalid token' }), {
+				status: 401,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+	},
+};
+
+async function handleDataRequest(
+	userId: string,
+	plan: 'free' | 'pro',
+	env: Env,
+	corsHeaders: Record<string, string>
+): Promise<Response> {
+	// Get current usage
+	const usageKey = `usage:${userId}`;
+	const usageDataRaw = await env.USAGE_KV.get(usageKey);
+
+	let usageData: UsageData = usageDataRaw
+		? JSON.parse(usageDataRaw)
+		: { usageCount: 0, plan, lastUpdated: new Date().toISOString() };
+
+	// Update plan if changed
+	usageData.plan = plan;
+
+	// Check if free tier limit exceeded
+	if (plan === 'free' && usageData.usageCount >= FREE_TIER_LIMIT) {
+		return new Response(
+			JSON.stringify({
+				error: 'Free tier limit reached',
+				usageCount: usageData.usageCount,
+				limit: FREE_TIER_LIMIT,
+				message: 'Please upgrade to Pro for unlimited access',
+			}),
+			{
+				status: 403,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
+		);
+	}
+
+	// Increment usage count
+	usageData.usageCount++;
+	usageData.lastUpdated = new Date().toISOString();
+	await env.USAGE_KV.put(usageKey, JSON.stringify(usageData));
+
+	// Return success response
+	return new Response(
+		JSON.stringify({
+			success: true,
+			data: { message: 'Request processed successfully' },
+			usage: {
+				count: usageData.usageCount,
+				limit: plan === 'free' ? FREE_TIER_LIMIT : 'unlimited',
+				plan,
+			},
+		}),
+		{
+			status: 200,
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+		}
+	);
+}
+
+async function handleUsageCheck(
+	userId: string,
+	plan: 'free' | 'pro',
+	env: Env,
+	corsHeaders: Record<string, string>
+): Promise<Response> {
+	const usageKey = `usage:${userId}`;
+	const usageDataRaw = await env.USAGE_KV.get(usageKey);
+
+	const usageData: UsageData = usageDataRaw
+		? JSON.parse(usageDataRaw)
+		: { usageCount: 0, plan, lastUpdated: new Date().toISOString() };
+
+	return new Response(
+		JSON.stringify({
+			userId,
+			plan,
+			usageCount: usageData.usageCount,
+			limit: plan === 'free' ? FREE_TIER_LIMIT : 'unlimited',
+			remaining: plan === 'free' ? Math.max(0, FREE_TIER_LIMIT - usageData.usageCount) : 'unlimited',
+		}),
+		{
+			status: 200,
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+		}
+	);
+}
+
+async function handleCreateCheckout(
+	userId: string,
+	clerkClient: any,
+	env: Env,
+	corsHeaders: Record<string, string>
+): Promise<Response> {
+	try {
+		// Get user email from Clerk
+		const user = await clerkClient.users.getUser(userId);
+		const userEmail = user.emailAddresses[0]?.emailAddress || '';
+
+		// Create Stripe checkout session
+		const checkoutSession = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({
+				'success_url': `${env.FRONTEND_URL}/dashboard?success=true`,
+				'cancel_url': `${env.FRONTEND_URL}/dashboard?canceled=true`,
+				'customer_email': userEmail,
+				'client_reference_id': userId,
+				'mode': 'subscription',
+				'line_items[0][price]': env.STRIPE_PRICE_ID,
+				'line_items[0][quantity]': '1',
+				'metadata[userId]': userId,
+			}).toString(),
+		});
+
+		const session = await checkoutSession.json() as { url?: string; error?: { message: string } };
+
+		if (!checkoutSession.ok) {
+			throw new Error(session.error?.message || 'Failed to create checkout session');
+		}
+
+		return new Response(
+			JSON.stringify({ url: session.url }),
+			{
+				status: 200,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
+		);
+	} catch (error: any) {
+		console.error('Checkout error:', error);
+		return new Response(
+			JSON.stringify({ error: error.message || 'Failed to create checkout' }),
+			{
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
+		);
+	}
+}
+
