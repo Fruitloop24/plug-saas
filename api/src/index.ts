@@ -16,12 +16,99 @@ interface UsageData {
 	usageCount: number;
 	plan: 'free' | 'pro';
 	lastUpdated: string;
+	periodStart?: string; // Billing period start (YYYY-MM-DD)
+	periodEnd?: string; // Billing period end (YYYY-MM-DD)
 }
 
 const FREE_TIER_LIMIT = 5;
+const RATE_LIMIT_PER_MINUTE = 100;
+
+// Validate required environment variables
+function validateEnv(env: Env): { valid: boolean; missing: string[] } {
+	const required = [
+		'CLERK_SECRET_KEY',
+		'CLERK_PUBLISHABLE_KEY',
+		'STRIPE_SECRET_KEY',
+		'STRIPE_PRICE_ID',
+		'FRONTEND_URL',
+		'CLERK_JWT_TEMPLATE',
+	];
+
+	const missing = required.filter((key) => !env[key as keyof Env]);
+
+	// Check KV binding
+	if (!env.USAGE_KV) {
+		missing.push('USAGE_KV');
+	}
+
+	return { valid: missing.length === 0, missing };
+}
+
+// Rate limiting check
+async function checkRateLimit(userId: string, env: Env): Promise<{ allowed: boolean; remaining: number }> {
+	const now = Date.now();
+	const minute = Math.floor(now / 60000); // Current minute bucket
+	const rateLimitKey = `ratelimit:${userId}:${minute}`;
+
+	const currentCount = await env.USAGE_KV.get(rateLimitKey);
+	const count = currentCount ? parseInt(currentCount) : 0;
+
+	if (count >= RATE_LIMIT_PER_MINUTE) {
+		return { allowed: false, remaining: 0 };
+	}
+
+	// Increment counter with 2-minute TTL (current + next minute buffer)
+	await env.USAGE_KV.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 120 });
+
+	return { allowed: true, remaining: RATE_LIMIT_PER_MINUTE - count - 1 };
+}
+
+// Get current billing period (first day of month to last day)
+function getCurrentPeriod(): { start: string; end: string } {
+	const now = new Date();
+	const year = now.getUTCFullYear();
+	const month = now.getUTCMonth();
+
+	const start = new Date(Date.UTC(year, month, 1));
+	const end = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+
+	return {
+		start: start.toISOString().split('T')[0],
+		end: end.toISOString().split('T')[0],
+	};
+}
+
+// Check if usage data needs reset for new billing period
+function shouldResetUsage(usageData: UsageData): boolean {
+	const currentPeriod = getCurrentPeriod();
+
+	// If no period tracked, needs reset
+	if (!usageData.periodStart || !usageData.periodEnd) {
+		return true;
+	}
+
+	// If current date is after period end, needs reset
+	return currentPeriod.start !== usageData.periodStart;
+}
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
+		// Validate environment variables on first request
+		const envCheck = validateEnv(env);
+		if (!envCheck.valid) {
+			return new Response(
+				JSON.stringify({
+					error: 'Server configuration error',
+					message: 'Missing required environment variables',
+					missing: envCheck.missing,
+				}),
+				{
+					status: 500,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
 		// CORS headers
 		const corsHeaders = {
 			'Access-Control-Allow-Origin': '*',
@@ -57,8 +144,6 @@ export default {
 			});
 		}
 
-		const token = authHeader.replace('Bearer ', '');
-
 		try {
 			// Create Clerk client
 			const clerkClient = createClerkClient({
@@ -79,6 +164,26 @@ export default {
 			}
 
 			const userId = auth.userId;
+
+			// Rate limiting check
+			const rateCheck = await checkRateLimit(userId, env);
+			if (!rateCheck.allowed) {
+				return new Response(
+					JSON.stringify({
+						error: 'Rate limit exceeded',
+						message: `Maximum ${RATE_LIMIT_PER_MINUTE} requests per minute`,
+						retryAfter: 60,
+					}),
+					{
+						status: 429,
+						headers: {
+							...corsHeaders,
+							'Content-Type': 'application/json',
+							'Retry-After': '60',
+						},
+					}
+				);
+			}
 
 			// Get user to check plan from metadata
 			const user = await clerkClient.users.getUser(userId);
@@ -121,9 +226,24 @@ async function handleDataRequest(
 	const usageKey = `usage:${userId}`;
 	const usageDataRaw = await env.USAGE_KV.get(usageKey);
 
+	const currentPeriod = getCurrentPeriod();
+
 	let usageData: UsageData = usageDataRaw
 		? JSON.parse(usageDataRaw)
-		: { usageCount: 0, plan, lastUpdated: new Date().toISOString() };
+		: {
+				usageCount: 0,
+				plan,
+				lastUpdated: new Date().toISOString(),
+				periodStart: currentPeriod.start,
+				periodEnd: currentPeriod.end,
+		  };
+
+	// Reset usage if new billing period (for free tier)
+	if (plan === 'free' && shouldResetUsage(usageData)) {
+		usageData.usageCount = 0;
+		usageData.periodStart = currentPeriod.start;
+		usageData.periodEnd = currentPeriod.end;
+	}
 
 	// Update plan if changed
 	usageData.plan = plan;
@@ -176,9 +296,17 @@ async function handleUsageCheck(
 	const usageKey = `usage:${userId}`;
 	const usageDataRaw = await env.USAGE_KV.get(usageKey);
 
+	const currentPeriod = getCurrentPeriod();
+
 	const usageData: UsageData = usageDataRaw
 		? JSON.parse(usageDataRaw)
-		: { usageCount: 0, plan, lastUpdated: new Date().toISOString() };
+		: {
+				usageCount: 0,
+				plan,
+				lastUpdated: new Date().toISOString(),
+				periodStart: currentPeriod.start,
+				periodEnd: currentPeriod.end,
+		  };
 
 	return new Response(
 		JSON.stringify({
@@ -187,6 +315,8 @@ async function handleUsageCheck(
 			usageCount: usageData.usageCount,
 			limit: plan === 'free' ? FREE_TIER_LIMIT : 'unlimited',
 			remaining: plan === 'free' ? Math.max(0, FREE_TIER_LIMIT - usageData.usageCount) : 'unlimited',
+			periodStart: usageData.periodStart,
+			periodEnd: usageData.periodEnd,
 		}),
 		{
 			status: 200,
