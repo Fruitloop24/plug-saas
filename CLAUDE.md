@@ -127,3 +127,80 @@ Use **short commands**, assume familiarity with terminals. Provide **directory t
 ---
 
 👉 **Claude should wait for command confirmation (`PROCEED`) before generating scaffolding or writing files.**
+
+---
+
+## 📋 TODO: Improvements & Enhancements
+
+### 🔴 Critical (Production Blockers)
+- [ ] **Add environment variable validation at startup**
+  - Validate all required env vars exist on worker init
+  - Fail fast with clear error messages
+  - Prevent silent failures in production
+  - Location: `api/src/index.ts` (add validateEnv() function at startup)
+
+### 🟡 Important (Before Scaling)
+- [ ] **Implement rate limiting**
+  - Use Cloudflare Rate Limiting bindings
+  - Limit: 100 requests/minute per userId
+  - Prevent API abuse and DDoS attacks
+  - Location: `api/src/index.ts` (middleware before route handlers)
+
+- [ ] **Add monthly usage reset for free tier**
+  - Track currentPeriodStart and currentPeriodEnd in KV
+  - Reset usageCount on the 1st of each month
+  - Keep historical usage data for analytics
+  - Location: `api/src/index.ts` handleDataRequest()
+
+- [ ] **Configure CORS for production**
+  - Replace wildcard `*` with specific domains
+  - Whitelist production frontend URL
+  - Add staging environment support
+  - Location: `api/src/index.ts:26` (corsHeaders object)
+
+### 🟢 Nice to Have (Iterative Improvements)
+- [ ] **Add monitoring and logging**
+  - Integrate Sentry for error tracking
+  - Add LogFlare for request/response logging
+  - Set up alerts for webhook failures
+  - Track key metrics (usage, conversions, errors)
+
+- [ ] **Implement usage analytics**
+  - Track API usage patterns per user
+  - Monitor free-to-pro conversion rates
+  - Dashboard for admin usage insights
+  - Export usage data for billing reconciliation
+
+- [ ] **Add unit and integration tests**
+  - Jest for worker unit tests
+  - Test JWT verification flow
+  - Test webhook event handling
+  - Mock Clerk/Stripe APIs for integration tests
+
+- [ ] **Fix KV race condition**
+  - Evaluate Durable Objects for atomic counters
+  - Or implement optimistic locking with retry logic
+  - Edge case: concurrent requests bypassing free tier limit
+  - Location: `api/src/index.ts:114-168` handleDataRequest()
+
+- [ ] **Add API request/response validation**
+  - Validate request body schemas
+  - Set maximum request size limits
+  - Add timeout configurations
+  - Return structured error responses
+
+- [ ] **Create admin dashboard**
+  - View all users and their usage stats
+  - Manually upgrade/downgrade users
+  - View webhook event history
+  - Export user data for compliance
+
+### 📊 Current Status
+- **Agent Rating:** 7.5/10
+- **Foundation Quality:** 8.5/10
+- **Extensibility:** 9/10
+- **Lines of Code:** 370 (TypeScript)
+- **Production Ready:** After critical items completed
+
+### 🎯 To Reach 9/10 Rating
+Complete all **Critical** items + 2-3 **Important** items (rate limiting, usage reset, CORS).
