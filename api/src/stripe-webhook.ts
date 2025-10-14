@@ -25,19 +25,22 @@ export async function handleStripeWebhook(
 
 	let event: Stripe.Event;
 	try {
-		// If STRIPE_WEBHOOK_SECRET is not set (development), skip verification
+		// Require webhook secret in production (fail hard if missing)
 		if (!env.STRIPE_WEBHOOK_SECRET) {
-			console.warn('⚠️ STRIPE_WEBHOOK_SECRET not set - skipping signature verification (development only)');
-			event = JSON.parse(body);
-		} else {
-			// Production: verify the signature
-			event = stripe.webhooks.constructEvent(
-				body,
-				signature,
-				env.STRIPE_WEBHOOK_SECRET
+			console.error('❌ STRIPE_WEBHOOK_SECRET required - webhook signature verification mandatory');
+			return new Response(
+				JSON.stringify({ error: 'Webhook secret not configured' }),
+				{ status: 500 }
 			);
-			console.log('✅ Webhook signature verified');
 		}
+
+		// Verify the webhook signature
+		event = stripe.webhooks.constructEvent(
+			body,
+			signature,
+			env.STRIPE_WEBHOOK_SECRET
+		);
+		console.log('✅ Webhook signature verified');
 	} catch (err: any) {
 		console.error('Webhook signature verification failed:', err.message);
 		return new Response(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });

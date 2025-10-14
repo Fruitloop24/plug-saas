@@ -1,0 +1,219 @@
+{
+  "coordinator_name": "clerk-stripe-saas-orchestrator",
+  "version": "1.0.0",
+  "description": "Master orchestrator for Clerk + Stripe SaaS foundation deployment",
+  
+  "project_context": {
+    "name": "Clerk-Stripe Auth Foundation",
+    "repository": "clerk",
+    "architecture": "Cloudflare Workers + Next.js + Clerk + Stripe",
+    "current_phase": "Foundation complete → Production hardening",
+    "base_path": "/home/mini/Documents/clerk"
+  },
+  
+  "critical_files": {
+    "api": [
+      "api/src/index.ts",
+      "api/src/stripe-webhook.ts",
+      "api/wrangler.toml",
+      "api/.env.example"
+    ],
+    "frontend": [
+      "frontend/src/app/dashboard/page.tsx",
+      "frontend/src/app/page.tsx",
+      "frontend/.env.example"
+    ],
+    "docs": [
+      "CLAUDE.md",
+      "README.md",
+      "START.md"
+    ]
+  },
+  
+  "available_agents": {
+    "security-agent": {
+      "config_path": "../agents/security-agent.json",
+      "priority": "CRITICAL",
+      "blocks_production": true,
+      "specialty": "CORS, JWT, webhook verification, secrets management",
+      "invoke_for": [
+        "Fix CORS wildcard (api/src/index.ts:26)",
+        "Enforce webhook secret verification (api/src/stripe-webhook.ts:36)",
+        "Add environment validation at startup",
+        "Scan for exposed secrets in git history",
+        "Audit rate limiting implementation"
+      ]
+    },
+    "deployment-agent": {
+      "config_path": "../agents/deployment-agent.json",
+      "priority": "HIGH",
+      "enables": "CI/CD pipeline",
+      "specialty": "GitHub Actions, Wrangler, Cloudflare Pages",
+      "invoke_for": [
+        "Create GitHub Actions workflow for Workers",
+        "Set up Cloudflare Pages deployment",
+        "Configure production secrets via wrangler",
+        "Implement staging environment",
+        "Set up health check endpoints"
+      ]
+    },
+    "testing-agent": {
+      "config_path": "../agents/testing-agent.json",
+      "priority": "HIGH",
+      "quality_gate": true,
+      "specialty": "Unit tests, mocks, integration tests, load testing",
+      "invoke_for": [
+        "Generate test suites for API handlers",
+        "Mock Clerk/Stripe for local testing",
+        "Load test rate limiting (100 req/min)",
+        "Test webhook signature validation",
+        "Set up CI test automation"
+      ]
+    }
+  },
+  
+  "coordination_scenarios": {
+    "production_deployment": {
+      "description": "Full production deployment workflow",
+      "agents_sequence": [
+        {
+          "agent": "security-agent",
+          "task": "Audit security posture - MUST PASS before deployment",
+          "blocking": true,
+          "acceptance_criteria": [
+            "CORS configured with domain whitelist",
+            "Webhook secret verification enforced",
+            "Environment validation at startup",
+            "No secrets in git history"
+          ]
+        },
+        {
+          "agent": "testing-agent",
+          "task": "Run full test suite + load tests",
+          "blocking": true,
+          "acceptance_criteria": [
+            "All unit tests pass (95% coverage)",
+            "Integration tests pass",
+            "Rate limiting holds under load",
+            "Webhook tests pass"
+          ]
+        },
+        {
+          "agent": "deployment-agent",
+          "task": "Deploy to production with monitoring",
+          "blocking": false,
+          "acceptance_criteria": [
+            "Worker deployed successfully",
+            "Frontend deployed successfully",
+            "Health checks passing",
+            "Smoke tests pass"
+          ]
+        }
+      ]
+    },
+    "security_hardening": {
+      "description": "Fix critical security issues before production",
+      "agents_sequence": [
+        {
+          "agent": "security-agent",
+          "task": "Fix all CRITICAL and HIGH severity issues",
+          "blocking": true,
+          "fixes_required": [
+            "CORS wildcard → domain whitelist",
+            "Optional webhook secret → required in production",
+            "Missing env validation → fail fast at startup"
+          ]
+        },
+        {
+          "agent": "testing-agent",
+          "task": "Validate security fixes with tests",
+          "blocking": true,
+          "tests_required": [
+            "CORS rejects unauthorized origins",
+            "Webhook rejects invalid signatures",
+            "Worker fails to start with missing env vars"
+          ]
+        }
+      ]
+    },
+    "ci_cd_setup": {
+      "description": "Set up continuous deployment pipeline",
+      "agents_sequence": [
+        {
+          "agent": "deployment-agent",
+          "task": "Create GitHub Actions workflows",
+          "blocking": false,
+          "deliverables": [
+            ".github/workflows/deploy-worker.yml",
+            ".github/workflows/deploy-frontend.yml",
+            "Secrets configured in GitHub"
+          ]
+        },
+        {
+          "agent": "testing-agent",
+          "task": "Add test step to CI pipeline",
+          "blocking": false,
+          "deliverables": [
+            "Test job in GitHub Actions",
+            "Coverage reporting",
+            "Block merge on test failure"
+          ]
+        }
+      ]
+    }
+  },
+  
+  "global_context": {
+    "cloudflare": {
+      "account_id": "REDACTED_IN_WRANGLER_TOML",
+      "kv_namespace_id": "2b116f97974a4461a03f91792198cefc",
+      "worker_name": "pan-api"
+    },
+    "thresholds": {
+      "free_tier_limit": 5,
+      "rate_limit_per_minute": 100,
+      "worker_bundle_size_max": "1MB",
+      "response_time_p95": "200ms"
+    },
+    "production_blockers": [
+      "CRITICAL: CORS wildcard in api/src/index.ts:26",
+      "CRITICAL: Optional webhook secret in api/src/stripe-webhook.ts:36",
+      "HIGH: No environment validation at worker startup"
+    ]
+  },
+  
+  "tools_available": {
+    "wrangler": {
+      "commands": [
+        "wrangler deploy",
+        "wrangler secret put <KEY>",
+        "wrangler dev",
+        "wrangler tail"
+      ]
+    },
+    "bash": {
+      "usage": "Execute shell commands, file operations, git operations"
+    },
+    "str_replace": {
+      "usage": "Edit files with precise string replacement"
+    },
+    "file_create": {
+      "usage": "Create new files (tests, configs, workflows)"
+    }
+  },
+  
+  "design_principles": {
+    "minimal_code": "No unnecessary abstractions or boilerplate",
+    "production_ready": "Security and performance optimized from day 1",
+    "portable": "Easy to clone, configure env vars, and deploy",
+    "type_safe": "TypeScript throughout with strict typing",
+    "documented": "Clear README, inline comments for complex logic"
+  },
+  
+  "usage_instructions": {
+    "invoke_single_agent": "Read agent config, provide context, execute tasks",
+    "invoke_scenario": "Follow coordination_scenarios sequence with blocking rules",
+    "emergency_rollback": "deployment-agent handles rollback procedures",
+    "status_check": "Run security-agent audit + testing-agent suite"
+  }
+}

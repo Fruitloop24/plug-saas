@@ -415,6 +415,44 @@ If you find bugs or have improvements:
 
 MIT License - use this however you want.
 
+## Future Improvements
+
+### 🤖 Autonomous Agent System (In Development)
+
+We're building an **MCP-powered agent toolkit** that maintains this codebase autonomously:
+
+**Security Agent** (`mcp-agents/agents/security-agent.json`)
+- Daily security audits (CORS, JWT validation, secret scanning)
+- Automated vulnerability detection
+- Emergency procedures for security incidents
+- Scheduled scans with Slack/Discord alerts
+
+**Deployment Agent** (`mcp-agents/agents/deployment-agent.json`)
+- One-command production deployments
+- GitHub Actions CI/CD pipelines
+- Health monitoring and automatic rollbacks
+- Staging → Production promotion workflows
+
+**Testing Agent** (`mcp-agents/agents/testing-agent.json`)
+- Automated unit and integration tests
+- Load testing for rate limits
+- Mock configurations for Clerk/Stripe
+- Coverage reporting and enforcement
+
+**Vision: AI Server Maintenance**
+> "Most templates give you code. We give you an agent that maintains it."
+
+The goal is to create a project-specific MCP server (`saas-starter-agent`) that can:
+- Run security audits on command or schedule
+- Deploy to production with zero manual steps
+- Monitor health endpoints and alert on failures
+- Execute tests before any deployment
+- Remember your specific Clerk/Stripe/CF configuration
+
+**Status:** Agent specifications complete. MCP server implementation pending user demand.
+
+---
+
 ## Credits
 
 Built as a minimal, production-ready foundation for SaaS apps. No frameworks, no bloat, just auth + payments done right.

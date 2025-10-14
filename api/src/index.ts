@@ -109,9 +109,9 @@ export default {
 			);
 		}
 
-		// CORS headers
+		// CORS headers - restrict to frontend domain in production
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Origin': env.FRONTEND_URL || 'http://localhost:3000',
 			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		};

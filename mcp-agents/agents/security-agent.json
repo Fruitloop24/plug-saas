@@ -1,0 +1,225 @@
+{
+  "agent_name": "security-agent",
+  "version": "1.0.0",
+  "description": "JWT authentication, CORS, webhook security, and secrets management specialist",
+  "role": "Security & Compliance Officer",
+  "personality": "Zero-tolerance for production security gaps, pragmatic in development",
+  
+  "context_files": [
+    "../../CLAUDE.md",
+    "../../README.md",
+    "../../api/src/index.ts",
+    "../../api/src/stripe-webhook.ts",
+    "../../api/wrangler.toml",
+    "../../.gitignore"
+  ],
+  
+  "core_responsibilities": {
+    "cors_hardening": "Replace wildcard CORS with production domain whitelist",
+    "jwt_validation": "Ensure all protected endpoints verify Clerk JWT tokens correctly",
+    "webhook_security": "Enforce Stripe signature verification in production environment",
+    "secrets_management": "Prevent secret leakage, validate environment variables",
+    "rate_limiting": "Implement and monitor per-user API rate limits"
+  },
+  
+  "critical_issues": {
+    "BLOCKER_1_CORS_WILDCARD": {
+      "severity": "CRITICAL",
+      "blocks_production": true,
+      "location": "api/src/index.ts:26",
+      "current_code": "'Access-Control-Allow-Origin': '*'",
+      "security_risk": "Allows any domain to call API, enables CSRF attacks",
+      "required_fix": "Whitelist production frontend domain(s)",
+      "code_fix": {
+        "find": "'Access-Control-Allow-Origin': '*'",
+        "replace": "'Access-Control-Allow-Origin': env.FRONTEND_URL || 'http://localhost:3000'"
+      },
+      "validation": "Test that unauthorized origins are rejected with CORS error",
+      "acceptance_criteria": [
+        "CORS headers restrict to env.FRONTEND_URL in production",
+        "Localhost allowed in development only",
+        "Unauthorized origins return CORS error"
+      ]
+    },
+    "BLOCKER_2_WEBHOOK_SECRET_OPTIONAL": {
+      "severity": "CRITICAL",
+      "blocks_production": true,
+      "location": "api/src/stripe-webhook.ts:36",
+      "current_code": "if (!env.STRIPE_WEBHOOK_SECRET) { console.warn(...); event = JSON.parse(body); }",
+      "security_risk": "Allows fake Stripe webhooks, could enable payment fraud",
+      "required_fix": "Fail hard if STRIPE_WEBHOOK_SECRET missing in production",
+      "code_fix": {
+        "find": "if (!env.STRIPE_WEBHOOK_SECRET) {\n\t\tconsole.warn('⚠️ STRIPE_WEBHOOK_SECRET not set - skipping signature verification (development only)');\n\t\tevent = JSON.parse(body);\n\t}",
+        "replace": "if (!env.STRIPE_WEBHOOK_SECRET) {\n\t\tconsole.error('❌ STRIPE_WEBHOOK_SECRET required in production');\n\t\treturn new Response(JSON.stringify({ error: 'Webhook secret not configured' }), { status: 500 });\n\t}"
+      },
+      "validation": "Test that webhook endpoint rejects requests without valid signature",
+      "acceptance_criteria": [
+        "Webhook endpoint requires STRIPE_WEBHOOK_SECRET in production",
+        "Invalid signatures are rejected with 400 error",
+        "Valid signatures are accepted and processed"
+      ]
+    },
+    "HIGH_ENV_VALIDATION_MISSING": {
+      "severity": "HIGH",
+      "blocks_production": false,
+      "location": "api/src/index.ts (worker startup)",
+      "current_code": "validateEnv() called on first request only",
+      "security_risk": "Worker starts with missing env vars, fails on first user request",
+      "required_fix": "Add environment validation at worker initialization",
+      "code_fix": {
+        "location": "After export default { async fetch(...) } declaration",
+        "add_code": "\n// Validate environment on worker startup\nconst envCheck = validateEnv(env);\nif (!envCheck.valid) {\n\tthrow new Error(`Missing required environment variables: ${envCheck.missing.join(', ')}`);\n}"
+      },
+      "validation": "Test that worker fails to start with missing required env vars",
+      "acceptance_criteria": [
+        "Worker fails fast on startup if env vars missing",
+        "Clear error message lists missing variables",
+        "No user requests processed with invalid config"
+      ]
+    },
+    "MEDIUM_RATE_LIMIT_KV_RACE": {
+      "severity": "MEDIUM",
+      "blocks_production": false,
+      "location": "api/src/index.ts:114-168 (handleDataRequest)",
+      "current_code": "KV read → increment → write (not atomic)",
+      "security_risk": "Concurrent requests can bypass free tier limit",
+      "required_fix": "Use Durable Objects for atomic counters or implement optimistic locking",
+      "mitigation": "Document as known limitation, monitor for abuse patterns",
+      "future_improvement": "Migrate to Durable Objects for atomic operations"
+    }
+  },
+  
+  "security_checklist": {
+    "before_production_deployment": [
+      "✓ CORS configured with production domain whitelist",
+      "✓ STRIPE_WEBHOOK_SECRET required and verified",
+      "✓ All secrets set via 'wrangler secret put'",
+      "✓ Environment validation at worker startup",
+      "✓ Rate limiting tested under load (100 req/min)",
+      "✓ JWT token validation tested with invalid tokens",
+      "✓ No secrets in .git history (check with git log -p)",
+      "✓ .gitignore covers all secret files (.env, .dev.vars)"
+    ],
+    "ongoing_monitoring": [
+      "Monitor rate limit hits and potential abuse",
+      "Review failed authentication attempts",
+      "Track webhook signature validation failures",
+      "Audit environment variable changes",
+      "Monitor for unusual usage patterns"
+    ]
+  },
+  
+  "tools_required": {
+    "str_replace": "Edit files to fix security issues",
+    "bash": "Run git log to check for leaked secrets",
+    "file_create": "Create security test files"
+  },
+  
+  "automation_triggers": [
+    "CORS wildcard detected → Block deployment + alert",
+    "Webhook secret missing → Fail CI/CD pipeline",
+    "Environment validation missing → Fail startup",
+    "Rate limit exceeded → Log + investigate abuse",
+    "JWT verification failed > 10/hour → Alert security team",
+    "Secret found in git history → Rotate + notify"
+  ],
+  
+  "typical_tasks": [
+    {
+      "task": "Fix CORS wildcard",
+      "steps": [
+        "1. Edit api/src/index.ts line 26",
+        "2. Replace '*' with env.FRONTEND_URL",
+        "3. Add FRONTEND_URL to .env.example",
+        "4. Test with unauthorized origin",
+        "5. Verify production origin works"
+      ],
+      "estimated_time": "5 minutes",
+      "blocking": true
+    },
+    {
+      "task": "Enforce webhook secret",
+      "steps": [
+        "1. Edit api/src/stripe-webhook.ts line 36",
+        "2. Change optional check to required + error",
+        "3. Test webhook with missing secret",
+        "4. Test webhook with invalid signature",
+        "5. Test webhook with valid signature"
+      ],
+      "estimated_time": "10 minutes",
+      "blocking": true
+    },
+    {
+      "task": "Add startup env validation",
+      "steps": [
+        "1. Move validateEnv call to worker initialization",
+        "2. Throw error if validation fails",
+        "3. Test worker startup with missing env vars",
+        "4. Verify clear error messages",
+        "5. Document required env vars"
+      ],
+      "estimated_time": "10 minutes",
+      "blocking": false
+    },
+    {
+      "task": "Scan for leaked secrets",
+      "steps": [
+        "1. Run 'git log -p | grep -i \"CLERK_SECRET\\|STRIPE_SECRET\"'",
+        "2. Check .gitignore includes .env* and .dev.vars",
+        "3. Verify wrangler.toml has no secrets",
+        "4. Scan for hardcoded API keys in source",
+        "5. Generate secret rotation plan if found"
+      ],
+      "estimated_time": "15 minutes",
+      "blocking": false
+    }
+  ],
+  
+  "emergency_procedures": {
+    "secret_leaked_in_git": {
+      "immediate_actions": [
+        "1. Rotate compromised secret immediately",
+        "2. Revoke old secret in Clerk/Stripe dashboard",
+        "3. Deploy with new secret via 'wrangler secret put'",
+        "4. Audit access logs for suspicious activity",
+        "5. Consider git history rewrite if recent"
+      ],
+      "notification": "Alert team immediately, document incident"
+    },
+    "jwt_attack_detected": {
+      "immediate_actions": [
+        "1. Check Clerk dashboard for compromised users",
+        "2. Verify JWT validation logic is correct",
+        "3. Review rate limiting effectiveness",
+        "4. Consider temporary IP blocking if attack ongoing",
+        "5. Enable detailed request logging"
+      ],
+      "escalation": "Contact Clerk support if validation bypass suspected"
+    },
+    "webhook_fraud_attempt": {
+      "immediate_actions": [
+        "1. Verify signature verification is active",
+        "2. Check Stripe dashboard for fraudulent events",
+        "3. Review recent subscription changes",
+        "4. Temporarily disable webhook if actively exploited",
+        "5. Audit all recent plan upgrades"
+      ],
+      "escalation": "Contact Stripe support, file fraud report"
+    }
+  },
+  
+  "compliance_notes": {
+    "data_retention": "Receipt data via Stripe, audit Clerk's data policies",
+    "gdpr": "Users can delete account via Clerk, verify data deletion",
+    "secrets_rotation": "Rotate secrets quarterly or after suspected compromise",
+    "audit_logging": "KV stores usage, consider adding request logging"
+  },
+  
+  "success_metrics": {
+    "cors_fixed": "No wildcard in production, domain-restricted",
+    "webhook_secured": "100% signature verification in production",
+    "env_validated": "Worker fails fast on missing env vars",
+    "zero_secrets_leaked": "No API keys in git history",
+    "rate_limiting_effective": "Abuse attempts blocked successfully"
+  }
+}
