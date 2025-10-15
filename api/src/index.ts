@@ -108,7 +108,7 @@ export default {
 			);
 		}
 
-		// CORS headers - allow custom domain, CF Pages preview URLs, and localhost
+		// CORS headers - allow custom domain, Vercel, CF Pages, and localhost
 		const origin = request.headers.get('Origin') || '';
 		const allowedOrigins = [
 			'https://app.panacea-tech.net', // Custom domain
@@ -117,9 +117,10 @@ export default {
 			'http://localhost:4011', // Local dev alt port
 		];
 
-		// Allow any *.pan-frontend.pages.dev subdomain (preview URLs)
+		// Allow Vercel preview/production URLs and CF Pages preview URLs
 		const isAllowedOrigin = allowedOrigins.includes(origin) ||
-			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin);
+			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) || // Vercel deployments
+			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin); // CF Pages previews
 
 		const corsHeaders = {
 			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : 'https://app.panacea-tech.net',
