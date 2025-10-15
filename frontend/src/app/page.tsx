@@ -116,7 +116,7 @@ export default function Home() {
             }}>
               Dashboard
             </Link>
-            <UserButton />
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
       </nav>

@@ -150,7 +150,7 @@ export default function Dashboard() {
 							⚡ Upgrade to Pro
 						</button>
 					)}
-					<UserButton />
+					<UserButton afterSignOutUrl="/" />
 				</div>
 			</nav>
 
