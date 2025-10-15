@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth, useUser, UserButton } from '@clerk/nextjs';
+import { useAuth, useUser, useClerk } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -27,11 +27,16 @@ interface ApiResponse {
 export default function Dashboard() {
 	const { getToken } = useAuth();
 	const { user, isLoaded } = useUser();
+	const { signOut } = useClerk();
 	const [usage, setUsage] = useState<UsageData | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [message, setMessage] = useState('');
 
 	const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+
+	const handleSignOut = async () => {
+		await signOut({ redirectUrl: '/' });
+	};
 
 	const fetchUsage = async () => {
 		try {
@@ -150,7 +155,21 @@ export default function Dashboard() {
 							⚡ Upgrade to Pro
 						</button>
 					)}
-					<UserButton afterSignOutUrl="/" />
+					<button
+						onClick={handleSignOut}
+						style={{
+							padding: '0.5rem 1.5rem',
+							background: '#f1f5f9',
+							border: '1px solid #cbd5e1',
+							borderRadius: '8px',
+							color: '#475569',
+							cursor: 'pointer',
+							fontSize: '15px',
+							fontWeight: '500'
+						}}
+					>
+						Sign Out
+					</button>
 				</div>
 			</nav>
 
