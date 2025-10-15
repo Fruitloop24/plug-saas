@@ -3,7 +3,7 @@ import { getAuth } from '@clerk/nextjs/server';
 import type { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { userId } = getAuth(req);
