@@ -3,6 +3,8 @@ import { auth } from '@clerk/nextjs/server';
 import React from 'react';
 import { ClientSideWrapper } from '@/app/protected/ClientSideWrapper';
 
+export const runtime = 'edge';
+
 export default async function Page() {
   const { userId } = await auth();
 
