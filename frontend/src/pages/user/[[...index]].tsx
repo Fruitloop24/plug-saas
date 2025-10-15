@@ -1,8 +1,7 @@
 import { SignedIn, UserProfile } from '@clerk/nextjs';
-import type { NextPage } from 'next';
 import React from 'react';
 
-const UserProfilePage: NextPage = () => {
+const UserProfilePage = () => {
   return (
     <div>
       <h2>/pages/user</h2>
