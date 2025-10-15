@@ -7,7 +7,7 @@ interface Env {
 	STRIPE_SECRET_KEY: string;
 	STRIPE_WEBHOOK_SECRET?: string;
 	STRIPE_PRICE_ID: string;
-	FRONTEND_URL: string;
+	FRONTEND_URL?: string; // Optional - we use Origin header instead
 	USAGE_KV: KVNamespace;
 	CLERK_JWT_TEMPLATE: string;
 }
@@ -30,7 +30,6 @@ function validateEnv(env: Env): { valid: boolean; missing: string[] } {
 		'CLERK_PUBLISHABLE_KEY',
 		'STRIPE_SECRET_KEY',
 		'STRIPE_PRICE_ID',
-		'FRONTEND_URL',
 		'CLERK_JWT_TEMPLATE',
 	];
 
@@ -211,7 +210,7 @@ export default {
 			}
 
 			if (url.pathname === '/api/create-checkout' && request.method === 'POST') {
-				return await handleCreateCheckout(userId, clerkClient, env, corsHeaders);
+				return await handleCreateCheckout(userId, clerkClient, env, corsHeaders, origin);
 			}
 
 			return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -341,12 +340,16 @@ async function handleCreateCheckout(
 	userId: string,
 	clerkClient: any,
 	env: Env,
-	corsHeaders: Record<string, string>
+	corsHeaders: Record<string, string>,
+	origin: string
 ): Promise<Response> {
 	try {
 		// Get user email from Clerk
 		const user = await clerkClient.users.getUser(userId);
 		const userEmail = user.emailAddresses[0]?.emailAddress || '';
+
+		// Use origin from request for success/cancel URLs (handles changing hash URLs)
+		const frontendUrl = origin || 'https://app.panacea-tech.net';
 
 		// Create Stripe checkout session
 		const checkoutSession = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -356,8 +359,8 @@ async function handleCreateCheckout(
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			body: new URLSearchParams({
-				'success_url': `${env.FRONTEND_URL}/dashboard?success=true`,
-				'cancel_url': `${env.FRONTEND_URL}/dashboard?canceled=true`,
+				'success_url': `${frontendUrl}/dashboard?success=true`,
+				'cancel_url': `${frontendUrl}/dashboard?canceled=true`,
 				'customer_email': userEmail,
 				'client_reference_id': userId,
 				'mode': 'subscription',
