@@ -109,9 +109,21 @@ export default {
 			);
 		}
 
-		// CORS headers - restrict to frontend domain in production
+		// CORS headers - allow custom domain, CF Pages preview URLs, and localhost
+		const origin = request.headers.get('Origin') || '';
+		const allowedOrigins = [
+			'https://app.panacea-tech.net', // Custom domain
+			'https://pan-frontend.pages.dev', // CF Pages production
+			'http://localhost:3000', // Local dev
+			'http://localhost:4011', // Local dev alt port
+		];
+
+		// Allow any *.pan-frontend.pages.dev subdomain (preview URLs)
+		const isAllowedOrigin = allowedOrigins.includes(origin) ||
+			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin);
+
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': env.FRONTEND_URL || 'http://localhost:3000',
+			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : 'https://app.panacea-tech.net',
 			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		};
