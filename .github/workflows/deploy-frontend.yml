@@ -41,7 +41,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy frontend/.vercel/output/static --project-name=pan-frontend
+          command: pages deploy .vercel/output/static --project-name=pan-frontend
+          workingDirectory: ./frontend
 
       - name: Deployment summary
         run: |
