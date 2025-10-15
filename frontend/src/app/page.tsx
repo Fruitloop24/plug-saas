@@ -1,21 +1,16 @@
 'use client';
 
-import { SignedIn, SignedOut, SignInButton, SignUpButton, useAuth, useUser, useClerk } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useState } from 'react';
 
 export default function Home() {
   const { getToken } = useAuth();
   const { user } = useUser();
-  const { signOut } = useClerk();
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
   const plan = user?.publicMetadata?.plan || 'free';
-
-  const handleSignOut = async () => {
-    await signOut({ redirectUrl: '/' });
-  };
 
   const handleUpgrade = async () => {
     setIsUpgrading(true);
@@ -121,21 +116,7 @@ export default function Home() {
             }}>
               Dashboard
             </Link>
-            <button
-              onClick={handleSignOut}
-              style={{
-                padding: '0.5rem 1.5rem',
-                background: '#f1f5f9',
-                border: '1px solid #cbd5e1',
-                borderRadius: '8px',
-                color: '#475569',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500'
-              }}
-            >
-              Sign Out
-            </button>
+            <UserButton />
           </SignedIn>
         </div>
       </nav>
