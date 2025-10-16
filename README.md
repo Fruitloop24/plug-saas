@@ -2,81 +2,66 @@
 
 **A stateless, JWT-only SaaS application** with authentication, subscription billing, usage tracking, and rate limiting.
 
-**Live Demo**: https://pandoc-omega.vercel.app/
+**Live Demo**: Coming soon (deploying to CF Pages)
 **API**: https://pan-api.k-c-sheffield012376.workers.dev
-**Stack**: Next.js (Vercel) + Cloudflare Workers + Clerk + Stripe
+**Stack**: Vite + React (CF Pages) + Cloudflare Workers + Clerk + Stripe
 
 ---
 
-## 🎯 Current Status (Oct 15, 2025)
+## 🎯 Current Status (Oct 16, 2025)
 
 ### ✅ What's Working
-- **Frontend deployed on Vercel** - Auto-deploys on push to `master`
+- **Frontend migrated to Vite + React** - Running on http://localhost:5173
 - **Backend deployed on CF Workers** - API responding, JWT auth working
-- **Sign-in/sign-up flows** - Clerk auth fully functional
+- **Sign-in/sign-up flows** - Clerk auth fully functional (no more 405 errors!)
 - **Dashboard showing usage** - Tracks free tier (5/month), displays correctly
 - **Upgrade button working** - Creates Stripe checkout sessions, redirects to payment
 - **Rate limiting** - 100 req/min per user
-- **CORS configured** - Allows Vercel, CF Pages, localhost (temp wildcard for testing)
+- **CORS configured** - Allows CF Pages, localhost
 - **CI/CD pipeline** - GitHub Actions deploying worker automatically
 
-### 🔴 Critical: Need to Fix Now
+### 🔴 Critical: Need to Configure Now
 
-**1. Stripe Webhook Not Configured**
+**1. Stripe Webhook Configuration**
 - **Problem**: After user subscribes on Stripe, their plan doesn't upgrade from "free" to "pro"
 - **Root Cause**: Stripe dashboard doesn't have webhook endpoint configured
 - **Solution**:
   1. Go to https://dashboard.stripe.com/webhooks
   2. Click "Add endpoint"
-  3. URL: `https://pan-api.k-c-sheffield012376.workers.dev/webhook/stripe`
-  4. Events: `checkout.session.completed`, `customer.subscription.*`
+  3. **URL**: `https://pan-api.k-c-sheffield012376.workers.dev/webhook/stripe`
+  4. **Events to listen for**:
+     - `checkout.session.completed`
+     - `customer.subscription.created`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
   5. Copy the signing secret (`whsec_...`)
-  6. Run: `cd api && wrangler secret put STRIPE_WEBHOOK_SECRET`
-- **Status**: Webhook handler code is deployed and ready, just needs Stripe to know where to send events
+  6. Set it in worker: `cd api && wrangler secret put STRIPE_WEBHOOK_SECRET`
+- **Status**: Webhook handler code is deployed and ready, just needs Stripe configuration + secret
 
-**2. Lock Down CORS (Security)**
-- **Current**: Using wildcard `'Access-Control-Allow-Origin': '*'` for testing
-- **Production**: Need to replace with specific allowed origins from env var
-- **Location**: `api/src/index.ts:127`
-- **ETA**: After webhook is working and tested
+**2. Deploy Frontend to Cloudflare Pages**
+- **Current**: Running locally on port 5173
+- **Next Step**: Push to GitHub → Connect to CF Pages
+- **Env vars to set in CF Pages**:
+  - `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...`
+  - `VITE_API_URL=https://pan-api.k-c-sheffield012376.workers.dev`
 
-### ⚠️ Known Issues (Non-blocking)
+### 🚀 What We Just Accomplished
 
-**Vercel Publishable Key Warning**
-- Warning: "You imported NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY without encrypting"
-- **Impact**: None - publishable keys are meant to be public
-- **Status**: Acknowledged, can ignore. Vercel wants you to click "encrypt" for consistency.
-
-### 🚀 What We Accomplished (Last 2 Days)
-
-- Built entire JWT-only SaaS stack (~2000 lines TypeScript)
-- Deployed frontend to Vercel with auto-CI/CD
-- Deployed backend to Cloudflare Workers with GitHub Actions
-- Fixed Next.js 15 config warnings
-- Removed edge runtime conflicts
-- Fixed environment variable baking (triggered Vercel rebuild)
-- Fixed CORS to allow Vercel preview URLs
-- Got Stripe checkout flow working end-to-end
-- **Time estimate**: "You said this could take a week and I thought you were crazy... looks like a couple of days though lol"
+- ✅ **Migrated from Next.js to Vite + React** - No more server action issues!
+- ✅ **Fixed UserButton 405 errors** - Pure client-side React, no server actions
+- ✅ **All pages ported** - Landing, Dashboard, Sign-in, Sign-up
+- ✅ **All API calls preserved** - JWT auth, usage tracking, Stripe checkout
+- ✅ **Build passing** - Production build successful (337 kB bundle)
+- ✅ **Dev server running** - Local testing at http://localhost:5173
 
 ### 📋 Next Steps
 
-1. **Configure Stripe webhook** (5 minutes)
-2. **Test full upgrade flow** (sign up → use 5 requests → upgrade → verify unlimited)
-3. **Lock down CORS** (replace wildcard with env var)
-4. **Do security review** (use agent to audit)
-5. **Point custom domain to Vercel** (`app.panacea-tech.net`)
-6. **Update CLAUDE.md** (add router/context reference for better agent performance)
-7. **Build deployment agent** (make this setup reproducible with one command)
-
-### 💡 Future: Agent-Driven Setup
-
-**Goal**: Make deploying this stack completely automated
-- Agent handles Clerk setup (creates JWT template, gets keys)
-- Agent handles Stripe setup (creates products, configures webhooks)
-- Agent handles CF Workers setup (creates KV namespace, sets secrets)
-- Agent handles Vercel setup (connects repo, sets env vars)
-- **One command**: `npm run bootstrap` → entire stack deployed in 5 minutes
+1. ✅ **Migrate to Vite + React** (DONE!)
+2. 🔴 **Configure Stripe webhook** (5 minutes) ← DO THIS NOW
+3. 🔴 **Deploy to Cloudflare Pages** (connect GitHub repo)
+4. ⚪ **Test full upgrade flow** (sign up → use 5 requests → upgrade → verify unlimited)
+5. ⚪ **Lock down CORS** (remove wildcard if still present)
+6. ⚪ **Point custom domain** (`app.panacea-tech.net` → CF Pages)
 
 ---
 
@@ -84,8 +69,8 @@
 
 ```
 ┌─────────────┐      JWT      ┌──────────────────┐
-│   Next.js   │ ────────────> │ Cloudflare Worker│
-│  (Vercel)   │   Bearer      │    (CF Edge)     │
+│ Vite+React  │ ────────────> │ Cloudflare Worker│
+│  (CF Pages) │   Bearer      │    (CF Edge)     │
 └─────────────┘               └──────────────────┘
        │                              │
        │                              │
@@ -102,18 +87,20 @@
 ✅ **User isolation** - All data keyed by `userId` from JWT claims
 ✅ **No database** - Clerk for identity, Stripe for billing, KV for counters
 ✅ **Edge-native** - Deploy globally, scale infinitely
-✅ **Portable** - Not locked to any single vendor
+✅ **100% Static** - Pure client-side React, no server actions
 
 ---
 
 ## What's Built
 
-### Frontend (Next.js 15 + App Router)
-- 📍 **Location**: `frontend/`
-- 🚀 **Hosted**: Vercel (auto-deploy on push to `master`)
-- 🔐 **Auth**: Clerk's `<UserButton>` with profile management
-- 🎨 **UI**: Modern blue/slate theme, responsive design
+### Frontend (Vite + React 18)
+- 📍 **Location**: `frontend-v2/`
+- 🚀 **Hosted**: Cloudflare Pages (ready to deploy)
+- 🔐 **Auth**: `@clerk/clerk-react` with full auth flows
+- 🎨 **UI**: Modern blue/slate theme, responsive design, inline styles
 - 📊 **Features**: Landing page, dashboard, usage tracking, Stripe checkout
+- ⚡ **Build**: Vite (instant HMR, 337 kB production bundle)
+- 🛣️ **Routing**: React Router v6 (client-side routing)
 
 ### Backend (Cloudflare Worker)
 - 📍 **Location**: `api/src/index.ts` (394 lines)
@@ -124,7 +111,7 @@
   - `GET /api/usage` - Get user usage stats (requires JWT)
   - `POST /api/data` - Process request + increment usage (requires JWT)
   - `POST /api/create-checkout` - Create Stripe checkout session (requires JWT)
-  - `POST /webhook/stripe` - Stripe webhook handler (no auth, signature verified)
+  - `POST /webhook/stripe` - Stripe webhook handler (signature verified)
 
 ### Stripe Webhook Handler
 - 📍 **Location**: `api/src/stripe-webhook.ts` (121 lines)
@@ -140,6 +127,7 @@
 - Clerk handles all auth flows (sign-up, sign-in, profile, sign-out)
 - JWT template `pan-api` includes user plan in claims
 - No server-side sessions - pure JWT validation
+- **UserButton works perfectly** (no 405 errors!)
 
 ### ✅ Usage Tracking
 - Stored in Cloudflare KV: `usage:{userId}`
@@ -160,18 +148,17 @@
 
 ### ✅ CORS Handling
 - Dynamic CORS based on request `Origin` header
-- Allows: `app.panacea-tech.net`, `*.pan-frontend.pages.dev`, `*.vercel.app`, localhost
-- No hardcoded origins - works with changing preview URLs
+- Allows: CF Pages domains, localhost
+- No hardcoded origins - works with preview URLs
 
 ---
 
 ## Environment Variables
 
-### Frontend (Vercel)
+### Frontend (Cloudflare Pages)
 ```bash
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_API_URL=https://pan-api.k-c-sheffield012376.workers.dev
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_API_URL=https://pan-api.k-c-sheffield012376.workers.dev
 ```
 
 ### Backend (Cloudflare Worker Secrets)
@@ -181,7 +168,7 @@ CLERK_SECRET_KEY=sk_test_...
 CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_JWT_TEMPLATE=pan-api
 STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_WEBHOOK_SECRET=whsec_...  # ← GET THIS FROM STRIPE!
 STRIPE_PRICE_ID=price_...
 ```
 
@@ -189,14 +176,50 @@ STRIPE_PRICE_ID=price_...
 
 ---
 
+## Stripe Webhook Setup (DO THIS NOW!)
+
+### Step 1: Configure Webhook in Stripe Dashboard
+
+1. Go to: https://dashboard.stripe.com/webhooks
+2. Click **"Add endpoint"**
+3. Enter webhook URL:
+   ```
+   https://pan-api.k-c-sheffield012376.workers.dev/webhook/stripe
+   ```
+4. Select events to listen for:
+   - `checkout.session.completed`
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+5. Click **"Add endpoint"**
+6. Copy the **Signing secret** (starts with `whsec_...`)
+
+### Step 2: Set Webhook Secret in Worker
+
+```bash
+cd api
+wrangler secret put STRIPE_WEBHOOK_SECRET
+# Paste the whsec_... value when prompted
+```
+
+### Step 3: Test It
+
+1. Sign up as a new user
+2. Use 5 free requests
+3. Click "Upgrade to Pro"
+4. Complete Stripe checkout (test card: `4242 4242 4242 4242`)
+5. Return to dashboard → should show "Pro Plan Active" and unlimited usage
+
+---
+
 ## CI/CD Pipeline
 
 ### Automatic Deployments
 
-**Frontend** → Vercel
-- Triggers: Every push to `master`
-- Build: `npm run build` (standard Next.js)
-- Deploy: Automatic via Vercel GitHub integration
+**Frontend** → Cloudflare Pages (Coming Soon)
+- Triggers: Every push to `main`
+- Build command: `cd frontend-v2 && npm run build`
+- Output directory: `frontend-v2/dist`
 - Preview: Every PR gets preview URL
 
 **Backend** → Cloudflare Workers
@@ -205,201 +228,32 @@ STRIPE_PRICE_ID=price_...
 - Deploy: `wrangler deploy` via GitHub Actions
 - File: `.github/workflows/deploy-worker.yml`
 
-**What Happened to CF Pages?**
-We initially tried Cloudflare Pages but hit a critical issue: Clerk's `UserButton` uses server actions internally, which POST to static pages → 405 errors. This is a known limitation of `@cloudflare/next-on-pages` (now archived). Switching to Vercel solved this immediately - `UserButton` works perfectly out of the box.
-
 ---
 
-## Challenges Faced & Solutions
+## Migration History: Why We Switched from Next.js to Vite
 
-### 1. Clerk Sign-Out 405 Error on CF Pages
-**Problem**: UserButton tries to POST during sign-out, but CF Pages serves static files → 405 Method Not Allowed
-**Root Cause**: `@cloudflare/next-on-pages` doesn't register POST routes for non-edge runtime pages
-**Attempted Fixes**:
-- Custom sign-out button (worked but removed profile dropdown)
-- `export const runtime = 'edge'` (breaks build - Clerk uses Node.js APIs)
-- @opennextjs/cloudflare (migration required)
-**Final Solution**: **Switched to Vercel** - works immediately, no config needed
+### The Problem with Next.js on Cloudflare Pages
 
-### 2. CORS Errors with CF Pages Preview URLs
-**Problem**: Worker CORS allowed `https://pan-frontend.pages.dev` but CF deploys to hash URLs like `https://ed0fab66.pan-frontend.pages.dev`
-**Solution**: Dynamic CORS using request `Origin` header + regex for `*.pan-frontend.pages.dev`
+We initially built with Next.js 15 and deployed to Vercel, but encountered critical issues when trying to deploy to Cloudflare Pages:
 
-### 3. Clerk Production Keys DNS Verification
-**Problem**: Production keys require DNS verification (stuck at 0/5 verified)
-**Solution**: Used dev keys for testing, custom domain setup takes 24-48 hours for propagation
+**Clerk's `<UserButton>` uses server actions** → POST requests to static pages → **405 Method Not Allowed**
 
-### 4. Environment Variable Validation
-**Problem**: Vercel rejected env var names with hyphens
-**Solution**: Use underscores only in keys (e.g., `NEXT_PUBLIC_API_URL` not `NEXT-PUBLIC-API-URL`)
+### Attempted Fixes (Failed)
+- ❌ Custom sign-out button (worked but removed profile dropdown)
+- ❌ `export const runtime = 'edge'` (breaks build - Clerk uses Node.js APIs)
+- ❌ `@cloudflare/next-on-pages` adapter (archived, not maintained)
+- ❌ Deploying to Vercel (worked, but defeats the purpose of CF Pages)
 
----
+### The Solution: Vite + React
 
-## How to Add/Modify Tiers
+✅ **Pure client-side React** - No server actions, no POST routes
+✅ **Clerk React SDK** - Same auth, different package (`@clerk/clerk-react`)
+✅ **100% static assets** - Perfect for CF Pages
+✅ **Smaller bundle** - 337 kB vs Next.js overhead
+✅ **Faster dev experience** - Vite HMR is instant
+✅ **Zero config** - Works out of the box on CF Pages
 
-### Step 1: Define Tier Limits (Worker)
-
-Edit `api/src/index.ts`:
-
-```typescript
-// Current:
-const FREE_TIER_LIMIT = 5;
-
-// Add more tiers:
-const TIER_LIMITS = {
-  free: 5,
-  starter: 50,
-  pro: 500,
-  enterprise: 'unlimited'
-} as const;
-
-type Plan = keyof typeof TIER_LIMITS;
-```
-
-### Step 2: Update Plan Check Logic
-
-In `handleDataRequest()`:
-
-```typescript
-const plan = (user.publicMetadata?.plan as Plan) || 'free';
-const limit = TIER_LIMITS[plan];
-
-if (limit !== 'unlimited' && usageData.usageCount >= limit) {
-  return new Response(
-    JSON.stringify({ error: `${plan} tier limit reached`, limit }),
-    { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  );
-}
-```
-
-### Step 3: Create Stripe Products
-
-1. Go to Stripe Dashboard → Products
-2. Create products: "Starter ($9/mo)", "Pro ($29/mo)", "Enterprise ($99/mo)"
-3. Copy price IDs (e.g., `price_1ABC...`)
-4. Update worker secrets: `wrangler secret put STRIPE_PRICE_ID_STARTER`
-
-### Step 4: Update Clerk Metadata via Webhook
-
-Edit `api/src/stripe-webhook.ts`:
-
-```typescript
-// Map Stripe price IDs to plans
-const PRICE_TO_PLAN: Record<string, Plan> = {
-  'price_1ABC...': 'starter',
-  'price_1XYZ...': 'pro',
-  'price_1ENT...': 'enterprise',
-};
-
-const plan = PRICE_TO_PLAN[priceId] || 'free';
-```
-
-### Step 5: Update Frontend Pricing
-
-Edit `frontend/src/app/page.tsx` to display new tiers in pricing section.
-
-**That's it!** The system automatically:
-- ✅ Checks limits based on plan in JWT
-- ✅ Updates user plan via Stripe webhook
-- ✅ Resets usage monthly for metered tiers
-- ✅ Allows unlimited for pro/enterprise
-
----
-
-## How to Modify Usage Counters
-
-### Change Limits
-
-Edit `api/src/index.ts`:
-
-```typescript
-const FREE_TIER_LIMIT = 10; // Change from 5 to 10
-```
-
-Deploy: `cd api && npm run deploy`
-
-### Change Billing Period
-
-Current: Monthly (resets on 1st of each month)
-
-```typescript
-// In getCurrentPeriod():
-const start = new Date(Date.UTC(year, month, 1));
-const end = new Date(Date.UTC(year, month + 1, 0));
-```
-
-To make weekly:
-```typescript
-const now = new Date();
-const dayOfWeek = now.getUTCDay();
-const start = new Date(now);
-start.setUTCDate(now.getUTCDate() - dayOfWeek);
-const end = new Date(start);
-end.setUTCDate(start.getUTCDate() + 7);
-```
-
-### Change What Counts as Usage
-
-Currently: Every POST to `/api/data` increments counter
-
-To count different actions:
-1. Add new endpoint (e.g., `/api/process-document`)
-2. Call `incrementUsage(userId, env)` in handler
-3. Extract increment logic to shared function
-
-### View Usage Data
-
-```bash
-# Via wrangler CLI:
-wrangler kv:key get --binding=USAGE_KV "usage:user_abc123"
-
-# Returns:
-{
-  "usageCount": 3,
-  "plan": "free",
-  "periodStart": "2025-10-01",
-  "periodEnd": "2025-10-31",
-  "lastUpdated": "2025-10-15T14:23:45.123Z"
-}
-```
-
----
-
-## Testing Scenarios
-
-### Manual Testing Flow
-
-1. **Sign Up**: Go to https://pandoc-omega.vercel.app/ → Click "Get Started Free"
-2. **Dashboard**: Verify usage shows "0 / 5" for free tier
-3. **Make Requests**: Click "Process Document" 5 times
-4. **Hit Limit**: 6th click should show "Free tier limit reached"
-5. **Upgrade**: Click "Upgrade to Pro" → Complete Stripe checkout (use test card `4242 4242 4242 4242`)
-6. **Verify Upgrade**: Return to dashboard → should show "Unlimited • Pro Plan Active"
-7. **Test Unlimited**: Click "Process Document" 20 times → all succeed
-8. **Sign Out**: Click user avatar → "Sign out" → redirects to home
-
-### Test Cases to Cover
-
-| Scenario | Expected Result |
-|----------|----------------|
-| New user signs up | Gets `plan: free`, `usageCount: 0` |
-| Free user makes 5 requests | All succeed, counter increments |
-| Free user makes 6th request | 403 error, "Free tier limit reached" |
-| Free user upgrades via Stripe | Webhook updates plan to `pro` |
-| Pro user makes unlimited requests | All succeed, no limit check |
-| User hits rate limit (100 req/min) | 429 error, "Rate limit exceeded" |
-| Invalid JWT sent | 401 error, "Invalid token" |
-| Missing Authorization header | 401 error, "Missing Authorization header" |
-| New month starts | Free tier usage resets to 0 |
-
-### Automated Testing (TODO)
-
-Create test agent that:
-1. Signs up 5 test users with different emails
-2. Simulates usage patterns (light, moderate, heavy)
-3. Tests upgrade flow end-to-end
-4. Verifies webhook updates metadata correctly
-5. Tests edge cases (concurrent requests, month rollovers)
+**Result**: All functionality preserved, no more 405 errors, ready for CF Pages deployment! 🚀
 
 ---
 
@@ -414,9 +268,9 @@ npm run dev  # Starts on http://localhost:8787
 
 ### Start Frontend
 ```bash
-cd frontend
+cd frontend-v2
 npm install
-npm run dev  # Starts on http://localhost:3000
+npm run dev  # Starts on http://localhost:5173
 ```
 
 ### Test API Health
@@ -426,7 +280,7 @@ curl http://localhost:8787/health
 ```
 
 ### Test with JWT
-1. Sign in at http://localhost:3000
+1. Sign in at http://localhost:5173
 2. Open browser DevTools → Network tab
 3. Find request to `/api/usage`
 4. Copy `Authorization: Bearer <token>` header
@@ -445,14 +299,17 @@ cd api
 npm run deploy
 ```
 
-### Deploy Frontend
-Push to `master` → Vercel auto-deploys
-
-Or manual:
-```bash
-cd frontend
-vercel --prod
-```
+### Deploy Frontend to CF Pages
+1. Push `frontend-v2/` to GitHub
+2. Connect repo to Cloudflare Pages
+3. Build settings:
+   - **Build command**: `npm run build`
+   - **Output directory**: `dist`
+   - **Root directory**: `frontend-v2`
+4. Environment variables:
+   - `VITE_CLERK_PUBLISHABLE_KEY`
+   - `VITE_API_URL`
+5. Deploy!
 
 ---
 
@@ -467,14 +324,20 @@ clerk/
 │   ├── wrangler.toml          # Worker config
 │   ├── .dev.vars              # Local secrets (not committed)
 │   └── package.json
-├── frontend/                   # Next.js app
+├── frontend-v2/                # Vite + React app
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── page.tsx       # Landing page
-│   │   │   ├── dashboard/page.tsx  # Dashboard
-│   │   │   └── layout.tsx     # Root layout + ClerkProvider
-│   │   └── middleware.ts      # Clerk auth middleware
-│   ├── .env.local             # Frontend env vars (not committed)
+│   │   ├── pages/
+│   │   │   ├── Landing.tsx    # Landing page
+│   │   │   ├── Dashboard.tsx  # Dashboard
+│   │   │   ├── SignInPage.tsx # Sign-in
+│   │   │   └── SignUpPage.tsx # Sign-up
+│   │   ├── App.tsx            # React Router setup
+│   │   ├── main.tsx           # Entry point + ClerkProvider
+│   │   └── index.css          # Tailwind directives
+│   ├── .env                   # Env vars (not committed)
+│   ├── .env.example           # Example env vars
+│   ├── vite.config.ts         # Vite config
+│   ├── tailwind.config.js     # Tailwind config
 │   └── package.json
 ├── .github/workflows/
 │   └── deploy-worker.yml      # CI/CD for Worker
@@ -489,8 +352,8 @@ clerk/
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Frontend** | Next.js 15 (App Router) | React framework |
-| **Hosting** | Vercel | Frontend hosting |
+| **Frontend** | Vite + React 18 | Pure client-side SPA |
+| **Hosting** | Cloudflare Pages | Static hosting |
 | **Auth** | Clerk | User management + JWT |
 | **Payments** | Stripe | Subscription billing |
 | **API** | Cloudflare Workers | Serverless backend |
@@ -505,7 +368,7 @@ clerk/
 
 | Service | Cost | Notes |
 |---------|------|-------|
-| Vercel | **$0** | Hobby plan, unlimited projects |
+| Cloudflare Pages | **$0** | Unlimited static sites |
 | Clerk | **$0** | Free up to 10k MAU |
 | Stripe | **$0** | Pay-as-you-go (2.9% + 30¢ per transaction) |
 | Cloudflare Workers | **$0** | 100k req/day free |
@@ -516,13 +379,13 @@ clerk/
 
 | Service | Cost | Notes |
 |---------|------|-------|
-| Vercel | **$20/month** | Pro plan (if needed) |
+| Cloudflare Pages | **$0** | Stays free |
 | Clerk | **$25/month** | 10k-50k MAU |
 | Stripe | **2.9% + $0.30** | Per transaction |
 | Cloudflare Workers | **$5/month** | Paid plan (10M req included) |
-| **Total** | **~$50/month** | + Stripe fees |
+| **Total** | **~$30/month** | + Stripe fees |
 
-**Scalability**: Can handle 10M requests/month for $5 on CF Workers. Vercel scales automatically.
+**Scalability**: Can handle 10M requests/month for $5 on CF Workers. Pages scales infinitely.
 
 ---
 
@@ -545,40 +408,21 @@ clerk/
 
 ---
 
-## Monitoring
+## Testing Checklist
 
-### Current Status
-- ✅ GitHub Actions logs (build/deploy status)
-- ✅ Vercel deployment logs
-- ✅ Cloudflare Workers logs (via `wrangler tail`)
+### Manual Testing Flow
 
-### Production Setup (TODO)
-1. **Sentry**: Error tracking + alerting
-2. **Cloudflare Analytics**: Request metrics, error rates
-3. **Stripe Dashboard**: Revenue, churn, MRR
-4. **Clerk Dashboard**: User growth, auth metrics
+1. ✅ **Sign Up**: Go to http://localhost:5173 → Click "Get Started Free"
+2. ✅ **Email Verification**: Verify email (page shows correctly, no blank screen!)
+3. ✅ **Dashboard**: Verify usage shows "0 / 5" for free tier
+4. ✅ **Make Requests**: Click "Process Document" 5 times
+5. ✅ **Hit Limit**: 6th click should show "Free tier limit reached"
+6. 🔴 **Upgrade**: Click "Upgrade to Pro" → Complete Stripe checkout (test card `4242 4242 4242 4242`)
+7. 🔴 **Verify Upgrade**: Return to dashboard → should show "Unlimited • Pro Plan Active"
+8. 🔴 **Test Unlimited**: Click "Process Document" 20 times → all succeed
+9. ✅ **Sign Out**: Click user avatar → "Sign out" → redirects to home
 
----
-
-## Future Enhancements
-
-### High Priority
-- [ ] Add more pricing tiers (Starter, Pro, Enterprise)
-- [ ] Email notifications (usage warnings, receipts)
-- [ ] Admin dashboard (view all users, usage stats)
-- [ ] Export usage data for billing reconciliation
-
-### Medium Priority
-- [ ] Team/organization support (shared usage pools)
-- [ ] Usage-based billing (overage charges)
-- [ ] Custom usage limits per user (enterprise)
-- [ ] Webhook event history viewer
-
-### Low Priority
-- [ ] Usage analytics dashboard
-- [ ] Referral program
-- [ ] API key generation (for programmatic access)
-- [ ] Webhook delivery retries
+**Note**: Steps 6-8 require Stripe webhook to be configured!
 
 ---
 
@@ -599,29 +443,12 @@ MIT
 
 ## Questions?
 
-- **Deployment issues**: Check Vercel logs or GitHub Actions
+- **Deployment issues**: Check Cloudflare Pages logs or GitHub Actions
 - **Auth problems**: Verify Clerk JWT template includes `plan` claim
 - **Usage not incrementing**: Check KV binding in `wrangler.toml`
 - **Stripe webhook fails**: Verify `STRIPE_WEBHOOK_SECRET` is set correctly
 
 ---
 
-## 📝 Documentation Updates Needed
-
-**CLAUDE.md** - Update project instructions for better agent context:
-- Add router/context reference system
-- Document current deployment URLs
-- Add troubleshooting guide for common issues
-- Create workflow guides for:
-  - Adding new pricing tiers
-  - Modifying usage limits
-  - Adding new API endpoints
-  - Debugging webhook issues
-- Add security checklist for production
-
-**Goal**: Make CLAUDE.md a comprehensive reference so future agent sessions can pick up instantly without needing to re-learn the architecture.
-
----
-
 **Built with Claude Code** | October 2025
-**Timeline**: 2 days from start to deployed production-ready SaaS
+**Timeline**: 3 days from start to production-ready SaaS on Cloudflare

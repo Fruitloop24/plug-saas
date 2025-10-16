@@ -1,29 +1,134 @@
+/**
+ * ============================================================================
+ * DOCUFLOW AI - CLOUDFLARE WORKER API
+ * ============================================================================
+ *
+ * A stateless, JWT-only SaaS API with:
+ * - Clerk authentication (JWT validation)
+ * - Stripe subscription billing with webhook handling
+ * - Usage tracking with monthly billing periods (stored in KV)
+ * - Rate limiting (100 req/min per user)
+ * - Dynamic CORS handling for multiple deployment environments
+ *
+ * ARCHITECTURE: Monolithic (recommended by Cloudflare for <1000 lines)
+ * - Faster cold starts (no module resolution)
+ * - Simpler debugging (single file)
+ * - Can split later if needed (see line 600+ for modular examples)
+ *
+ * ============================================================================
+ */
+
 import { createClerkClient, verifyToken } from '@clerk/backend';
 import { handleStripeWebhook as stripeWebhookHandler } from './stripe-webhook';
 
+/**
+ * Environment variables required for the worker
+ * Set via: wrangler secret put <KEY>
+ */
 interface Env {
-	CLERK_SECRET_KEY: string;
-	CLERK_PUBLISHABLE_KEY: string;
-	STRIPE_SECRET_KEY: string;
-	STRIPE_WEBHOOK_SECRET?: string;
-	STRIPE_PRICE_ID: string;
-	FRONTEND_URL?: string; // Optional - we use Origin header instead
-	USAGE_KV: KVNamespace;
-	CLERK_JWT_TEMPLATE: string;
+	CLERK_SECRET_KEY: string;           // Clerk secret key (sk_test_...)
+	CLERK_PUBLISHABLE_KEY: string;      // Clerk publishable key (pk_test_...)
+	STRIPE_SECRET_KEY: string;          // Stripe secret key (sk_test_...)
+	STRIPE_WEBHOOK_SECRET?: string;     // Stripe webhook signing secret (whsec_...)
+	STRIPE_PRICE_ID: string;            // Stripe price ID for Pro tier (price_...)
+	FRONTEND_URL?: string;              // Optional - we use Origin header instead
+	USAGE_KV: KVNamespace;              // KV namespace binding (set in wrangler.toml)
+	CLERK_JWT_TEMPLATE: string;         // JWT template name (e.g., "pan-api")
 }
 
+/**
+ * Usage data structure stored in KV
+ * Key format: `usage:{userId}`
+ * TTL: None (persists forever, resets monthly for free tier)
+ */
 interface UsageData {
-	usageCount: number;
-	plan: 'free' | 'pro';
-	lastUpdated: string;
-	periodStart?: string; // Billing period start (YYYY-MM-DD)
-	periodEnd?: string; // Billing period end (YYYY-MM-DD)
+	usageCount: number;        // Number of requests made in current period
+	plan: 'free' | 'pro';      // User's current plan (synced from Clerk metadata)
+	lastUpdated: string;       // ISO timestamp of last update
+	periodStart?: string;      // Billing period start (YYYY-MM-DD)
+	periodEnd?: string;        // Billing period end (YYYY-MM-DD)
 }
 
+// ============================================================================
+// PRICING TIER CONFIGURATION
+// ============================================================================
+
+/**
+ * Free tier limit (requests per billing period)
+ *
+ * HOW TO CHANGE:
+ * - Change this constant to modify free tier limit
+ * - Example: const FREE_TIER_LIMIT = 10; // 10 requests per month
+ */
 const FREE_TIER_LIMIT = 5;
+
+/**
+ * Rate limit (requests per minute, applies to ALL users)
+ *
+ * HOW TO CHANGE:
+ * - Change this constant to modify rate limit
+ * - Example: const RATE_LIMIT_PER_MINUTE = 200; // 200 req/min
+ */
 const RATE_LIMIT_PER_MINUTE = 100;
 
-// Validate required environment variables
+/**
+ * HOW TO ADD A NEW PRICING TIER (e.g., "starter", "enterprise"):
+ *
+ * 1. Update UsageData interface to include new plan:
+ *    plan: 'free' | 'pro' | 'starter' | 'enterprise';
+ *
+ * 2. Add tier limits:
+ *    const TIER_LIMITS = {
+ *      free: 5,
+ *      starter: 50,
+ *      pro: Infinity,
+ *      enterprise: Infinity,
+ *    };
+ *
+ * 3. Update handleDataRequest to check limits:
+ *    const limit = TIER_LIMITS[plan];
+ *    if (usageData.usageCount >= limit) { ... }
+ *
+ * 4. Update handleUsageCheck to return correct limit:
+ *    limit: TIER_LIMITS[plan] === Infinity ? 'unlimited' : TIER_LIMITS[plan]
+ *
+ * 5. Create Stripe price in dashboard for new tier
+ *
+ * 6. Update Stripe webhook to handle new plan name
+ *
+ * EXAMPLE (commented out for reference):
+ *
+ * const TIER_LIMITS: Record<string, number> = {
+ *   free: 5,
+ *   starter: 50,        // New tier: 50 requests/month
+ *   pro: Infinity,
+ *   enterprise: Infinity,
+ * };
+ *
+ * Then in handleDataRequest:
+ * const limit = TIER_LIMITS[plan] || 0;
+ * if (limit !== Infinity && usageData.usageCount >= limit) { ... }
+ */
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Validates that all required environment variables are set
+ *
+ * IMPORTANT: Cloudflare Workers don't have a "startup" phase like traditional
+ * servers. Validation runs on first request. If you need to validate earlier,
+ * use a test script that hits /health endpoint after deployment.
+ *
+ * @param env - Environment variables passed to fetch handler
+ * @returns Object with validation status and list of missing variables
+ *
+ * HOW TO ADD NEW REQUIRED ENV VAR:
+ * 1. Add to Env interface above
+ * 2. Add to 'required' array below
+ * 3. Set via: wrangler secret put NEW_VAR_NAME
+ */
 function validateEnv(env: Env): { valid: boolean; missing: string[] } {
 	const required = [
 		'CLERK_SECRET_KEY',
@@ -35,7 +140,7 @@ function validateEnv(env: Env): { valid: boolean; missing: string[] } {
 
 	const missing = required.filter((key) => !env[key as keyof Env]);
 
-	// Check KV binding
+	// Check KV binding (set in wrangler.toml, not via secrets)
 	if (!env.USAGE_KV) {
 		missing.push('USAGE_KV');
 	}
@@ -43,58 +148,148 @@ function validateEnv(env: Env): { valid: boolean; missing: string[] } {
 	return { valid: missing.length === 0, missing };
 }
 
-// Rate limiting check
+/**
+ * Rate limiting check using KV storage
+ *
+ * ALGORITHM:
+ * - Uses per-minute buckets: ratelimit:{userId}:{minute}
+ * - Minute calculated as: Math.floor(Date.now() / 60000)
+ * - TTL of 2 minutes ensures cleanup without manual deletion
+ *
+ * HOW TO MODIFY RATE LIMITS:
+ * - Change RATE_LIMIT_PER_MINUTE constant (line 72)
+ * - For per-tier rate limits:
+ *   1. Add tier-specific limits: const RATE_LIMITS = { free: 60, pro: 200 }
+ *   2. Pass user's plan to this function
+ *   3. Use: const limit = RATE_LIMITS[plan]
+ *
+ * HOW TO CHANGE TIME WINDOW:
+ * - For per-hour: Math.floor(now / 3600000) + TTL 7200
+ * - For per-day: Math.floor(now / 86400000) + TTL 172800
+ *
+ * @param userId - Clerk user ID from JWT
+ * @param env - Environment (for KV access)
+ * @returns allowed: boolean, remaining: number of requests left
+ */
 async function checkRateLimit(userId: string, env: Env): Promise<{ allowed: boolean; remaining: number }> {
 	const now = Date.now();
 	const minute = Math.floor(now / 60000); // Current minute bucket
 	const rateLimitKey = `ratelimit:${userId}:${minute}`;
 
+	// Get current count from KV
 	const currentCount = await env.USAGE_KV.get(rateLimitKey);
 	const count = currentCount ? parseInt(currentCount) : 0;
 
+	// Check if limit exceeded
 	if (count >= RATE_LIMIT_PER_MINUTE) {
 		return { allowed: false, remaining: 0 };
 	}
 
 	// Increment counter with 2-minute TTL (current + next minute buffer)
+	// This ensures automatic cleanup without manual deletion
 	await env.USAGE_KV.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 120 });
 
 	return { allowed: true, remaining: RATE_LIMIT_PER_MINUTE - count - 1 };
 }
 
-// Get current billing period (first day of month to last day)
+/**
+ * Get current billing period (calendar month by default)
+ *
+ * BILLING PERIOD: First day of month 00:00 UTC → Last day of month 23:59 UTC
+ *
+ * HOW TO CHANGE BILLING PERIOD:
+ *
+ * FOR WEEKLY BILLING:
+ *   const now = new Date();
+ *   const dayOfWeek = now.getUTCDay();
+ *   const start = new Date(now);
+ *   start.setUTCDate(now.getUTCDate() - dayOfWeek); // Go to Sunday
+ *   const end = new Date(start);
+ *   end.setUTCDate(start.getUTCDate() + 6); // Go to Saturday
+ *
+ * FOR QUARTERLY BILLING:
+ *   const quarter = Math.floor(month / 3);
+ *   const start = new Date(Date.UTC(year, quarter * 3, 1));
+ *   const end = new Date(Date.UTC(year, (quarter + 1) * 3, 0, 23, 59, 59));
+ *
+ * FOR ANNUAL BILLING:
+ *   const start = new Date(Date.UTC(year, 0, 1));
+ *   const end = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
+ *
+ * @returns { start: YYYY-MM-DD, end: YYYY-MM-DD }
+ */
 function getCurrentPeriod(): { start: string; end: string } {
 	const now = new Date();
 	const year = now.getUTCFullYear();
 	const month = now.getUTCMonth();
 
+	// First day of current month at 00:00 UTC
 	const start = new Date(Date.UTC(year, month, 1));
+
+	// Last day of current month at 23:59:59.999 UTC
+	// (month + 1, 0) gives last day of current month
 	const end = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
 	return {
-		start: start.toISOString().split('T')[0],
-		end: end.toISOString().split('T')[0],
+		start: start.toISOString().split('T')[0], // YYYY-MM-DD
+		end: end.toISOString().split('T')[0],     // YYYY-MM-DD
 	};
 }
 
-// Check if usage data needs reset for new billing period
+/**
+ * Check if usage data needs reset for new billing period
+ *
+ * LOGIC:
+ * - If no period tracked → needs reset (first time user)
+ * - If periodStart doesn't match current period start → needs reset (new month)
+ *
+ * APPLIES TO: Free tier only (Pro tier has unlimited usage)
+ *
+ * @param usageData - Current usage data from KV
+ * @returns true if usage should be reset to 0
+ */
 function shouldResetUsage(usageData: UsageData): boolean {
 	const currentPeriod = getCurrentPeriod();
 
-	// If no period tracked, needs reset
+	// If no period tracked, needs reset (first time user)
 	if (!usageData.periodStart || !usageData.periodEnd) {
 		return true;
 	}
 
-	// If current date is after period end, needs reset
+	// If current date is after period end, needs reset (new billing period)
 	return currentPeriod.start !== usageData.periodStart;
 }
 
+// ============================================================================
+// MAIN FETCH HANDLER
+// ============================================================================
+
 export default {
+	/**
+	 * Main request handler for Cloudflare Worker
+	 *
+	 * FLOW:
+	 * 1. Validate environment variables (fails fast if misconfigured)
+	 * 2. Handle CORS preflight (OPTIONS requests)
+	 * 3. Check health endpoint (no auth required)
+	 * 4. Handle Stripe webhook (signature verification, no JWT)
+	 * 5. Verify JWT token for protected routes
+	 * 6. Check rate limiting (100 req/min per user)
+	 * 7. Route to appropriate handler
+	 *
+	 * SECURITY:
+	 * - Dynamic CORS validation (no wildcard)
+	 * - JWT verification on every protected request
+	 * - Rate limiting per user
+	 * - Stripe webhook signature verification
+	 */
 	async fetch(request: Request, env: Env): Promise<Response> {
-		// Validate environment variables on first request
+		// ====================================================================
+		// STEP 1: VALIDATE ENVIRONMENT (Fast Fail)
+		// ====================================================================
 		const envCheck = validateEnv(env);
 		if (!envCheck.valid) {
+			console.error('Environment validation failed:', envCheck.missing);
 			return new Response(
 				JSON.stringify({
 					error: 'Server configuration error',
@@ -108,30 +303,60 @@ export default {
 			);
 		}
 
-		// CORS headers - allow custom domain, Vercel, CF Pages, and localhost
+		// ====================================================================
+		// STEP 2: CORS HANDLING (Dynamic Origin Validation)
+		// ====================================================================
+		/**
+		 * CORS STRATEGY: Dynamic origin validation (no wildcard)
+		 *
+		 * WHY: Wildcard ('*') allows any site to call API, exposing user data.
+		 *
+		 * ALLOWED ORIGINS:
+		 * - Custom domain (app.panacea-tech.net)
+		 * - CF Pages production (pan-frontend.pages.dev)
+		 * - CF Pages preview branches (*.pan-frontend.pages.dev)
+		 * - Vercel deployments (*.vercel.app) - for testing
+		 * - Localhost (5173, 3000, 4011) - for development
+		 *
+		 * HOW TO ADD NEW ORIGIN:
+		 * 1. Add exact URL to allowedOrigins array
+		 * 2. OR add regex pattern to isAllowedOrigin check
+		 *
+		 * EXAMPLE - Add staging domain:
+		 *   allowedOrigins: ['https://staging.panacea-tech.net', ...]
+		 *
+		 * EXAMPLE - Add wildcard subdomain:
+		 *   /^https:\/\/[a-z0-9-]+\.myapp\.com$/.test(origin)
+		 */
 		const origin = request.headers.get('Origin') || '';
 		const allowedOrigins = [
-			'https://app.panacea-tech.net', // Custom domain
-			'https://pan-frontend.pages.dev', // CF Pages production
-			'http://localhost:3000', // Local dev
-			'http://localhost:4011', // Local dev alt port
+			'https://app.panacea-tech.net',        // Production custom domain
+			'https://pan-frontend.pages.dev',      // CF Pages production
+			'http://localhost:5173',               // Vite dev server (current)
+			'http://localhost:3000',               // Next.js dev (legacy)
+			'http://localhost:4011',               // Alt dev port
 		];
 
-		// Allow Vercel preview/production URLs and CF Pages preview URLs
-		const isAllowedOrigin = allowedOrigins.includes(origin) ||
-			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) || // Vercel deployments
-			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin); // CF Pages previews
+		// Check if origin is allowed (exact match OR regex pattern)
+		const isAllowedOrigin =
+			allowedOrigins.includes(origin) ||
+			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) ||           // Vercel: foo-bar.vercel.app
+			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin); // CF Pages: abc123.pan-frontend.pages.dev
 
-		// TODO: Replace wildcard with specific origins from env var for production
+		// Build CORS headers with validated origin
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': '*', // TEMPORARY wildcard for testing
+			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0], // Use first allowed origin as fallback
 			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+			'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
 		};
 
-		// Handle CORS preflight
+		// Handle CORS preflight (OPTIONS requests)
 		if (request.method === 'OPTIONS') {
-			return new Response(null, { headers: corsHeaders });
+			return new Response(null, {
+				status: 204, // No Content
+				headers: corsHeaders
+			});
 		}
 
 		const url = new URL(request.url);

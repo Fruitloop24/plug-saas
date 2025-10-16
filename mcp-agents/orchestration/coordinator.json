@@ -1,219 +1,301 @@
 {
-  "coordinator_name": "clerk-stripe-saas-orchestrator",
-  "version": "1.0.0",
-  "description": "Master orchestrator for Clerk + Stripe SaaS foundation deployment",
+  "orchestrator_name": "saas-foundation-orchestrator",
+  "version": "2.0.0",
+  "description": "One-at-a-time agent execution with human approval between steps",
+  
+  "execution_mode": "ITERATIVE",
+  "requires_human_approval": true,
   
   "project_context": {
     "name": "Clerk-Stripe Auth Foundation",
     "repository": "clerk",
-    "architecture": "Cloudflare Workers + Next.js + Clerk + Stripe",
-    "current_phase": "Foundation complete → Production hardening",
+    "architecture": "Cloudflare Workers + React (Vite) + Clerk + Stripe",
+    "current_phase": "Migration & Hardening",
     "base_path": "/home/mini/Documents/clerk"
   },
   
-  "critical_files": {
-    "api": [
-      "api/src/index.ts",
-      "api/src/stripe-webhook.ts",
-      "api/wrangler.toml",
-      "api/.env.example"
-    ],
-    "frontend": [
-      "frontend/src/app/dashboard/page.tsx",
-      "frontend/src/app/page.tsx",
-      "frontend/.env.example"
-    ],
-    "docs": [
-      "CLAUDE.md",
-      "README.md",
-      "START.md"
-    ]
+  "current_goal": "Migrate Next.js → React on CF Pages + Fix 3 security blockers",
+  
+  "project_state": {
+    "frontend": {
+      "current": "Next.js on Vercel (has server action issues)",
+      "target": "React (Vite) on CF Pages (pure static)",
+      "status": "NEEDS_MIGRATION"
+    },
+    "backend": {
+      "current": "CF Worker with 3 security blockers",
+      "target": "CF Worker, production-ready",
+      "status": "NEEDS_HARDENING"
+    },
+    "deployment": {
+      "current": "Manual wrangler deploy",
+      "target": "GitHub Actions auto-deploy",
+      "status": "TODO"
+    }
   },
   
   "available_agents": {
     "security-agent": {
       "config_path": "../agents/security-agent.json",
+      "base_knowledge": null,
       "priority": "CRITICAL",
       "blocks_production": true,
-      "specialty": "CORS, JWT, webhook verification, secrets management",
+      "specialty": "Fix CORS, webhook secret, env validation",
       "invoke_for": [
-        "Fix CORS wildcard (api/src/index.ts:26)",
-        "Enforce webhook secret verification (api/src/stripe-webhook.ts:36)",
-        "Add environment validation at startup",
-        "Scan for exposed secrets in git history",
-        "Audit rate limiting implementation"
+        "Fix CORS wildcard (BLOCKER_1)",
+        "Enforce webhook secret (BLOCKER_2)",
+        "Add startup env validation (BLOCKER_3)"
       ]
     },
-    "deployment-agent": {
-      "config_path": "../agents/deployment-agent.json",
+    "frontend-agent": {
+      "config_path": "../agents/frontend-agent.json",
+      "base_knowledge": null,
       "priority": "HIGH",
-      "enables": "CI/CD pipeline",
-      "specialty": "GitHub Actions, Wrangler, Cloudflare Pages",
+      "specialty": "React components, Tailwind, Clerk integration",
       "invoke_for": [
-        "Create GitHub Actions workflow for Workers",
-        "Set up Cloudflare Pages deployment",
-        "Configure production secrets via wrangler",
-        "Implement staging environment",
-        "Set up health check endpoints"
+        "Generate landing page",
+        "Build dashboard UI",
+        "Create auth pages",
+        "Port components from Next.js to React"
+      ]
+    },
+    "cf-specialist": {
+      "config_path": "../agents/cf-specialist.json",
+      "base_knowledge": "../base/cloudflare-workers.txt",
+      "priority": "HIGH",
+      "specialty": "CF Workers deployment, CF Pages setup, wrangler",
+      "invoke_for": [
+        "Deploy worker to production",
+        "Set up CF Pages",
+        "Manage wrangler secrets",
+        "Fix CF-specific issues",
+        "Create GitHub Actions workflow"
       ]
     },
     "testing-agent": {
       "config_path": "../agents/testing-agent.json",
-      "priority": "HIGH",
-      "quality_gate": true,
-      "specialty": "Unit tests, mocks, integration tests, load testing",
+      "base_knowledge": null,
+      "priority": "MEDIUM",
+      "specialty": "E2E tests with Playwright",
       "invoke_for": [
-        "Generate test suites for API handlers",
-        "Mock Clerk/Stripe for local testing",
-        "Load test rate limiting (100 req/min)",
-        "Test webhook signature validation",
-        "Set up CI test automation"
+        "Test upgrade flow end-to-end",
+        "Test rate limiting",
+        "Test auth integration",
+        "Write Playwright test suites"
       ]
     }
   },
   
-  "coordination_scenarios": {
-    "production_deployment": {
-      "description": "Full production deployment workflow",
-      "agents_sequence": [
+  "execution_phases": [
+    {
+      "phase_id": "1_security",
+      "phase_name": "Fix Security Blockers",
+      "description": "Fix 3 critical blockers that prevent production deployment",
+      "blocking": true,
+      "agent": "security-agent",
+      "human_approval": "AFTER_EACH_FIX",
+      
+      "tasks": [
         {
-          "agent": "security-agent",
-          "task": "Audit security posture - MUST PASS before deployment",
-          "blocking": true,
-          "acceptance_criteria": [
-            "CORS configured with domain whitelist",
-            "Webhook secret verification enforced",
-            "Environment validation at startup",
-            "No secrets in git history"
-          ]
+          "task_id": "1.1_fix_cors",
+          "name": "Fix CORS wildcard",
+          "blocker": "BLOCKER_1_CORS_WILDCARD",
+          "location": "api/src/index.ts:26",
+          "estimated_time": "5 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Unauthorized origin returns CORS error"
         },
         {
-          "agent": "testing-agent",
-          "task": "Run full test suite + load tests",
-          "blocking": true,
-          "acceptance_criteria": [
-            "All unit tests pass (95% coverage)",
-            "Integration tests pass",
-            "Rate limiting holds under load",
-            "Webhook tests pass"
-          ]
+          "task_id": "1.2_fix_webhook",
+          "name": "Enforce webhook secret",
+          "blocker": "BLOCKER_2_WEBHOOK_SECRET_OPTIONAL",
+          "location": "api/src/stripe-webhook.ts:36",
+          "estimated_time": "5 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Webhook rejects requests without valid signature"
         },
         {
-          "agent": "deployment-agent",
-          "task": "Deploy to production with monitoring",
-          "blocking": false,
-          "acceptance_criteria": [
-            "Worker deployed successfully",
-            "Frontend deployed successfully",
-            "Health checks passing",
-            "Smoke tests pass"
-          ]
+          "task_id": "1.3_fix_env_validation",
+          "name": "Add startup env validation",
+          "blocker": "HIGH_ENV_VALIDATION_MISSING",
+          "location": "api/src/index.ts (startup)",
+          "estimated_time": "10 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Worker fails to start if env vars missing"
         }
-      ]
+      ],
+      
+      "phase_acceptance": "All 3 blockers fixed, tests pass, ready for deployment"
     },
-    "security_hardening": {
-      "description": "Fix critical security issues before production",
-      "agents_sequence": [
+    
+    {
+      "phase_id": "2_frontend",
+      "phase_name": "Migrate Frontend to React + CF Pages",
+      "description": "Replace Next.js with React (Vite) and deploy to CF Pages",
+      "blocking": false,
+      "agents": ["cf-specialist", "frontend-agent"],
+      "human_approval": "AFTER_EACH_COMPONENT",
+      
+      "tasks": [
         {
-          "agent": "security-agent",
-          "task": "Fix all CRITICAL and HIGH severity issues",
-          "blocking": true,
-          "fixes_required": [
-            "CORS wildcard → domain whitelist",
-            "Optional webhook secret → required in production",
-            "Missing env validation → fail fast at startup"
-          ]
+          "task_id": "2.1_create_react_app",
+          "name": "Create Vite + React app",
+          "agent": "cf-specialist",
+          "estimated_time": "10 minutes",
+          "wait_for_approval": true,
+          "acceptance": "App builds and runs locally"
         },
         {
-          "agent": "testing-agent",
-          "task": "Validate security fixes with tests",
-          "blocking": true,
-          "tests_required": [
-            "CORS rejects unauthorized origins",
-            "Webhook rejects invalid signatures",
-            "Worker fails to start with missing env vars"
-          ]
+          "task_id": "2.2_setup_clerk",
+          "name": "Set up Clerk client-side",
+          "agent": "frontend-agent",
+          "estimated_time": "15 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Sign in/sign up/sign out work"
+        },
+        {
+          "task_id": "2.3_build_landing",
+          "name": "Build landing page",
+          "agent": "frontend-agent",
+          "estimated_time": "30 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Landing page looks good, responsive"
+        },
+        {
+          "task_id": "2.4_build_dashboard",
+          "name": "Build dashboard",
+          "agent": "frontend-agent",
+          "estimated_time": "30 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Dashboard shows usage, plan, upgrade button"
+        },
+        {
+          "task_id": "2.5_deploy_pages",
+          "name": "Deploy to CF Pages",
+          "agent": "cf-specialist",
+          "estimated_time": "20 minutes",
+          "wait_for_approval": true,
+          "acceptance": "App live on CF Pages, Clerk auth works"
+        },
+        {
+          "task_id": "2.6_update_cors",
+          "name": "Update worker CORS for CF Pages",
+          "agent": "cf-specialist",
+          "estimated_time": "5 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Frontend can call API successfully"
         }
-      ]
+      ],
+      
+      "phase_acceptance": "React app on CF Pages, auth works, API calls work"
     },
-    "ci_cd_setup": {
-      "description": "Set up continuous deployment pipeline",
-      "agents_sequence": [
+    
+    {
+      "phase_id": "3_testing",
+      "phase_name": "Write E2E Tests",
+      "description": "Create Playwright tests for critical user journeys",
+      "blocking": false,
+      "agent": "testing-agent",
+      "human_approval": "AFTER_EACH_TEST",
+      
+      "tasks": [
         {
-          "agent": "deployment-agent",
-          "task": "Create GitHub Actions workflows",
-          "blocking": false,
-          "deliverables": [
-            ".github/workflows/deploy-worker.yml",
-            ".github/workflows/deploy-frontend.yml",
-            "Secrets configured in GitHub"
-          ]
+          "task_id": "3.1_setup_playwright",
+          "name": "Set up Playwright",
+          "estimated_time": "10 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Playwright installed and configured"
         },
         {
-          "agent": "testing-agent",
-          "task": "Add test step to CI pipeline",
-          "blocking": false,
-          "deliverables": [
-            "Test job in GitHub Actions",
-            "Coverage reporting",
-            "Block merge on test failure"
-          ]
+          "task_id": "3.2_upgrade_flow_test",
+          "name": "Write upgrade flow test",
+          "estimated_time": "30 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Test passes: sign up → limit → upgrade → unlimited"
+        },
+        {
+          "task_id": "3.3_rate_limit_test",
+          "name": "Write rate limit test",
+          "estimated_time": "20 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Test passes: 100 requests succeed, 101st fails"
         }
-      ]
+      ],
+      
+      "phase_acceptance": "E2E tests pass, critical flows validated"
+    },
+    
+    {
+      "phase_id": "4_deployment",
+      "phase_name": "Set Up CI/CD",
+      "description": "Create GitHub Actions for auto-deploy on push",
+      "blocking": false,
+      "agent": "cf-specialist",
+      "human_approval": "AFTER_WORKFLOW_CREATED",
+      
+      "tasks": [
+        {
+          "task_id": "4.1_create_workflow",
+          "name": "Create GitHub Actions workflow",
+          "estimated_time": "20 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Workflow file created, looks correct"
+        },
+        {
+          "task_id": "4.2_set_secrets",
+          "name": "Set GitHub secrets",
+          "estimated_time": "5 minutes",
+          "wait_for_approval": true,
+          "acceptance": "CLOUDFLARE_API_TOKEN and ACCOUNT_ID set"
+        },
+        {
+          "task_id": "4.3_test_autodeploy",
+          "name": "Test auto-deploy",
+          "estimated_time": "10 minutes",
+          "wait_for_approval": true,
+          "acceptance": "Push to main → worker auto-deploys"
+        }
+      ],
+      
+      "phase_acceptance": "CI/CD working, push to main auto-deploys"
     }
-  },
+  ],
   
-  "global_context": {
-    "cloudflare": {
-      "account_id": "REDACTED_IN_WRANGLER_TOML",
-      "kv_namespace_id": "2b116f97974a4461a03f91792198cefc",
-      "worker_name": "pan-api"
-    },
-    "thresholds": {
-      "free_tier_limit": 5,
-      "rate_limit_per_minute": 100,
-      "worker_bundle_size_max": "1MB",
-      "response_time_p95": "200ms"
-    },
-    "production_blockers": [
-      "CRITICAL: CORS wildcard in api/src/index.ts:26",
-      "CRITICAL: Optional webhook secret in api/src/stripe-webhook.ts:36",
-      "HIGH: No environment validation at worker startup"
+  "invocation_pattern": {
+    "description": "How to use this orchestrator one task at a time",
+    "example_session": [
+      "Human: 'Run security-agent to fix CORS (task 1.1)'",
+      "Claude: [Reads security-agent.json, fixes code, shows diff]",
+      "Claude: 'CORS fixed. Waiting for approval.'",
+      "Human: 'Test it first'",
+      "Claude: [Runs curl test with unauthorized origin]",
+      "Claude: 'Test passed. CORS blocks unauthorized origins.'",
+      "Human: 'Approved. Next task.'",
+      "Claude: [Moves to task 1.2 - webhook secret]"
     ]
   },
   
+  "coordination_rules": {
+    "never_skip_approval": "Always wait for human approval after each task",
+    "read_config_first": "Always read agent config before invoking",
+    "read_base_knowledge": "If agent has base_knowledge path, read that file first",
+    "show_diffs": "Always show code changes before waiting for approval",
+    "test_after_fix": "Run tests/verification after each fix",
+    "one_task_at_a_time": "Complete one task fully before moving to next"
+  },
+  
   "tools_available": {
-    "wrangler": {
-      "commands": [
-        "wrangler deploy",
-        "wrangler secret put <KEY>",
-        "wrangler dev",
-        "wrangler tail"
-      ]
-    },
-    "bash": {
-      "usage": "Execute shell commands, file operations, git operations"
-    },
-    "str_replace": {
-      "usage": "Edit files with precise string replacement"
-    },
-    "file_create": {
-      "usage": "Create new files (tests, configs, workflows)"
-    }
+    "bash": "Execute commands (wrangler, npm, git, curl)",
+    "view": "Read files (agent configs, base knowledge, source code)",
+    "str_replace": "Edit existing files (fix bugs, update config)",
+    "file_create": "Create new files (components, tests, workflows)"
   },
   
-  "design_principles": {
-    "minimal_code": "No unnecessary abstractions or boilerplate",
-    "production_ready": "Security and performance optimized from day 1",
-    "portable": "Easy to clone, configure env vars, and deploy",
-    "type_safe": "TypeScript throughout with strict typing",
-    "documented": "Clear README, inline comments for complex logic"
-  },
-  
-  "usage_instructions": {
-    "invoke_single_agent": "Read agent config, provide context, execute tasks",
-    "invoke_scenario": "Follow coordination_scenarios sequence with blocking rules",
-    "emergency_rollback": "deployment-agent handles rollback procedures",
-    "status_check": "Run security-agent audit + testing-agent suite"
+  "success_metrics": {
+    "security_blockers_fixed": "All 3 blockers resolved",
+    "frontend_migrated": "React app on CF Pages, fully functional",
+    "tests_passing": "E2E tests cover critical flows",
+    "ci_cd_working": "Auto-deploy on push to main",
+    "human_satisfaction": "User approves each step, no surprises"
   }
 }

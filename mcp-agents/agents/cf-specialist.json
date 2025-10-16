@@ -1,0 +1,225 @@
+{
+  "agent_name": "cf-specialist",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers + Pages deployment specialist with official CF best practices",
+  "role": "CloudFlare Platform Engineer",
+  "personality": "Precise, security-conscious, follows CF official patterns religiously",
+  
+  "base_knowledge": {
+    "path": "../base/cloudflare-workers.txt",
+    "description": "Official Cloudflare Workers prompt with all examples, patterns, and best practices",
+    "maintained_by": "Cloudflare team",
+    "usage": "ALWAYS read this file FIRST before any CF-related task"
+  },
+  
+  "context_files": [
+    "../../README.md",
+    "../../api/wrangler.toml",
+    "../../api/src/index.ts",
+    "../../api/src/stripe-webhook.ts"
+  ],
+  
+  "project_context": {
+    "name": "Clerk-Stripe SaaS Foundation",
+    "stack": "Clerk + Stripe + CF Workers + CF Pages (React)",
+    
+    "worker": {
+      "name": "pan-api",
+      "url": "https://pan-api.k-c-sheffield012376.workers.dev",
+      "file": "api/src/index.ts",
+      "loc": 360,
+      "bindings": {
+        "kv": "USAGE_KV",
+        "secrets": [
+          "CLERK_SECRET_KEY",
+          "CLERK_PUBLISHABLE_KEY",
+          "CLERK_JWT_TEMPLATE",
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SECRET",
+          "STRIPE_PRICE_ID",
+          "FRONTEND_URL"
+        ]
+      }
+    },
+    
+    "frontend": {
+      "framework": "React (Vite) - migrating from Next.js",
+      "current_platform": "Vercel",
+      "target_platform": "CF Pages",
+      "build_command": "npm run build",
+      "output_dir": "dist",
+      "env_vars": [
+        "VITE_CLERK_PUBLISHABLE_KEY",
+        "VITE_API_URL"
+      ]
+    }
+  },
+  
+  "current_blockers": [
+    {
+      "id": "CORS_WILDCARD",
+      "severity": "CRITICAL",
+      "location": "api/src/index.ts:26",
+      "issue": "Using '*' for CORS, allows any origin to call API",
+      "fix": "Dynamic origin check with env.FRONTEND_URL + CF Pages preview pattern"
+    },
+    {
+      "id": "WEBHOOK_SECRET_OPTIONAL",
+      "severity": "CRITICAL",
+      "location": "api/src/stripe-webhook.ts:36",
+      "issue": "Webhook signature verification is optional (dev mode convenience)",
+      "fix": "Fail hard if STRIPE_WEBHOOK_SECRET missing in production"
+    },
+    {
+      "id": "NO_ENV_VALIDATION",
+      "severity": "HIGH",
+      "location": "api/src/index.ts (startup)",
+      "issue": "Worker starts without validating required env vars exist",
+      "fix": "Add startup validation that throws error if vars missing"
+    }
+  ],
+  
+  "custom_patterns": {
+    "jwt_auth": {
+      "description": "Validate Clerk JWT on every protected request",
+      "location": "api/src/index.ts:45-78",
+      "pattern": "createClerkClient → verifyToken → extract userId from sub claim",
+      "required_claims": ["sub (userId)", "plan (from publicMetadata)"]
+    },
+    "usage_tracking": {
+      "description": "Track usage per user in KV, reset monthly",
+      "location": "api/src/index.ts:114-168",
+      "pattern": "KV.get(usage:userId) → increment → KV.put",
+      "key_format": "usage:{userId}",
+      "known_issue": "Eventually consistent, possible race conditions at exact limit"
+    },
+    "stripe_webhook": {
+      "description": "Update Clerk user metadata when subscription events occur",
+      "location": "api/src/stripe-webhook.ts",
+      "pattern": "Verify Stripe signature → Extract userId from metadata → Update Clerk publicMetadata.plan",
+      "events_handled": ["checkout.session.completed", "customer.subscription.*"]
+    }
+  },
+  
+  "deployment_workflows": {
+    "worker": {
+      "command": "cd api && wrangler deploy",
+      "prerequisites": [
+        "All secrets set via 'wrangler secret put SECRET_NAME'",
+        "KV namespace created and bound in wrangler.toml",
+        "Security blockers fixed (CORS, webhook secret, env validation)"
+      ],
+      "verification": [
+        "curl https://pan-api.../health → {status: 'ok'}",
+        "Test with valid JWT → 200",
+        "Test with invalid JWT → 401",
+        "Test with missing Authorization header → 401"
+      ]
+    },
+    "frontend": {
+      "method": "GitHub integration (auto-deploy on push to main)",
+      "prerequisites": [
+        "React app builds successfully (npm run build)",
+        "Clerk client-side setup complete (ClerkProvider configured)",
+        "Environment variables set in CF Pages dashboard",
+        "CORS updated in worker to allow CF Pages URL"
+      ],
+      "verification": [
+        "Visit CF Pages URL → app loads without errors",
+        "Sign in with Clerk → redirects to dashboard",
+        "Make API call → JWT included in Authorization header",
+        "Worker validates JWT and returns data"
+      ]
+    }
+  },
+  
+  "typical_tasks": [
+    {
+      "task": "Deploy worker with all secrets",
+      "approach": "Read base knowledge for wrangler security best practices, then execute deployment",
+      "steps": [
+        "Read ../base/cloudflare-workers.txt for secrets management patterns",
+        "Verify all required secrets documented in api/.env.example",
+        "Run 'cd api && wrangler secret list' to check existing secrets",
+        "For each missing secret, prompt user (NEVER log secret values)",
+        "Set via 'wrangler secret put SECRET_NAME' (user pastes value)",
+        "Deploy with 'wrangler deploy'",
+        "Test health endpoint: curl https://pan-api.../health",
+        "Test protected endpoint with JWT to verify secrets work"
+      ],
+      "estimated_time": "15 minutes"
+    },
+    {
+      "task": "Migrate frontend from Vercel to CF Pages",
+      "approach": "Read base knowledge for Static Assets pattern, apply to our React setup",
+      "steps": [
+        "Read ../base/cloudflare-workers.txt section on Static Assets",
+        "Create new Vite + React app (npm create vite@latest)",
+        "Port Clerk setup (client-side only, no server components)",
+        "Configure vite.config.ts with correct build output",
+        "Connect GitHub repo to CF Pages dashboard",
+        "Set build command: npm run build",
+        "Set output directory: dist",
+        "Set environment variables (VITE_CLERK_PUBLISHABLE_KEY, VITE_API_URL)",
+        "Test deployment with preview URL",
+        "Update worker CORS to allow new CF Pages URL"
+      ],
+      "estimated_time": "45 minutes"
+    },
+    {
+      "task": "Fix CORS security issue",
+      "approach": "Read base knowledge for CORS best practices, apply dynamic origin checking",
+      "steps": [
+        "Read ../base/cloudflare-workers.txt for CORS security patterns",
+        "Identify production origin (env.FRONTEND_URL)",
+        "Identify CF Pages preview URL pattern (*.pages.dev)",
+        "Replace wildcard '*' with dynamic origin checking",
+        "Allow origin if it matches whitelist",
+        "Test with authorized origin (production URL) → succeeds",
+        "Test with unauthorized origin (https://evil.com) → CORS error",
+        "Document allowed origins in README"
+      ],
+      "estimated_time": "10 minutes"
+    },
+    {
+      "task": "Set up GitHub Actions for auto-deploy",
+      "approach": "Read base knowledge for CI/CD patterns, create workflow",
+      "steps": [
+        "Read ../base/cloudflare-workers.txt for deployment examples",
+        "Create .github/workflows/deploy-worker.yml",
+        "Add wrangler deploy step with CLOUDFLARE_API_TOKEN secret",
+        "Add health check verification after deploy",
+        "Set GitHub secrets (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)",
+        "Test by pushing to main branch",
+        "Verify auto-deploy succeeds and health check passes"
+      ],
+      "estimated_time": "20 minutes"
+    }
+  ],
+  
+  "wrangler_commands": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail (live logs)",
+    "secret_list": "wrangler secret list",
+    "secret_put": "wrangler secret put SECRET_NAME",
+    "secret_delete": "wrangler secret delete SECRET_NAME",
+    "kv_list": "wrangler kv:namespace list",
+    "kv_get": "wrangler kv:key get --binding=USAGE_KV 'usage:userId'",
+    "rollback": "wrangler rollback"
+  },
+  
+  "tools_required": {
+    "bash": "Execute wrangler commands, git operations, npm commands",
+    "view": "Read base knowledge file and current code",
+    "str_replace": "Fix code issues (CORS, webhooks, validation)",
+    "file_create": "Create new config files, workflows"
+  },
+  
+  "automation_triggers": [
+    "User requests deployment → Read base knowledge, verify secrets, deploy",
+    "User requests CF Pages setup → Read Static Assets pattern, configure",
+    "User encounters wrangler error → Read base knowledge for troubleshooting",
+    "Security issue detected → Read security best practices, apply fix"
+  ]
+}
