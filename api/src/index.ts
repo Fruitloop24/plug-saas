@@ -31,7 +31,9 @@ interface Env {
 	STRIPE_SECRET_KEY: string;          // Stripe secret key (sk_test_...)
 	STRIPE_WEBHOOK_SECRET?: string;     // Stripe webhook signing secret (whsec_...)
 	STRIPE_PRICE_ID: string;            // Stripe price ID for Pro tier (price_...)
-	FRONTEND_URL?: string;              // Optional - we use Origin header instead
+	ALLOWED_ORIGINS?: string;           // OPTIONAL: Comma-separated list of allowed origins
+	                                     // Example: "https://app.example.com,https://staging.example.com"
+	                                     // If not set, falls back to defaults (see CORS section)
 	USAGE_KV: KVNamespace;              // KV namespace binding (set in wrangler.toml)
 	CLERK_JWT_TEMPLATE: string;         // JWT template name (e.g., "pan-api")
 }
@@ -304,52 +306,96 @@ export default {
 		}
 
 		// ====================================================================
-		// STEP 2: CORS HANDLING (Dynamic Origin Validation)
+		// STEP 2: CORS HANDLING (Dynamic Origin Validation with Env Var)
 		// ====================================================================
 		/**
 		 * CORS STRATEGY: Dynamic origin validation (no wildcard)
 		 *
-		 * WHY: Wildcard ('*') allows any site to call API, exposing user data.
+		 * WHY NO WILDCARD:
+		 * - Wildcard ('*') allows ANY website to call your API
+		 * - This exposes user JWTs and data to malicious sites
+		 * - We use explicit origin allowlist + regex patterns instead
 		 *
-		 * ALLOWED ORIGINS:
-		 * - Custom domain (app.panacea-tech.net)
-		 * - CF Pages production (pan-frontend.pages.dev)
-		 * - CF Pages preview branches (*.pan-frontend.pages.dev)
-		 * - Vercel deployments (*.vercel.app) - for testing
-		 * - Localhost (5173, 3000, 4011) - for development
+		 * TWO WAYS TO CONFIGURE:
+		 *
+		 * METHOD 1: ENV VARIABLE (Recommended for Production)
+		 * ------------------------------------------------
+		 * Set ALLOWED_ORIGINS as comma-separated list:
+		 *
+		 * wrangler secret put ALLOWED_ORIGINS
+		 * # Enter: https://clerk-frontend.pages.dev,https://app.panacea-tech.net
+		 *
+		 * This allows dynamic updates without code changes.
+		 *
+		 * METHOD 2: HARDCODED DEFAULTS (Development Fallback)
+		 * ------------------------------------------------
+		 * If ALLOWED_ORIGINS not set, uses defaults below:
+		 * - localhost:5173 (Vite dev server)
+		 * - clerk-frontend.pages.dev (CF Pages production)
+		 * - app.panacea-tech.net (Custom domain)
+		 *
+		 * REGEX PATTERNS (Always Active):
+		 * ------------------------------------------------
+		 * These patterns match dynamically generated URLs:
+		 * - *.clerk-frontend.pages.dev (CF Pages preview branches)
+		 * - *.vercel.app (Vercel deployments, for testing)
 		 *
 		 * HOW TO ADD NEW ORIGIN:
-		 * 1. Add exact URL to allowedOrigins array
-		 * 2. OR add regex pattern to isAllowedOrigin check
+		 * ------------------------------------------------
+		 * Option A: Update env var (no code change)
+		 *   wrangler secret put ALLOWED_ORIGINS
+		 *   # Add new origin to comma-separated list
 		 *
-		 * EXAMPLE - Add staging domain:
-		 *   allowedOrigins: ['https://staging.panacea-tech.net', ...]
+		 * Option B: Update defaults below (requires redeploy)
+		 *   defaultAllowedOrigins: ['https://new-domain.com', ...]
 		 *
-		 * EXAMPLE - Add wildcard subdomain:
+		 * Option C: Add regex pattern (for wildcard subdomains)
 		 *   /^https:\/\/[a-z0-9-]+\.myapp\.com$/.test(origin)
+		 *
+		 * SECURITY NOTES:
+		 * ------------------------------------------------
+		 * - Origins aren't "secrets" (visible in Network tab)
+		 * - BUT limiting them prevents unauthorized API access
+		 * - Preview URLs use regex to avoid hardcoding thousands of hashes
+		 * - Localhost only allowed in dev (remove for production if needed)
 		 */
 		const origin = request.headers.get('Origin') || '';
-		const allowedOrigins = [
+
+		// Parse allowed origins from env var OR use defaults
+		const defaultAllowedOrigins = [
 			'https://app.panacea-tech.net',        // Production custom domain
-			'https://pan-frontend.pages.dev',      // CF Pages production
-			'http://localhost:5173',               // Vite dev server (current)
-			'http://localhost:3000',               // Next.js dev (legacy)
+			'https://clerk-frontend.pages.dev',    // CF Pages production
+			'http://localhost:5173',               // Vite dev server
+			'http://localhost:3000',               // Legacy Next.js dev
 			'http://localhost:4011',               // Alt dev port
 		];
+
+		const allowedOrigins = env.ALLOWED_ORIGINS
+			? env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) // Parse from env var
+			: defaultAllowedOrigins;                             // Fall back to defaults
 
 		// Check if origin is allowed (exact match OR regex pattern)
 		const isAllowedOrigin =
 			allowedOrigins.includes(origin) ||
-			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) ||           // Vercel: foo-bar.vercel.app
-			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin); // CF Pages: abc123.pan-frontend.pages.dev
+			// CF Pages preview URLs: abc123.clerk-frontend.pages.dev
+			/^https:\/\/[a-z0-9-]+\.clerk-frontend\.pages\.dev$/.test(origin) ||
+			// Vercel deployments (for testing): foo-bar.vercel.app
+			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin);
 
 		// Build CORS headers with validated origin
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0], // Use first allowed origin as fallback
+			// If origin allowed, echo it back. Otherwise, use first allowed origin as safe fallback
+			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
 			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 			'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
 		};
+
+		// Debug logging (only in dev - remove for production if needed)
+		if (!isAllowedOrigin && origin) {
+			console.warn(`[CORS] Rejected origin: ${origin}`);
+			console.warn(`[CORS] Allowed origins: ${allowedOrigins.join(', ')}`);
+		}
 
 		// Handle CORS preflight (OPTIONS requests)
 		if (request.method === 'OPTIONS') {
