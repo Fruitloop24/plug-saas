@@ -34,15 +34,16 @@ export async function handleStripeWebhook(
 			);
 		}
 
-		// Verify the webhook signature
-		event = stripe.webhooks.constructEvent(
+		// Verify the webhook signature (ASYNC for Cloudflare Workers)
+		// Cloudflare Workers use SubtleCrypto which requires async context
+		event = await stripe.webhooks.constructEventAsync(
 			body,
 			signature,
 			env.STRIPE_WEBHOOK_SECRET
 		);
 		console.log('✅ Webhook signature verified');
 	} catch (err: any) {
-		console.error('Webhook signature verification failed:', err.message);
+		console.error('❌ Webhook signature verification failed:', err.message);
 		return new Response(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });
 	}
 
