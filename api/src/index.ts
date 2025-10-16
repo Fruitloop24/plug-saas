@@ -122,8 +122,9 @@ export default {
 			/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) || // Vercel deployments
 			/^https:\/\/[a-z0-9]+\.pan-frontend\.pages\.dev$/.test(origin); // CF Pages previews
 
+		// TODO: Replace wildcard with specific origins from env var for production
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': isAllowedOrigin ? origin : 'https://app.panacea-tech.net',
+			'Access-Control-Allow-Origin': '*', // TEMPORARY wildcard for testing
 			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		};
