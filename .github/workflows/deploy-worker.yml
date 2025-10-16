@@ -38,3 +38,4 @@ jobs:
       - name: Deployment summary
         run: |
           echo "✅ Worker deployed successfully!"
+          echo "🚀 Deployed at: $(date)"
