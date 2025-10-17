@@ -429,7 +429,7 @@ export default {
 		}
 
 		try {
-			// Create Clerk client
+			// Create Clerk client (used later in handleCreateCheckout for email)
 			const clerkClient = createClerkClient({
 				secretKey: env.CLERK_SECRET_KEY,
 				publishableKey: env.CLERK_PUBLISHABLE_KEY,
@@ -469,9 +469,27 @@ export default {
 				);
 			}
 
-			// Get user to check plan from metadata
-			const user = await clerkClient.users.getUser(userId);
-			const plan = (user.publicMetadata?.plan as 'free' | 'pro') || 'free';
+			// ====================================================================
+			// GET PLAN FROM JWT CLAIMS (SSOT - No unnecessary API call!)
+			// ====================================================================
+			/**
+			 * Plan is already in the JWT from Clerk's "pan-api" template
+			 * Template config: { "plan": "{{user.public_metadata.plan}}" }
+			 *
+			 * WHY NOT call clerkClient.users.getUser()?
+			 * - JWT is already verified and decoded
+			 * - Plan is in sessionClaims.plan (from JWT template)
+			 * - No extra network call to Clerk API
+			 * - Faster response time
+			 * - True "JWT-only" stateless architecture
+			 *
+			 * When does plan update?
+			 * - Stripe webhook updates Clerk publicMetadata
+			 * - User gets new JWT on next sign-in/token refresh
+			 * - New JWT includes updated plan automatically
+			 */
+			const plan = ((auth.sessionClaims as any)?.plan as 'free' | 'pro') || 'free';
+			console.log(`✅ User ${userId} authenticated with plan: ${plan} (from JWT)`);
 
 			// Route handlers
 			if (url.pathname === '/api/data' && request.method === 'POST') {

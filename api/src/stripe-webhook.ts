@@ -5,6 +5,7 @@ interface Env {
 	CLERK_SECRET_KEY: string;
 	STRIPE_SECRET_KEY: string;
 	STRIPE_WEBHOOK_SECRET?: string;
+	USAGE_KV: KVNamespace;  // For webhook idempotency tracking
 }
 
 export async function handleStripeWebhook(
@@ -20,7 +21,7 @@ export async function handleStripeWebhook(
 
 	// Verify webhook signature
 	const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-		apiVersion: '2024-12-18.acacia',
+		apiVersion: '2025-09-30.clover',
 	});
 
 	let event: Stripe.Event;
@@ -47,6 +48,31 @@ export async function handleStripeWebhook(
 		return new Response(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });
 	}
 
+	// ============================================================================
+	// IDEMPOTENCY CHECK
+	// ============================================================================
+	/**
+	 * Prevent duplicate webhook processing using KV storage
+	 *
+	 * WHY: Stripe may send the same event multiple times (network retries, etc)
+	 * Without idempotency, this could cause:
+	 * - Duplicate plan upgrades
+	 * - Double charges (if we added billing logic)
+	 * - Inconsistent user metadata
+	 *
+	 * PATTERN: Store processed event IDs in KV with 30-day TTL
+	 * - Event IDs are unique per Stripe event
+	 * - 30 days matches Stripe's webhook retention period
+	 * - KV eventually consistent is fine (Stripe retries are seconds apart)
+	 */
+	const idempotencyKey = `webhook:stripe:${event.id}`;
+	const alreadyProcessed = await env.USAGE_KV.get(idempotencyKey);
+
+	if (alreadyProcessed) {
+		console.log(`⏭️ Event ${event.id} already processed (idempotent), returning success`);
+		return new Response(JSON.stringify({ received: true, idempotent: true }), { status: 200 });
+	}
+
 	const clerkClient = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
 
 	// Handle different event types
@@ -62,14 +88,21 @@ export async function handleStripeWebhook(
 			}
 
 			// Update Clerk user metadata to 'pro'
-			await clerkClient.users.updateUser(userId, {
-				publicMetadata: {
-					plan: 'pro',
-					stripeCustomerId: session.customer as string,
-				},
-			});
-
-			console.log(`Updated user ${userId} to pro plan after checkout`);
+			try {
+				await clerkClient.users.updateUser(userId, {
+					publicMetadata: {
+						plan: 'pro',
+						stripeCustomerId: session.customer as string,
+					},
+				});
+				console.log(`✅ Updated user ${userId} to pro plan after checkout`);
+			} catch (err: any) {
+				console.error(`❌ Failed to update user ${userId}:`, err.message);
+				return new Response(
+					JSON.stringify({ error: 'Failed to update user metadata' }),
+					{ status: 500 }
+				);
+			}
 			break;
 
 		case 'customer.subscription.created':
@@ -84,15 +117,22 @@ export async function handleStripeWebhook(
 			}
 
 			// Update Clerk user metadata to 'pro'
-			await clerkClient.users.updateUser(subUserId, {
-				publicMetadata: {
-					plan: 'pro',
-					stripeCustomerId: subscription.customer as string,
-					subscriptionId: subscription.id,
-				},
-			});
-
-			console.log(`Updated user ${subUserId} to pro plan`);
+			try {
+				await clerkClient.users.updateUser(subUserId, {
+					publicMetadata: {
+						plan: 'pro',
+						stripeCustomerId: subscription.customer as string,
+						subscriptionId: subscription.id,
+					},
+				});
+				console.log(`✅ Updated user ${subUserId} to pro plan`);
+			} catch (err: any) {
+				console.error(`❌ Failed to update user ${subUserId}:`, err.message);
+				return new Response(
+					JSON.stringify({ error: 'Failed to update user metadata' }),
+					{ status: 500 }
+				);
+			}
 			break;
 
 		case 'customer.subscription.deleted':
@@ -105,18 +145,43 @@ export async function handleStripeWebhook(
 			}
 
 			// Downgrade user back to free
-			await clerkClient.users.updateUser(deletedUserId, {
-				publicMetadata: {
-					plan: 'free',
-				},
-			});
-
-			console.log(`Downgraded user ${deletedUserId} to free plan`);
+			try {
+				await clerkClient.users.updateUser(deletedUserId, {
+					publicMetadata: {
+						plan: 'free',
+					},
+				});
+				console.log(`✅ Downgraded user ${deletedUserId} to free plan`);
+			} catch (err: any) {
+				console.error(`❌ Failed to downgrade user ${deletedUserId}:`, err.message);
+				return new Response(
+					JSON.stringify({ error: 'Failed to update user metadata' }),
+					{ status: 500 }
+				);
+			}
 			break;
 
 		default:
 			console.log(`Unhandled event type: ${event.type}`);
 	}
+
+	// ============================================================================
+	// MARK EVENT AS PROCESSED (Idempotency)
+	// ============================================================================
+	/**
+	 * Store event ID in KV to prevent duplicate processing
+	 *
+	 * TTL: 2592000 seconds = 30 days (matches Stripe's webhook retention)
+	 * Value: timestamp when processed (for debugging)
+	 *
+	 * This ensures if Stripe retries the same event, we return success immediately
+	 * without re-processing (updating Clerk metadata, etc)
+	 */
+	await env.USAGE_KV.put(
+		idempotencyKey,
+		new Date().toISOString(),
+		{ expirationTtl: 2592000 }  // 30 days
+	);
 
 	return new Response(JSON.stringify({ received: true }), { status: 200 });
 }
