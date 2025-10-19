@@ -121,7 +121,7 @@ export default function Dashboard() {
       {/* Navigation */}
       <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
         <Link to="/" className="no-underline text-slate-800 text-2xl font-bold">
-          📄 DocuFlow AI
+          ⚡ Panacea Tech
         </Link>
         <div className="flex gap-4 items-center">
           {plan === 'free' && (

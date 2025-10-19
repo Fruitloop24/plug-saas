@@ -43,7 +43,7 @@ export default function Landing() {
       {/* Navigation */}
       <nav className="flex justify-between items-center px-12 py-6 border-b border-gray-200 bg-white">
         <div className="text-2xl font-bold text-slate-800">
-          📄 DocuFlow AI
+          ⚡ Panacea Tech
         </div>
         <div className="flex gap-4 items-center">
           <SignedOut>
@@ -83,14 +83,13 @@ export default function Landing() {
       {/* Hero Section */}
       <div className="text-center px-8 py-24 pb-16 max-w-[1000px] mx-auto">
         <div className="inline-block px-4 py-2 bg-blue-50 text-blue-500 rounded-[20px] text-sm font-semibold mb-6">
-          ✨ AI-Powered Document Processing
+          ✨ Production SaaS Starter Template
         </div>
         <h1 className="text-6xl font-extrabold mb-6 leading-tight text-slate-900 tracking-tight">
-          Transform Documents<br />into Actionable Data
+          Build Your SaaS<br />on Cloudflare Edge
         </h1>
         <p className="text-xl mb-12 text-slate-600 leading-relaxed max-w-[700px] mx-auto">
-          Upload any document, extract data with AI, and automatically sync to Google Sheets.
-          PDFs, invoices, receipts, contracts — we handle it all.
+          Full-stack starter with authentication, billing, usage tracking, and webhooks. Deploy globally in minutes with zero cold starts.
         </p>
         <SignedOut>
           <div className="flex gap-4 justify-center items-center">
