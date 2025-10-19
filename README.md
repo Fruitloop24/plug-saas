@@ -575,3 +575,7 @@ export default {
 **DO NOT use**: `@tailwindcss/postcss` (v4 package) - causes missing utility classes.
 
 **Verification**: After build, check that `dist/assets/*.css` is ~29KB and includes classes like `bg-white`, `from-blue-600`.
+
+---
+
+hey web claude how you doing
