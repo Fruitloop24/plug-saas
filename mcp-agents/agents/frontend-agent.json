@@ -22,10 +22,16 @@
   
   "framework_preferences": {
     "react": "Vite + React 19 (NOT Next.js)",
-    "styling": "Tailwind CSS utility classes (AVOID inline styles)",
+    "styling": "Tailwind CSS v3 utility classes (AVOID inline styles, AVOID Tailwind v4)",
     "routing": "React Router v7",
     "state": "React hooks (useState, useContext)",
     "forms": "Controlled components with validation"
+  },
+
+  "critical_config": {
+    "tailwind_version": "v3 ONLY - v4 has breaking PostCSS changes",
+    "postcss_config": "Use 'tailwindcss' plugin, NOT '@tailwindcss/postcss'",
+    "package_install": "npm install -D tailwindcss@3 postcss autoprefixer"
   },
 
   "anti_patterns": {

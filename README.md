@@ -548,3 +548,30 @@ MIT - Use this template for your SaaS, commercial or personal projects.
 
 **⭐ If this template helped you, consider starring the repo!**
 
+
+---
+
+## Technical Notes
+
+### Tailwind CSS Version Fix (Oct 2025)
+**Issue**: Tailwind v4 has breaking PostCSS changes causing incomplete CSS builds (4-7KB instead of 25-30KB).  
+**Solution**: Use Tailwind CSS v3 with standard PostCSS config.
+
+```bash
+# Correct installation
+npm install -D tailwindcss@3 postcss autoprefixer
+```
+
+**postcss.config.js** - use standard plugin:
+```js
+export default {
+  plugins: {
+    tailwindcss: {},      // ✅ Correct (v3)
+    autoprefixer: {},
+  },
+}
+```
+
+**DO NOT use**: `@tailwindcss/postcss` (v4 package) - causes missing utility classes.
+
+**Verification**: After build, check that `dist/assets/*.css` is ~29KB and includes classes like `bg-white`, `from-blue-600`.

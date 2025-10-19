@@ -2,7 +2,11 @@
 VITE + REACT 19 + TAILWIND CSS - PRODUCTION PATTERNS (2025)
 ================================================================================
 Knowledge base for building production React apps with Vite + Tailwind.
-Last updated: 2025-10
+Last updated: 2025-10-19
+
+⚠️ CRITICAL: Use Tailwind CSS v3, NOT v4
+Tailwind v4 has breaking PostCSS changes that cause incomplete CSS builds.
+Symptoms: Missing utility classes, CSS file only 4-7KB instead of 25-30KB
 
 ================================================================================
 1. PROJECT SETUP & STRUCTURE
@@ -12,8 +16,13 @@ CREATING NEW PROJECT:
   npm create vite@latest my-app -- --template react-ts
   cd my-app
   npm install
-  npm install -D tailwindcss @tailwindcss/postcss autoprefixer
+  npm install -D tailwindcss@3 postcss autoprefixer
   npx tailwindcss init
+
+⚠️ IMPORTANT: Install Tailwind v3 specifically
+  DO NOT install: @tailwindcss/postcss (v4 package)
+  DO NOT install: tailwindcss@latest (installs v4)
+  ALWAYS use: tailwindcss@3
 
 RECOMMENDED FILE STRUCTURE:
   src/
@@ -31,6 +40,36 @@ VITE CONFIG BEST PRACTICES:
   - Target modern browsers only: build.target: 'es2015'
   - Enable CSS code splitting: build.cssCodeSplit: true
   - Minify with esbuild (default, faster than terser)
+
+POSTCSS CONFIG (CRITICAL):
+  File: postcss.config.js
+
+  CORRECT (Tailwind v3):
+    export default {
+      plugins: {
+        tailwindcss: {},
+        autoprefixer: {},
+      },
+    }
+
+  WRONG (Tailwind v4 - will break):
+    export default {
+      plugins: {
+        '@tailwindcss/postcss': {},  // ❌ This causes incomplete CSS
+        autoprefixer: {},
+      },
+    }
+
+TROUBLESHOOTING TAILWIND NOT LOADING:
+  Symptom: CSS file only 4-7 KB, missing classes like bg-white, from-blue-600
+
+  Fix:
+    1. npm uninstall tailwindcss @tailwindcss/postcss
+    2. npm install -D tailwindcss@3 postcss autoprefixer
+    3. Update postcss.config.js to use 'tailwindcss' plugin
+    4. rm -rf dist node_modules/.vite
+    5. npm run build
+    6. Verify CSS is 25-30 KB
 
 ================================================================================
 2. REACT 19 COMPONENT PATTERNS
