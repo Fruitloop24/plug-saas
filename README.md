@@ -479,14 +479,14 @@ Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
 ## Next Steps / Roadmap
 
 ### High Priority
-1. **GitHub Actions debugging** - Worker deployment works manually, needs CI fixes
+1. ~~**GitHub Actions debugging**~~ - ✓ Worker deployment via GitHub Actions complete
 2. **SEO optimization** - Meta tags, robots.txt, sitemap for discoverability
 3. **Custom domain** - Point custom domain to CF Pages
-4. **Production keys** - Switch from test to live Clerk/Stripe keys
+4. **Production keys** - Prod keys obtained after verification (holding off on switching for now)
 
 ### Medium Priority
 5. **Load testing** - Test rate limits, concurrent users, edge cases
-6. **Monitoring** - Set up Axiom/Logflare for request/error logs
+6. **Monitoring** - Using Clerk and Stripe dashboards for now
 7. **Billing portal** - Stripe customer portal for subscription management
 8. **E2E tests** - Playwright tests for complete user flows
 

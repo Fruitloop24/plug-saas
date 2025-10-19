@@ -1,13 +1,15 @@
 {
   "agent_name": "frontend-agent",
-  "version": "1.0.0",
-  "description": "React component generation, Tailwind styling, and Clerk auth integration specialist",
+  "version": "2.0.0",
+  "description": "React 19 + Vite + Tailwind specialist - converts inline styles to utility classes, builds production-ready components",
   "role": "Frontend Engineer",
-  "personality": "Creative but pragmatic, accessibility-first, mobile-responsive by default",
-  
+  "personality": "Pragmatic, performance-focused, values clean code over clever code",
+
+  "knowledge_base": "../base/vite-react-tailwind.txt",
+
   "context_files": [
-    "../../frontend/package.json",
-    "../../frontend/src/**/*"
+    "../../frontend-v2/package.json",
+    "../../frontend-v2/src/**/*"
   ],
   
   "core_responsibilities": {
@@ -19,11 +21,19 @@
   },
   
   "framework_preferences": {
-    "react": "Vite + React 18 (NOT Next.js)",
-    "styling": "Tailwind CSS (utility-first)",
-    "routing": "React Router v6",
+    "react": "Vite + React 19 (NOT Next.js)",
+    "styling": "Tailwind CSS utility classes (AVOID inline styles)",
+    "routing": "React Router v7",
     "state": "React hooks (useState, useContext)",
     "forms": "Controlled components with validation"
+  },
+
+  "anti_patterns": {
+    "inline_styles": "NEVER use hundreds of lines of inline style objects - convert to Tailwind classes",
+    "magic_numbers": "AVOID arbitrary spacing values - use Tailwind's design system (p-4, m-6, gap-8)",
+    "repeated_styles": "Extract repeated style patterns into reusable components",
+    "missing_keys": "Always add unique 'key' prop to list items",
+    "stale_closures": "Use useCallback/useMemo to avoid stale values in handlers"
   },
   
   "design_system": {
@@ -51,39 +61,39 @@
   
   "typical_tasks": [
     {
-      "task": "Create landing page with pricing",
+      "task": "Convert inline styles to Tailwind classes",
       "steps": [
-        "Generate hero section (headline, CTA, image)",
-        "Add pricing cards (Free, Pro, Enterprise)",
-        "Include features comparison table",
-        "Add testimonials section",
-        "Footer with links"
+        "Identify all inline style objects in component",
+        "Convert static values to Tailwind utilities (p-8, bg-white, rounded-2xl)",
+        "Extract repeated patterns to reusable components",
+        "Keep only dynamic values as inline styles (width: `${progress}%`)",
+        "Verify responsive behavior on mobile",
+        "Test hover/focus states"
       ],
-      "output": "src/pages/Landing.tsx",
-      "estimated_time": "30 minutes"
+      "output": "Cleaner component with Tailwind classes",
+      "estimated_time": "15-30 minutes per component"
     },
     {
-      "task": "Build dashboard with usage stats",
+      "task": "Add disclaimer that this is a starter template",
       "steps": [
-        "Create layout (sidebar + main content)",
-        "Add usage progress bar (X / Y requests)",
-        "Show current plan badge",
-        "Add 'Upgrade' button if free tier",
-        "Display recent activity list"
+        "Add clear text in multiple locations explaining this is a template",
+        "Keep the same professional tone and format as existing project",
+        "Use consistent styling (cards, typography, colors)",
+        "Add to landing page hero section or footer",
+        "Consider adding to dashboard as well"
       ],
-      "output": "src/pages/Dashboard.tsx",
-      "estimated_time": "30 minutes"
+      "output": "User-facing disclaimer in consistent style",
+      "estimated_time": "10 minutes"
     },
     {
-      "task": "Port component from Next.js",
+      "task": "Extract repeated style patterns",
       "steps": [
-        "Convert Next.js imports to Vite imports",
-        "Remove server actions (client-side only)",
-        "Update image imports (no next/image)",
-        "Replace Next.js Link with React Router Link",
-        "Test component renders correctly"
+        "Identify duplicate style combinations across components",
+        "Create reusable components (Card, Button, Badge)",
+        "Replace duplicated JSX with new components",
+        "Ensure props allow customization where needed"
       ],
-      "estimated_time": "15 minutes per component"
+      "estimated_time": "20-40 minutes"
     }
   ],
   

@@ -1,0 +1,520 @@
+================================================================================
+VITE + REACT 19 + TAILWIND CSS - PRODUCTION PATTERNS (2025)
+================================================================================
+Knowledge base for building production React apps with Vite + Tailwind.
+Last updated: 2025-10
+
+================================================================================
+1. PROJECT SETUP & STRUCTURE
+================================================================================
+
+CREATING NEW PROJECT:
+  npm create vite@latest my-app -- --template react-ts
+  cd my-app
+  npm install
+  npm install -D tailwindcss @tailwindcss/postcss autoprefixer
+  npx tailwindcss init
+
+RECOMMENDED FILE STRUCTURE:
+  src/
+    pages/          # Route components (Landing.tsx, Dashboard.tsx)
+    components/     # Reusable UI components (Button.tsx, Card.tsx)
+    hooks/          # Custom React hooks
+    utils/          # Helper functions
+    types/          # TypeScript interfaces
+    App.tsx         # Router setup
+    main.tsx        # Entry point
+    index.css       # Tailwind directives
+
+VITE CONFIG BEST PRACTICES:
+  - Use @ alias for src imports: resolve.alias: { '@': path.resolve(__dirname, './src') }
+  - Target modern browsers only: build.target: 'es2015'
+  - Enable CSS code splitting: build.cssCodeSplit: true
+  - Minify with esbuild (default, faster than terser)
+
+================================================================================
+2. REACT 19 COMPONENT PATTERNS
+================================================================================
+
+FUNCTIONAL COMPONENTS (REQUIRED):
+  - Always use function components, not classes
+  - Components MUST start with capital letter (MyComponent, not myComponent)
+  - Return JSX markup directly
+
+  Example:
+    export default function Dashboard() {
+      return <div className="p-4">Dashboard</div>;
+    }
+
+HOOKS RULES (CRITICAL):
+  - Call hooks ONLY at top level (not inside loops, conditions, or nested functions)
+  - Call hooks ONLY from React functions (components or custom hooks)
+  - Naming: Custom hooks MUST start with "use" (useAuth, useFetch)
+
+  Common hooks:
+    useState    - Local component state
+    useEffect   - Side effects (API calls, subscriptions)
+    useContext  - Access context values
+    useRef      - Mutable refs that persist across renders
+    useMemo     - Memoize expensive computations
+    useCallback - Memoize callback functions
+
+STATE MANAGEMENT PATTERN:
+  const [state, setState] = useState(initialValue);
+
+  - NEVER mutate state directly: state.push(x) ❌
+  - Always create new objects/arrays: setState([...state, x]) ✅
+  - Use functional updates when depending on prev state: setState(prev => prev + 1) ✅
+
+LIFTING STATE UP:
+  - When multiple components need shared state, move it to common parent
+  - Pass state down via props
+  - Pass setState functions down to allow children to update
+
+EVENT HANDLERS:
+  - Pass function reference: onClick={handleClick} ✅
+  - DON'T invoke immediately: onClick={handleClick()} ❌
+  - Use arrow functions for inline handlers with arguments: onClick={() => handleDelete(id)} ✅
+
+LISTS & KEYS:
+  - Use array.map() to render lists
+  - ALWAYS provide unique "key" prop (use ID, not index if items can reorder)
+  - Keys help React track insertions/deletions/reorders
+
+  Example:
+    {items.map(item => (
+      <div key={item.id}>{item.name}</div>
+    ))}
+
+CONDITIONAL RENDERING:
+  - Use ternary: {condition ? <A /> : <B />}
+  - Use && for simple show/hide: {condition && <Component />}
+  - Use if/else for complex logic outside JSX
+  - Use early returns to handle loading/error states
+
+================================================================================
+3. STYLING: TAILWIND VS INLINE STYLES
+================================================================================
+
+WHEN TO USE TAILWIND UTILITY CLASSES (PREFERRED):
+  ✅ All layout (flex, grid, spacing)
+  ✅ Typography (text-lg, font-bold)
+  ✅ Colors from design system (bg-blue-500, text-slate-700)
+  ✅ Responsive design (sm:flex lg:grid)
+  ✅ State variants (hover:bg-blue-600, focus:ring-2, disabled:opacity-50)
+  ✅ Consistent spacing (p-4, m-6, gap-8 follows 4px grid)
+
+WHEN TO USE INLINE STYLES:
+  ✅ Dynamic values from API/database: style={{ width: `${progress}%` }}
+  ✅ CSS variables from JavaScript: style={{ '--color': userColor }}
+  ✅ Complex arbitrary values hard to read as classes
+
+NEVER DO THIS (ANTI-PATTERN):
+  ❌ Hundreds of lines of inline style objects in JSX
+  ❌ Repeating same style object across multiple components
+  ❌ Using inline styles for static design system values
+
+  BAD EXAMPLE:
+    <div style={{
+      padding: '2rem',
+      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+      borderRadius: '20px',
+      boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+    }}>
+
+  GOOD EXAMPLE:
+    <div className="p-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl shadow-2xl shadow-blue-500/30">
+
+TAILWIND BEST PRACTICES:
+  1. Extract repeated patterns to components, not @apply directives
+  2. Use design tokens (colors, spacing) consistently
+  3. Mobile-first: Base classes apply to all, use sm:, md:, lg: for larger screens
+  4. Group related classes: layout → spacing → colors → typography
+  5. Use arbitrary values sparingly: w-[137px] (prefer w-32 or w-36)
+
+HANDLING DUPLICATE STYLES:
+  Option 1 - Component extraction (BEST):
+    const Card = ({ children }) => (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        {children}
+      </div>
+    );
+
+  Option 2 - Constants for conditional classes:
+    const buttonStyles = {
+      primary: "bg-blue-500 hover:bg-blue-600 text-white",
+      secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800"
+    };
+    <button className={buttonStyles.primary}>Click</button>
+
+  Option 3 - Template literals for dynamic classes:
+    className={`px-4 py-2 rounded ${loading ? 'opacity-50' : ''}`}
+
+================================================================================
+4. TYPESCRIPT PATTERNS
+================================================================================
+
+COMPONENT PROPS TYPES:
+  interface DashboardProps {
+    userId: string;
+    plan: 'free' | 'pro';
+    onUpgrade: () => void;
+    children?: React.ReactNode;
+  }
+
+  export default function Dashboard({ userId, plan, onUpgrade }: DashboardProps) {
+    // ...
+  }
+
+API RESPONSE TYPES:
+  interface UsageData {
+    userId: string;
+    usageCount: number;
+    limit: number | 'unlimited';
+    plan: 'free' | 'pro';
+  }
+
+  const [data, setData] = useState<UsageData | null>(null);
+
+EVENT HANDLER TYPES:
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    console.log(event.currentTarget);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+================================================================================
+5. VITE PRODUCTION BUILD
+================================================================================
+
+BUILD COMMAND:
+  npm run build  # Creates dist/ folder
+
+OPTIMIZATION CHECKLIST:
+  ✅ Remove console.logs (or use vite-plugin-remove-console)
+  ✅ Enable minification (esbuild default)
+  ✅ Code splitting via dynamic imports: const Dashboard = lazy(() => import('./Dashboard'))
+  ✅ Tree shaking (automatic with ES modules)
+  ✅ Image optimization (use vite-plugin-imagemin)
+  ✅ Disable sourcemaps for production: build.sourcemap: false
+
+BROWSER TARGETS (2025):
+  Vite defaults to: Chrome 107+, Edge 107+, Firefox 104+, Safari 16+
+  Covers ~95% of users globally
+
+  For older browsers: Use @vitejs/plugin-legacy (adds polyfills)
+
+DEPLOYMENT:
+  Static hosting (Cloudflare Pages, Vercel, Netlify):
+    - Upload dist/ folder
+    - Set build command: npm run build
+    - Set output directory: dist
+
+  SPA fallback for routing:
+    - Configure server to serve index.html for all routes
+    - Cloudflare Pages does this automatically
+
+PERFORMANCE TIPS:
+  - Lazy load routes: Use React.lazy() and Suspense
+  - Preload critical chunks: <link rel="modulepreload" href="..." />
+  - Use Vite's preload error handling for stale assets after deploys
+
+================================================================================
+6. ACCESSIBILITY (WCAG 2.1 AA)
+================================================================================
+
+SEMANTIC HTML (REQUIRED):
+  ✅ Use <header>, <nav>, <main>, <footer>, <article>, <section>
+  ✅ Use <button> for actions, <a> for navigation
+  ✅ Use <label> for form inputs
+  ❌ Don't use <div> with onClick for interactive elements
+
+ARIA LABELS:
+  - Add aria-label for icon-only buttons: <button aria-label="Close">×</button>
+  - Use aria-labelledby to reference visible labels
+  - Use aria-describedby for help text
+  - Add role="alert" for error messages
+
+KEYBOARD NAVIGATION:
+  - All interactive elements must be keyboard accessible (button, a, input)
+  - Visible focus states: focus:ring-2 focus:ring-blue-500
+  - Logical tab order (avoid tabIndex > 0)
+  - Add "Skip to main content" link for screen readers
+
+COLOR CONTRAST:
+  - Text must have 4.5:1 contrast ratio (use WebAIM contrast checker)
+  - Large text (18px+ or 14px+ bold) needs 3:1
+  - Don't convey info by color alone (use icons + color)
+
+IMAGES:
+  - All images need alt text: <img src="..." alt="Description" />
+  - Decorative images: alt=""
+  - Icons in buttons need aria-label on button, not alt on icon
+
+================================================================================
+7. PERFORMANCE OPTIMIZATION
+================================================================================
+
+LAZY LOADING:
+  const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+  <Suspense fallback={<Loading />}>
+    <Dashboard />
+  </Suspense>
+
+MEMOIZATION:
+  - useMemo for expensive calculations:
+    const expensiveValue = useMemo(() => computeExpensive(data), [data]);
+
+  - useCallback for functions passed as props:
+    const handleClick = useCallback(() => doSomething(), []);
+
+  - React.memo for components that re-render often:
+    const MemoizedComponent = React.memo(MyComponent);
+
+DEBOUNCING USER INPUT:
+  import { useState, useEffect } from 'react';
+
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+IMAGE OPTIMIZATION:
+  - Use WebP format with fallback
+  - Lazy load images below fold: loading="lazy"
+  - Responsive images: srcSet and sizes attributes
+  - Consider vite-plugin-imagemin for automatic optimization
+
+BUNDLE SIZE:
+  - Analyze with: npm run build -- --mode analyze
+  - Remove unused dependencies
+  - Use named imports: import { useState } from 'react' (not import React)
+  - Check bundle with: npx vite-bundle-visualizer
+
+================================================================================
+8. FORM HANDLING PATTERNS
+================================================================================
+
+CONTROLLED INPUTS:
+  const [email, setEmail] = useState('');
+
+  <input
+    type="email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+  />
+
+FORM SUBMISSION:
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/submit', { email });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  <form onSubmit={handleSubmit}>...</form>
+
+VALIDATION:
+  - Use HTML5 attributes: required, pattern, minLength
+  - Add client-side validation before API call
+  - Show error messages with role="alert" for screen readers
+  - Disable submit button during API call
+
+================================================================================
+9. API INTEGRATION PATTERNS
+================================================================================
+
+FETCH WITH ERROR HANDLING:
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/data');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const json = await response.json();
+        setData(json);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+AUTHENTICATION HEADERS:
+  const token = await getToken({ template: 'pan-api' });
+
+  fetch('/api/data', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }
+  });
+
+ENVIRONMENT VARIABLES:
+  - Vite exposes variables prefixed with VITE_
+  - Access via: import.meta.env.VITE_API_URL
+  - Create .env.local for local overrides (gitignored)
+  - Never commit secrets to .env files
+
+================================================================================
+10. COMMON PITFALLS & FIXES
+================================================================================
+
+PITFALL: Infinite useEffect loop
+  ❌ useEffect(() => { setData(newData); }, [data]);
+  ✅ useEffect(() => { fetchData(); }, []); // Run once on mount
+
+PITFALL: Stale closure in event handlers
+  ❌ const handleClick = () => console.log(count); // Always logs initial count
+  ✅ const handleClick = useCallback(() => console.log(count), [count]);
+
+PITFALL: Key prop on wrong element
+  ❌ <div><Item key={id} /></div>
+  ✅ <Item key={id} />  // Key goes on component returned from map
+
+PITFALL: Forgetting to prevent default
+  ❌ const handleSubmit = () => { /* form refreshes page */ }
+  ✅ const handleSubmit = (e) => { e.preventDefault(); /* works */ }
+
+PITFALL: Using index as key for dynamic lists
+  ❌ {items.map((item, index) => <div key={index}>...)}
+  ✅ {items.map(item => <div key={item.id}>...)}
+
+PITFALL: Not handling loading/error states
+  ❌ return <div>{data.value}</div>; // Crashes if data is null
+  ✅ if (loading) return <Loading />;
+     if (error) return <Error message={error} />;
+     return <div>{data?.value}</div>;
+
+================================================================================
+11. MODERN REACT PATTERNS (2025)
+================================================================================
+
+SERVER STATE MANAGEMENT:
+  - Use React Query (TanStack Query) for API data
+  - Handles caching, refetching, background updates
+  - Simpler than Redux for async data
+
+COMPONENT COMPOSITION:
+  - Use children prop for flexible layouts
+  - Use render props for advanced patterns
+  - Avoid prop drilling with Context API
+
+ERROR BOUNDARIES:
+  - Wrap app in ErrorBoundary component
+  - Catch React errors gracefully
+  - Show fallback UI instead of white screen
+
+SUSPENSE FOR DATA FETCHING:
+  - React 19 supports Suspense for data fetching
+  - Show loading states declaratively
+  - Coordinate multiple loading states
+
+================================================================================
+12. STYLING MIGRATION: INLINE → TAILWIND
+================================================================================
+
+STEP-BY-STEP CONVERSION:
+
+1. IDENTIFY STATIC STYLES:
+   Find all inline style objects that use fixed values (not dynamic)
+
+2. CONVERT TO TAILWIND:
+   padding: '2rem' → p-8
+   background: 'white' → bg-white
+   borderRadius: '16px' → rounded-2xl
+   fontSize: '1.5rem' → text-2xl
+   fontWeight: '700' → font-bold
+   color: '#475569' → text-slate-600
+   display: 'flex' → flex
+   gap: '1rem' → gap-4
+   marginBottom: '1.5rem' → mb-6
+
+3. HANDLE GRADIENTS:
+   background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+   → bg-gradient-to-br from-blue-500 to-blue-600
+
+4. HANDLE SHADOWS:
+   boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+   → shadow-2xl shadow-blue-500/30
+
+5. RESPONSIVE BREAKPOINTS:
+   @media (max-width: 768px) { ... }
+   → sm:hidden md:block lg:flex
+
+6. EXTRACT REPEATED PATTERNS:
+   Create reusable components for card, button, badge patterns
+
+7. KEEP DYNAMIC VALUES INLINE:
+   style={{ width: `${progress}%` }} stays as inline style
+
+REFACTORING CHECKLIST:
+  ✅ Convert all static spacing (padding, margin, gap)
+  ✅ Convert all static colors
+  ✅ Convert all static typography
+  ✅ Convert layout properties (flex, grid)
+  ✅ Extract repeated patterns to components
+  ✅ Keep only dynamic values as inline styles
+  ✅ Test responsive behavior on mobile
+  ✅ Verify hover/focus states work
+
+================================================================================
+13. CLERK AUTH INTEGRATION
+================================================================================
+
+SETUP:
+  npm install @clerk/clerk-react
+
+  In main.tsx:
+    import { ClerkProvider } from '@clerk/clerk-react';
+
+    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+      <App />
+    </ClerkProvider>
+
+PROTECTED ROUTES:
+  import { SignedIn, SignedOut } from '@clerk/clerk-react';
+
+  <SignedIn>
+    <Dashboard />
+  </SignedIn>
+  <SignedOut>
+    <Landing />
+  </SignedOut>
+
+USER DATA:
+  import { useUser } from '@clerk/clerk-react';
+
+  const { user, isLoaded } = useUser();
+  const plan = user?.publicMetadata?.plan || 'free';
+
+JWT TOKEN:
+  import { useAuth } from '@clerk/clerk-react';
+
+  const { getToken } = useAuth();
+  const token = await getToken({ template: 'pan-api' });
+
+AUTH COMPONENTS:
+  import { SignIn, SignUp, UserButton } from '@clerk/clerk-react';
+
+  <SignIn routing="path" path="/sign-in" />
+  <SignUp routing="path" path="/sign-up" />
+  <UserButton afterSignOutUrl="/" />
+
+================================================================================
+END OF KNOWLEDGE BASE
+================================================================================

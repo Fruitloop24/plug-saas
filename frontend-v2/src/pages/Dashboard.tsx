@@ -117,33 +117,17 @@ export default function Dashboard() {
   const plan = (user?.publicMetadata?.plan as string) || 'free';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="min-h-screen bg-slate-50">
       {/* Navigation */}
-      <nav style={{
-        background: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '1rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <Link to="/" style={{ textDecoration: 'none', color: '#1e293b', fontSize: '1.5rem', fontWeight: '700' }}>
+      <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
+        <Link to="/" className="no-underline text-slate-800 text-2xl font-bold">
           📄 DocuFlow AI
         </Link>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="flex gap-4 items-center">
           {plan === 'free' && (
             <button
               onClick={handleUpgrade}
-              style={{
-                padding: '0.5rem 1.5rem',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '15px'
-              }}
+              className="px-6 py-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none rounded-lg cursor-pointer font-semibold text-[15px]"
             >
               ⚡ Upgrade to Pro
             </button>
@@ -152,39 +136,31 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 2rem' }}>
+      <div className="max-w-7xl mx-auto px-8 py-12">
         {/* Header */}
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#0f172a', fontWeight: '800' }}>
+        <div className="mb-12">
+          <h1 className="text-4xl mb-2 text-slate-900 font-extrabold">
             Dashboard
           </h1>
-          <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
+          <p className="text-slate-600 text-lg">
             Process documents and track your usage
           </p>
         </div>
 
         {/* Usage Counter */}
         {usage && (
-          <div style={{
-            background: plan === 'free'
-              ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-              : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            padding: '3rem',
-            borderRadius: '20px',
-            marginBottom: '2rem',
-            textAlign: 'center',
-            color: 'white',
-            boxShadow: plan === 'free'
-              ? '0 10px 30px rgba(59, 130, 246, 0.3)'
-              : '0 10px 30px rgba(16, 185, 129, 0.3)'
-          }}>
-            <div style={{ fontSize: '5rem', fontWeight: '900', marginBottom: '0.5rem', lineHeight: '1' }}>
+          <div className={`p-12 rounded-3xl mb-8 text-center text-white ${
+            plan === 'free'
+              ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl shadow-blue-500/30'
+              : 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-2xl shadow-emerald-500/30'
+          }`}>
+            <div className="text-8xl font-black mb-2 leading-none">
               {plan === 'free' ? `${usage.usageCount} / ${usage.limit}` : usage.usageCount}
             </div>
-            <p style={{ fontSize: '1.5rem', opacity: 0.95, marginBottom: '0.5rem', fontWeight: '600' }}>
+            <p className="text-2xl opacity-95 mb-2 font-semibold">
               {plan === 'free' ? 'Documents Processed' : 'Documents Processed'}
             </p>
-            <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>
+            <p className="text-lg opacity-90">
               {plan === 'free'
                 ? `${usage.remaining} remaining this month`
                 : '✨ Unlimited • Pro Plan Active'
@@ -194,80 +170,52 @@ export default function Dashboard() {
         )}
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 mb-8">
           {/* Account Card */}
-          <div style={{
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '16px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div className="bg-white p-8 rounded-2xl border border-gray-200">
+            <h2 className="text-lg mb-6 text-slate-600 font-semibold uppercase tracking-wider">
               Account
             </h2>
-            <p style={{ marginBottom: '1rem', color: '#475569', fontSize: '0.95rem' }}>
-              <strong style={{ color: '#1e293b' }}>Email:</strong><br />
+            <p className="mb-4 text-slate-600 text-[0.95rem]">
+              <strong className="text-slate-800">Email:</strong><br />
               {user?.primaryEmailAddress?.emailAddress}
             </p>
-            <div style={{
-              marginTop: '1.5rem',
-              display: 'inline-block',
-              padding: '0.5rem 1.25rem',
-              background: plan === 'pro'
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                : '#f1f5f9',
-              color: plan === 'pro' ? 'white' : '#64748b',
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              fontWeight: '700',
-              letterSpacing: '0.05em'
-            }}>
+            <div className={`mt-6 inline-block px-5 py-2 rounded-lg text-[0.85rem] font-bold tracking-wider ${
+              plan === 'pro'
+                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
+                : 'bg-slate-100 text-slate-600'
+            }`}>
               {(plan as string).toUpperCase()} PLAN
             </div>
           </div>
 
           {/* Usage Stats Card */}
           {usage && (
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '16px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="bg-white p-8 rounded-2xl border border-gray-200">
+              <h2 className="text-lg mb-6 text-slate-600 font-semibold uppercase tracking-wider">
                 Usage This Month
               </h2>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '3rem', fontWeight: '800', color: '#0f172a', lineHeight: '1' }}>
+              <div className="mb-6">
+                <div className="text-5xl font-extrabold text-slate-900 leading-none">
                   {usage.usageCount}
                   {plan === 'free' && (
-                    <span style={{ fontSize: '1.5rem', color: '#94a3b8', fontWeight: '600' }}> / {usage.limit}</span>
+                    <span className="text-2xl text-slate-400 font-semibold"> / {usage.limit}</span>
                   )}
                 </div>
-                <p style={{ color: '#64748b', fontSize: '0.95rem', marginTop: '0.5rem' }}>
+                <p className="text-slate-600 text-[0.95rem] mt-2">
                   documents processed
                 </p>
               </div>
               {plan === 'free' && (
-                <div style={{
-                  padding: '1rem',
-                  background: '#eff6ff',
-                  borderRadius: '10px',
-                  border: '1px solid #dbeafe'
-                }}>
-                  <p style={{ margin: 0, color: '#3b82f6', fontWeight: '600', fontSize: '0.95rem' }}>
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <p className="m-0 text-blue-500 font-semibold text-[0.95rem]">
                     {usage.remaining} requests remaining
                   </p>
                 </div>
               )}
               {plan === 'pro' && (
-                <div style={{
-                  padding: '1rem',
-                  background: '#d1fae5',
-                  borderRadius: '10px',
-                  border: '1px solid #a7f3d0'
-                }}>
-                  <p style={{ margin: 0, color: '#059669', fontWeight: '600', fontSize: '0.95rem' }}>
+                <div className="p-4 bg-emerald-100 rounded-xl border border-emerald-300">
+                  <p className="m-0 text-emerald-600 font-semibold text-[0.95rem]">
                     ✨ Unlimited processing
                   </p>
                 </div>
@@ -277,51 +225,32 @@ export default function Dashboard() {
         </div>
 
         {/* Test API Section */}
-        <div style={{
-          background: 'white',
-          padding: '2.5rem',
-          borderRadius: '16px',
-          border: '1px solid #e5e7eb',
-          marginBottom: '2rem'
-        }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#0f172a', fontWeight: '700' }}>
+        <div className="bg-white p-10 rounded-2xl border border-gray-200 mb-8">
+          <h2 className="text-2xl mb-4 text-slate-900 font-bold">
             Test Document Processing
           </h2>
-          <p style={{ color: '#64748b', marginBottom: '2rem', lineHeight: '1.6' }}>
+          <p className="text-slate-600 mb-8 leading-relaxed">
             Click below to simulate processing a document. This counts toward your usage limit.
           </p>
 
           <button
             onClick={makeRequest}
             disabled={loading}
-            style={{
-              padding: '1rem 2rem',
-              fontSize: '1rem',
-              background: loading ? '#cbd5e1' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontWeight: '600',
-              boxShadow: loading ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.2s'
-            }}
+            className={`px-8 py-4 text-base text-white border-none rounded-xl font-semibold transition-all ${
+              loading
+                ? 'bg-slate-300 cursor-not-allowed shadow-none'
+                : 'bg-blue-500 cursor-pointer shadow-lg shadow-blue-500/30'
+            }`}
           >
             {loading ? '⏳ Processing...' : '📄 Process Document'}
           </button>
 
           {message && (
-            <div
-              style={{
-                marginTop: '1.5rem',
-                padding: '1rem 1.25rem',
-                borderRadius: '10px',
-                background: message.includes('✗') ? '#fef2f2' : '#d1fae5',
-                border: `1px solid ${message.includes('✗') ? '#fecaca' : '#a7f3d0'}`,
-                color: message.includes('✗') ? '#991b1b' : '#065f46',
-                fontWeight: '500'
-              }}
-            >
+            <div className={`mt-6 px-5 py-4 rounded-xl font-medium ${
+              message.includes('✗')
+                ? 'bg-red-50 border border-red-200 text-red-800'
+                : 'bg-emerald-100 border border-emerald-300 text-emerald-900'
+            }`}>
               {message}
             </div>
           )}
@@ -329,36 +258,16 @@ export default function Dashboard() {
 
         {/* Upgrade CTA */}
         {plan === 'free' && (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              padding: '3rem',
-              borderRadius: '20px',
-              color: 'white',
-              textAlign: 'center',
-              boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
-            }}
-          >
-            <h3 style={{ fontSize: '2rem', marginBottom: '1rem', fontWeight: '700' }}>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-12 rounded-3xl text-white text-center shadow-2xl shadow-blue-500/30 mb-8">
+            <h3 className="text-3xl mb-4 font-bold">
               Unlock Unlimited Processing
             </h3>
-            <p style={{ fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.95, lineHeight: '1.6' }}>
+            <p className="text-lg mb-8 opacity-95 leading-relaxed">
               Process unlimited documents with faster processing speeds and priority support
             </p>
             <button
               onClick={handleUpgrade}
-              style={{
-                padding: '1rem 3rem',
-                fontSize: '1.1rem',
-                background: 'white',
-                color: '#3b82f6',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontWeight: '700',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                transition: 'all 0.2s'
-              }}
+              className="px-12 py-4 text-lg bg-white text-blue-500 border-none rounded-xl cursor-pointer font-bold shadow-xl shadow-black/20 transition-all"
             >
               Upgrade to Pro - $29/mo
             </button>
@@ -367,25 +276,25 @@ export default function Dashboard() {
 
         {/* Pro Badge */}
         {plan === 'pro' && (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              padding: '2rem',
-              borderRadius: '20px',
-              color: 'white',
-              textAlign: 'center',
-              boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)'
-            }}
-          >
-            <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✨</div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>
+          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-8 rounded-3xl text-white text-center shadow-2xl shadow-emerald-500/30 mb-8">
+            <div className="text-5xl mb-2">✨</div>
+            <h3 className="text-2xl font-bold mb-2">
               Pro Plan Active
             </h3>
-            <p style={{ opacity: 0.95 }}>
+            <p className="opacity-95">
               You have unlimited document processing
             </p>
           </div>
         )}
+
+        {/* Footer Disclaimer */}
+        <div className="mt-16 pt-8 border-t border-gray-200 text-center">
+          <p className="text-slate-500 text-sm">
+            Built with the{' '}
+            <span className="font-semibold text-slate-700">Production SaaS Starter Template</span>
+            {' '}• Full-stack React + Cloudflare Workers + Clerk Auth
+          </p>
+        </div>
       </div>
     </div>
   );

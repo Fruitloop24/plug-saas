@@ -39,49 +39,24 @@ export default function Landing() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1.5rem 3rem',
-        borderBottom: '1px solid #e5e7eb',
-        background: 'white'
-      }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+      <nav className="flex justify-between items-center px-12 py-6 border-b border-gray-200 bg-white">
+        <div className="text-2xl font-bold text-slate-800">
           📄 DocuFlow AI
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="flex gap-4 items-center">
           <SignedOut>
             <button
               onClick={() => navigate('/sign-in')}
-              style={{
-                padding: '0.5rem 1.5rem',
-                background: 'transparent',
-                border: '1px solid #cbd5e1',
-                borderRadius: '8px',
-                color: '#475569',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}>
+              className="px-6 py-2 bg-transparent border border-slate-300 rounded-lg text-slate-600 cursor-pointer text-[15px] font-medium transition-all"
+            >
               Sign In
             </button>
             <button
               onClick={() => navigate('/sign-up')}
-              style={{
-                padding: '0.5rem 1.5rem',
-                background: '#3b82f6',
-                border: 'none',
-                borderRadius: '8px',
-                color: 'white',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '600',
-                transition: 'all 0.2s'
-              }}>
+              className="px-6 py-2 bg-blue-500 border-none rounded-lg text-white cursor-pointer text-[15px] font-semibold transition-all"
+            >
               Get Started Free
             </button>
           </SignedOut>
@@ -90,30 +65,14 @@ export default function Landing() {
               <button
                 onClick={handleUpgrade}
                 disabled={isUpgrading}
-                style={{
-                  padding: '0.5rem 1.5rem',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: 'white',
-                  cursor: isUpgrading ? 'not-allowed' : 'pointer',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  opacity: isUpgrading ? 0.6 : 1
-                }}
+                className={`px-6 py-2 bg-gradient-to-br from-blue-500 to-blue-600 border-none rounded-lg text-white text-[15px] font-semibold ${
+                  isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                }`}
               >
                 {isUpgrading ? 'Loading...' : '⚡ Upgrade to Pro'}
               </button>
             )}
-            <Link to="/dashboard" style={{
-              color: '#475569',
-              textDecoration: 'none',
-              padding: '0.5rem 1rem',
-              background: '#f1f5f9',
-              borderRadius: '8px',
-              fontSize: '15px',
-              fontWeight: '500'
-            }}>
+            <Link to="/dashboard" className="text-slate-600 no-underline px-4 py-2 bg-slate-100 rounded-lg text-[15px] font-medium">
               Dashboard
             </Link>
             <UserButton />
@@ -122,96 +81,39 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <div style={{
-        textAlign: 'center',
-        padding: '6rem 2rem 4rem 2rem',
-        maxWidth: '1000px',
-        margin: '0 auto'
-      }}>
-        <div style={{
-          display: 'inline-block',
-          padding: '0.5rem 1rem',
-          background: '#eff6ff',
-          color: '#3b82f6',
-          borderRadius: '20px',
-          fontSize: '14px',
-          fontWeight: '600',
-          marginBottom: '1.5rem'
-        }}>
+      <div className="text-center px-8 py-24 pb-16 max-w-[1000px] mx-auto">
+        <div className="inline-block px-4 py-2 bg-blue-50 text-blue-500 rounded-[20px] text-sm font-semibold mb-6">
           ✨ AI-Powered Document Processing
         </div>
-        <h1 style={{
-          fontSize: '4rem',
-          fontWeight: '800',
-          marginBottom: '1.5rem',
-          lineHeight: '1.1',
-          color: '#0f172a',
-          letterSpacing: '-0.02em'
-        }}>
+        <h1 className="text-6xl font-extrabold mb-6 leading-tight text-slate-900 tracking-tight">
           Transform Documents<br />into Actionable Data
         </h1>
-        <p style={{
-          fontSize: '1.25rem',
-          marginBottom: '3rem',
-          color: '#64748b',
-          lineHeight: '1.8',
-          maxWidth: '700px',
-          margin: '0 auto 3rem auto'
-        }}>
+        <p className="text-xl mb-12 text-slate-600 leading-relaxed max-w-[700px] mx-auto">
           Upload any document, extract data with AI, and automatically sync to Google Sheets.
           PDFs, invoices, receipts, contracts — we handle it all.
         </p>
         <SignedOut>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="flex gap-4 justify-center items-center">
             <button
               onClick={() => navigate('/sign-up')}
-              style={{
-                padding: '1rem 2.5rem',
-                fontSize: '1.1rem',
-                background: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontWeight: '700',
-                boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
-                transition: 'all 0.2s'
-              }}>
+              className="px-10 py-4 text-lg bg-blue-500 text-white border-none rounded-xl cursor-pointer font-bold shadow-lg shadow-blue-500/40 transition-all"
+            >
               Start Free Trial
             </button>
             <button
               onClick={() => navigate('/sign-in')}
-              style={{
-                padding: '1rem 2.5rem',
-                fontSize: '1.1rem',
-                background: 'transparent',
-                color: '#475569',
-                border: '2px solid #e2e8f0',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                transition: 'all 0.2s'
-              }}>
+              className="px-10 py-4 text-lg bg-transparent text-slate-600 border-2 border-slate-200 rounded-xl cursor-pointer font-semibold transition-all"
+            >
               Sign In
             </button>
           </div>
-          <p style={{ marginTop: '1.5rem', color: '#94a3b8', fontSize: '0.95rem' }}>
+          <p className="mt-6 text-slate-400 text-[0.95rem]">
             5 free documents • No credit card required • Cancel anytime
           </p>
         </SignedOut>
         <SignedIn>
           <Link to="/dashboard">
-            <button style={{
-              padding: '1rem 2.5rem',
-              fontSize: '1.1rem',
-              background: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              fontWeight: '700',
-              boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)'
-            }}>
+            <button className="px-10 py-4 text-lg bg-blue-500 text-white border-none rounded-xl cursor-pointer font-bold shadow-lg shadow-blue-500/40">
               Go to Dashboard →
             </button>
           </Link>
@@ -219,114 +121,53 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <div style={{
-        background: '#f8fafc',
-        padding: '6rem 2rem',
-        marginTop: '2rem'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{
-              fontSize: '2.5rem',
-              fontWeight: '700',
-              marginBottom: '1rem',
-              color: '#0f172a'
-            }}>
+      <div className="bg-slate-50 px-8 py-24 mt-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4 text-slate-900">
               Everything you need to process documents
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
+            <p className="text-slate-600 text-lg">
               Powerful features that save you hours of manual work
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '2rem'
-          }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-8">
             {/* Feature 1 */}
-            <div style={{
-              padding: '2.5rem',
-              background: 'white',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              transition: 'all 0.3s'
-            }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.8rem',
-                marginBottom: '1.5rem'
-              }}>
+            <div className="p-10 bg-white border border-slate-200 rounded-2xl transition-all">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center text-3xl mb-6">
                 🤖
               </div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem', color: '#1e293b', fontWeight: '600' }}>
+              <h3 className="text-2xl mb-4 text-slate-800 font-semibold">
                 AI-Powered Extraction
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.7', fontSize: '1rem' }}>
+              <p className="text-slate-600 leading-relaxed text-base">
                 Advanced AI automatically identifies and extracts fields from any document type with high accuracy
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div style={{
-              padding: '2.5rem',
-              background: 'white',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              transition: 'all 0.3s'
-            }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.8rem',
-                marginBottom: '1.5rem'
-              }}>
+            <div className="p-10 bg-white border border-slate-200 rounded-2xl transition-all">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center text-3xl mb-6">
                 📊
               </div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem', color: '#1e293b', fontWeight: '600' }}>
+              <h3 className="text-2xl mb-4 text-slate-800 font-semibold">
                 Google Sheets Integration
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.7', fontSize: '1rem' }}>
+              <p className="text-slate-600 leading-relaxed text-base">
                 Extracted data automatically syncs to your Google Sheets in real-time for instant analysis
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div style={{
-              padding: '2.5rem',
-              background: 'white',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              transition: 'all 0.3s'
-            }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.8rem',
-                marginBottom: '1.5rem'
-              }}>
+            <div className="p-10 bg-white border border-slate-200 rounded-2xl transition-all">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center text-3xl mb-6">
                 ⚡
               </div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem', color: '#1e293b', fontWeight: '600' }}>
+              <h3 className="text-2xl mb-4 text-slate-800 font-semibold">
                 Lightning Fast Processing
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.7', fontSize: '1rem' }}>
+              <p className="text-slate-600 leading-relaxed text-base">
                 Process hundreds of documents in seconds with our optimized AI pipeline
               </p>
             </div>
@@ -335,90 +176,51 @@ export default function Landing() {
       </div>
 
       {/* Pricing Section */}
-      <div style={{
-        padding: '6rem 2rem',
-        background: 'white'
-      }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{
-              fontSize: '2.5rem',
-              fontWeight: '700',
-              marginBottom: '1rem',
-              color: '#0f172a'
-            }}>
+      <div className="px-8 py-24 bg-white">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4 text-slate-900">
               Simple, transparent pricing
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
+            <p className="text-slate-600 text-lg">
               Start free, upgrade when you need more
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem',
-            maxWidth: '900px',
-            margin: '0 auto'
-          }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8 max-w-[900px] mx-auto">
             {/* Free Tier */}
-            <div style={{
-              padding: '3rem',
-              background: 'white',
-              borderRadius: '20px',
-              border: '2px solid #e2e8f0',
-              position: 'relative'
-            }}>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#475569', fontWeight: '600' }}>Free</h3>
-              <div style={{ marginBottom: '2rem' }}>
-                <span style={{ fontSize: '3.5rem', fontWeight: '800', color: '#0f172a' }}>$0</span>
-                <span style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: '500' }}>/month</span>
+            <div className="p-12 bg-white rounded-3xl border-2 border-slate-200 relative">
+              <h3 className="text-2xl mb-2 text-slate-600 font-semibold">Free</h3>
+              <div className="mb-8">
+                <span className="text-[3.5rem] font-extrabold text-slate-900">$0</span>
+                <span className="text-lg text-slate-600 font-medium">/month</span>
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem' }}>
-                <li style={{ marginBottom: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ color: '#3b82f6' }}>✓</span> 5 documents/month
+              <ul className="list-none p-0 mb-8">
+                <li className="mb-4 text-slate-600 flex items-center gap-3">
+                  <span className="text-blue-500">✓</span> 5 documents/month
                 </li>
-                <li style={{ marginBottom: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ color: '#3b82f6' }}>✓</span> AI extraction
+                <li className="mb-4 text-slate-600 flex items-center gap-3">
+                  <span className="text-blue-500">✓</span> AI extraction
                 </li>
-                <li style={{ marginBottom: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ color: '#3b82f6' }}>✓</span> Google Sheets export
+                <li className="mb-4 text-slate-600 flex items-center gap-3">
+                  <span className="text-blue-500">✓</span> Google Sheets export
                 </li>
-                <li style={{ marginBottom: '1rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ color: '#cbd5e1' }}>✗</span> Priority support
+                <li className="mb-4 text-slate-400 flex items-center gap-3">
+                  <span className="text-slate-300">✗</span> Priority support
                 </li>
               </ul>
               <SignedOut>
                 <button
                   onClick={() => navigate('/sign-up')}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    background: '#f1f5f9',
-                    color: '#475569',
-                    border: 'none',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '1rem'
-                  }}>
+                  className="w-full px-4 py-4 bg-slate-100 text-slate-600 border-none rounded-xl cursor-pointer font-semibold text-base"
+                >
                   Get Started
                 </button>
               </SignedOut>
               <SignedIn>
                 {plan === 'free' && (
                   <Link to="/dashboard">
-                    <button style={{
-                      width: '100%',
-                      padding: '1rem',
-                      background: '#f1f5f9',
-                      color: '#475569',
-                      border: 'none',
-                      borderRadius: '10px',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      fontSize: '1rem'
-                    }}>
+                    <button className="w-full px-4 py-4 bg-slate-100 text-slate-600 border-none rounded-xl cursor-pointer font-semibold text-base">
                       Current Plan
                     </button>
                   </Link>
@@ -427,63 +229,34 @@ export default function Landing() {
             </div>
 
             {/* Pro Tier */}
-            <div style={{
-              padding: '3rem',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              borderRadius: '20px',
-              border: '2px solid #3b82f6',
-              color: 'white',
-              position: 'relative',
-              boxShadow: '0 20px 40px rgba(59, 130, 246, 0.3)'
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '-16px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: '#fbbf24',
-                color: '#78350f',
-                padding: '0.35rem 1.25rem',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
-                fontWeight: '700',
-                letterSpacing: '0.05em'
-              }}>
+            <div className="p-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl border-2 border-blue-500 text-white relative shadow-2xl shadow-blue-500/30">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 px-5 py-1.5 rounded-[20px] text-xs font-bold tracking-wider">
                 MOST POPULAR
               </div>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: '600' }}>Pro</h3>
-              <div style={{ marginBottom: '2rem' }}>
-                <span style={{ fontSize: '3.5rem', fontWeight: '800' }}>$29</span>
-                <span style={{ fontSize: '1.1rem', opacity: 0.9, fontWeight: '500' }}>/month</span>
+              <h3 className="text-2xl mb-2 font-semibold">Pro</h3>
+              <div className="mb-8">
+                <span className="text-[3.5rem] font-extrabold">$29</span>
+                <span className="text-lg opacity-90 font-medium">/month</span>
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem' }}>
-                <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <ul className="list-none p-0 mb-8">
+                <li className="mb-4 flex items-center gap-3">
                   <span>✓</span> Unlimited documents
                 </li>
-                <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <li className="mb-4 flex items-center gap-3">
                   <span>✓</span> AI extraction
                 </li>
-                <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <li className="mb-4 flex items-center gap-3">
                   <span>✓</span> Google Sheets sync
                 </li>
-                <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <li className="mb-4 flex items-center gap-3">
                   <span>✓</span> Priority support
                 </li>
               </ul>
               <SignedOut>
                 <button
                   onClick={() => navigate('/sign-up')}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    background: 'white',
-                    color: '#3b82f6',
-                    border: 'none',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    fontWeight: '700',
-                    fontSize: '1rem'
-                  }}>
+                  className="w-full px-4 py-4 bg-white text-blue-500 border-none rounded-xl cursor-pointer font-bold text-base"
+                >
                   Start Free Trial
                 </button>
               </SignedOut>
@@ -492,33 +265,14 @@ export default function Landing() {
                   <button
                     onClick={handleUpgrade}
                     disabled={isUpgrading}
-                    style={{
-                      width: '100%',
-                      padding: '1rem',
-                      background: 'white',
-                      color: '#3b82f6',
-                      border: 'none',
-                      borderRadius: '10px',
-                      cursor: isUpgrading ? 'not-allowed' : 'pointer',
-                      fontWeight: '700',
-                      fontSize: '1rem',
-                      opacity: isUpgrading ? 0.6 : 1
-                    }}
+                    className={`w-full px-4 py-4 bg-white text-blue-500 border-none rounded-xl font-bold text-base ${
+                      isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                    }`}
                   >
                     {isUpgrading ? 'Loading...' : 'Upgrade Now'}
                   </button>
                 ) : (
-                  <button style={{
-                    width: '100%',
-                    padding: '1rem',
-                    background: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    border: '2px solid white',
-                    borderRadius: '10px',
-                    cursor: 'default',
-                    fontWeight: '700',
-                    fontSize: '1rem'
-                  }}>
+                  <button className="w-full px-4 py-4 bg-white/20 text-white border-2 border-white rounded-xl cursor-default font-bold text-base">
                     ✓ Current Plan
                   </button>
                 )}
@@ -529,37 +283,19 @@ export default function Landing() {
       </div>
 
       {/* Footer CTA */}
-      <div style={{
-        background: '#f8fafc',
-        padding: '4rem 2rem',
-        textAlign: 'center'
-      }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            marginBottom: '1rem',
-            color: '#0f172a'
-          }}>
+      <div className="bg-slate-50 px-8 py-16 text-center">
+        <div className="max-w-[700px] mx-auto">
+          <h2 className="text-4xl font-bold mb-4 text-slate-900">
             Ready to get started?
           </h2>
-          <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '2rem' }}>
+          <p className="text-slate-600 text-lg mb-8">
             Join hundreds of teams processing thousands of documents every day
           </p>
           <SignedOut>
             <button
               onClick={() => navigate('/sign-up')}
-              style={{
-                padding: '1rem 2.5rem',
-                fontSize: '1.1rem',
-                background: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontWeight: '700',
-                boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)'
-              }}>
+              className="px-10 py-4 text-lg bg-blue-500 text-white border-none rounded-xl cursor-pointer font-bold shadow-lg shadow-blue-500/40"
+            >
               Start Free Trial
             </button>
           </SignedOut>
@@ -568,39 +304,29 @@ export default function Landing() {
               <button
                 onClick={handleUpgrade}
                 disabled={isUpgrading}
-                style={{
-                  padding: '1rem 2.5rem',
-                  fontSize: '1.1rem',
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: isUpgrading ? 'not-allowed' : 'pointer',
-                  fontWeight: '700',
-                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
-                  opacity: isUpgrading ? 0.6 : 1
-                }}
+                className={`px-10 py-4 text-lg bg-blue-500 text-white border-none rounded-xl font-bold shadow-lg shadow-blue-500/40 ${
+                  isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                }`}
               >
                 {isUpgrading ? 'Loading...' : 'Upgrade to Pro'}
               </button>
             ) : (
               <Link to="/dashboard">
-                <button style={{
-                  padding: '1rem 2.5rem',
-                  fontSize: '1.1rem',
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontWeight: '700',
-                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)'
-                }}>
+                <button className="px-10 py-4 text-lg bg-blue-500 text-white border-none rounded-xl cursor-pointer font-bold shadow-lg shadow-blue-500/40">
                   Go to Dashboard
                 </button>
               </Link>
             )}
           </SignedIn>
+
+          {/* Template Disclaimer */}
+          <div className="mt-16 pt-8 border-t border-slate-200">
+            <p className="text-slate-500 text-sm">
+              Built with the{' '}
+              <span className="font-semibold text-slate-700">Production SaaS Starter Template</span>
+              {' '}• Full-stack React + Cloudflare Workers + Clerk Auth
+            </p>
+          </div>
         </div>
       </div>
     </div>
