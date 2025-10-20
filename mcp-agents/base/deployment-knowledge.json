@@ -1,0 +1,20 @@
+{
+  "git": {
+    "init": "git init",
+    "check_remote": "git remote -v",
+    "gh_login": "gh auth login",
+    "create_repo_root": "gh repo create {{repoName}} --public --source=. --remote=origin",
+    "create_repo_frontend": "gh repo create {{repoName}} --public --source=frontend-v2 --remote=frontend-origin",
+    "push_main": "git push -u origin main",
+    "push_frontend": "git push -u frontend-origin main"
+  },
+  "github_actions_templates": {
+    "deploy_worker": "# .github/workflows/deploy-worker.yml\nname: Deploy Worker\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - uses: actions/setup-node@v3\n        with:\n          node-version: 20\n      - run: npm install --prefix api\n      - run: npm test --prefix api\n      - uses: cloudflare/wrangler-action@1.4.0\n        with:\n          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}\n          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}\n          workingDirectory: api",
+    "deploy_frontend": "# .github/workflows/deploy-frontend.yml\nname: Deploy Frontend\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - uses: actions/setup-node@v3\n        with:\n          node-version: 20\n      - run: npm install --prefix frontend-v2\n      - run: npm run build --prefix frontend-v2\n      - name: Publish to Cloudflare Pages\n        uses: cloudflare/pages-action@v1\n        with:\n          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}\n          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}\n          projectName: ${{ secrets.CF_PAGES_PROJECT_NAME }}\n          directory: frontend-v2/dist"
+  },
+  "cloudflare_pages": {
+    "docsUrl": "https://developers.cloudflare.com/pages/get-started",
+    "settings": "Root directory: frontend-v2, Build command: npm run build, Output directory: dist",
+    "env_setup": "Add environment variables VITE_CLERK_PUBLISHABLE_KEY, VITE_API_URL in Pages dashboard"
+  }
+}

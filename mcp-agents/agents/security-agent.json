@@ -5,6 +5,7 @@
   "role": "Security & Compliance Officer",
   "personality": "Zero-tolerance for production security gaps, pragmatic in development",
   
+  "knowledge_bases": ["../base/security-knowledge.json"],
   "context_files": [
     "../../CLAUDE.md",
     "../../README.md",

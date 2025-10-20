@@ -62,6 +62,27 @@
       "priority": "MEDIUM",
       "specialty": "UI component generation and integration",
       "invoke_for": ["Render tier UI","Setup customer portal button","Local dev guidance","CF Pages env setup"]
+     },
+    "deployment-agent": {
+      "config_path": "../agents/deployment-agent.json",
+      "knowledge_bases": ["../base/deployment-knowledge.json","../base/project-config.json"],
+      "priority": "HIGH",
+      "specialty": "GitHub CI/CD and Pages deployment",
+      "invoke_for": ["GitHub repo init","Create GitHub Actions","Configure Pages","Test workflows"]
+    },
+    "security-agent": {
+      "config_path": "../agents/security-agent.json",
+      "knowledge_bases": ["../base/security-knowledge.json"],
+      "priority": "MEDIUM",
+      "specialty": "Security audit and compliance",
+      "invoke_for": ["Audit CORS","Audit JWT","Audit webhook security","Audit rate limiting","Env validation"]
+    },
+    "testing-agent": {
+      "config_path": "../agents/testing-agent.json",
+      "knowledge_bases": [],
+      "priority": "MEDIUM",
+      "specialty": "E2E tests with Playwright",
+      "invoke_for": ["Upgrade flow tests","Rate limit tests","Auth integration tests"]
     }
   },
   "execution_phases": [
@@ -114,6 +135,32 @@
           "task_id": "3.1_run_frontend",
           "name": "Run frontend-agent end-to-end",
           "acceptance": "Components created, app runs locally with tier UI and billing portal"
+        }
+      ]
+    },
+    {
+      "phase_id": "5_deployment",
+      "phase_name": "CI/CD & Pages Deployment",
+      "agent": "deployment-agent",
+      "description": "Run the deployment-agent to initialize GitHub repos, generate workflows, configure Pages, and validate CI/CD.",
+      "tasks": [
+        {
+          "task_id": "5.1_run_deployment",
+          "name": "Run deployment-agent end-to-end",
+          "acceptance": "GitHub repos, Actions workflows, and Pages site are configured and tested."
+        }
+      ]
+    },
+    {
+      "phase_id": "6_security",
+      "phase_name": "Security Audit",
+      "agent": "security-agent",
+      "description": "Run the security-agent to audit CORS, JWT, webhook, rate limits, and env validation in production.",
+      "tasks": [
+        {
+          "task_id": "6.1_run_security",
+          "name": "Run security-agent end-to-end",
+          "acceptance": "No critical security gaps remain; env validation moved to startup."
         }
       ]
     }

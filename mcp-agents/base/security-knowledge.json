@@ -1,0 +1,11 @@
+{
+  "features": [
+    { "name": "JWT Verification", "description": "All API endpoints validate Clerk-issued JWTs to ensure authenticity and user identity.", "docsUrl": "https://clerk.com/docs/authentication/configuration/jwt-templates" },
+    { "name": "Dynamic CORS", "description": "CORS origins are validated against an environment-configurable allowlist to prevent unauthorized domains.", "docsUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" },
+    { "name": "Stripe Webhook Security", "description": "Webhook endpoint verifies Stripe signature using the STRIPE_WEBHOOK_SECRET to prevent fraudulent events.", "docsUrl": "https://stripe.com/docs/webhooks/signatures" },
+    { "name": "Rate Limiting", "description": "User-specific rate limiting of 100 requests/minute implemented via KV with TTL to prevent abuse.", "docsUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Rate_limiting" },
+    { "name": "Security Headers", "description": "Responses include CSP, HSTS, X-Frame-Options, X-Content-Type-Options, and Permissions-Policy headers.", "docsUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers" },
+    { "name": "Environment Validation", "description": "Required environment variables are validated on worker startup to prevent misconfiguration.", "docsUrl": "https://developers.cloudflare.com/workers/cli-wrangler/configuration" }
+  ],
+  "notes": "Use this knowledge base to reference implemented security features and corresponding documentation when guiding the user."
+}

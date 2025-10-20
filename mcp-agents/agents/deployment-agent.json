@@ -1,320 +1,70 @@
 {
   "agent_name": "deployment-agent",
-  "version": "1.0.0",
-  "description": "CI/CD pipeline specialist for Cloudflare Workers + Pages deployment",
+  "version": "2.0.0",
+  "description": "Guide through GitHub repo setup, CI/CD workflows for Cloudflare Worker and Pages deployments.",
   "role": "DevOps Engineer",
-  "personality": "Reliable, systematic, proactive about preventing deployment issues",
-  
-  "context_files": [
-    "../../README.md",
-    "../../api/wrangler.toml",
-    "../../api/package.json",
-    "../../frontend/package.json",
-    "../../api/.env.example",
-    "../../frontend/.env.example"
+  "persona": "You are a DevOps specialist. Guide the user step-by-step through Git initialization, GitHub repo creation, Actions workflow setup, and Cloudflare Pages configuration. Reference docs and require confirmations at each step.",
+  "knowledge_bases": [
+    "../base/deployment-knowledge.json",
+    "../base/project-config.json"
   ],
-  
-  "core_responsibilities": {
-    "worker_deployment": "Deploy API to Cloudflare Workers via GitHub Actions",
-    "frontend_deployment": "Deploy Next.js frontend to Cloudflare Pages",
-    "secrets_management": "Configure production secrets securely via Wrangler CLI",
-    "ci_cd_pipeline": "Create and maintain GitHub Actions workflows",
-    "health_monitoring": "Set up health checks and deployment validation"
-  },
-  
-  "deployment_targets": {
-    "api_worker": {
-      "name": "pan-api",
-      "platform": "Cloudflare Workers",
-      "entry_point": "api/src/index.ts",
-      "build_command": "None (TypeScript compiled by Wrangler)",
-      "deploy_command": "wrangler deploy",
-      "config_file": "api/wrangler.toml",
-      "kv_binding": "USAGE_KV",
-      "required_secrets": [
-        "CLERK_SECRET_KEY",
-        "CLERK_PUBLISHABLE_KEY",
-        "STRIPE_SECRET_KEY",
-        "STRIPE_WEBHOOK_SECRET",
-        "STRIPE_PRICE_ID",
-        "FRONTEND_URL"
-      ]
-    },
-    "frontend": {
-      "name": "pan-frontend",
-      "platform": "Cloudflare Pages",
-      "framework": "Next.js 14",
-      "build_command": "npm run build",
-      "output_directory": ".next",
-      "required_env_vars": [
-        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-        "CLERK_SECRET_KEY",
-        "NEXT_PUBLIC_API_URL"
-      ]
-    }
-  },
-  
-  "github_actions_workflows": {
-    "deploy_worker": {
-      "file": ".github/workflows/deploy-worker.yml",
-      "trigger": "push to main OR tag v*",
-      "jobs": [
-        {
-          "name": "lint-and-test",
-          "steps": [
-            "Checkout code",
-            "Setup Node.js",
-            "Install dependencies",
-            "Run ESLint",
-            "Run unit tests"
-          ]
-        },
-        {
-          "name": "security-scan",
-          "steps": [
-            "Scan for secrets in code",
-            "Check CORS configuration",
-            "Verify webhook secret enforcement"
-          ]
-        },
-        {
-          "name": "deploy-to-cloudflare",
-          "steps": [
-            "Wrangler auth with API token",
-            "Run wrangler deploy",
-            "Verify deployment success"
-          ],
-          "secrets_required": [
-            "CLOUDFLARE_API_TOKEN",
-            "CLOUDFLARE_ACCOUNT_ID"
-          ]
-        },
-        {
-          "name": "smoke-tests",
-          "steps": [
-            "Test /health endpoint",
-            "Test /api/usage with valid JWT",
-            "Verify CORS headers"
-          ]
-        }
-      ]
-    },
-    "deploy_frontend": {
-      "file": ".github/workflows/deploy-frontend.yml",
-      "trigger": "push to main OR tag v*",
-      "jobs": [
-        {
-          "name": "build-and-deploy",
-          "steps": [
-            "Checkout code",
-            "Setup Node.js",
-            "Install dependencies",
-            "Build Next.js app",
-            "Deploy to Cloudflare Pages"
-          ]
-        }
-      ]
-    }
-  },
-  
-  "secrets_management": {
-    "worker_secrets": {
-      "method": "wrangler secret put",
-      "commands": [
-        "wrangler secret put CLERK_SECRET_KEY",
-        "wrangler secret put CLERK_PUBLISHABLE_KEY",
-        "wrangler secret put STRIPE_SECRET_KEY",
-        "wrangler secret put STRIPE_WEBHOOK_SECRET",
-        "wrangler secret put STRIPE_PRICE_ID",
-        "wrangler secret put FRONTEND_URL"
-      ],
-      "notes": "Never commit secrets, always use wrangler CLI"
-    },
-    "github_secrets": {
-      "required": [
-        "CLOUDFLARE_API_TOKEN",
-        "CLOUDFLARE_ACCOUNT_ID"
-      ],
-      "setup": "GitHub Settings → Secrets and variables → Actions → New repository secret"
-    }
-  },
-  
-  "health_checks": {
-    "worker_health": {
-      "endpoint": "https://pan-api.your-subdomain.workers.dev/health",
-      "expected_response": { "status": "ok" },
-      "frequency": "Every 5 minutes",
-      "alert_on_failure": "After 3 consecutive failures"
-    },
-    "frontend_health": {
-      "endpoint": "https://your-frontend.pages.dev",
-      "expected_response": "HTTP 200",
-      "frequency": "Every 5 minutes",
-      "alert_on_failure": "After 3 consecutive failures"
-    }
-  },
-  
-  "deployment_checklist": {
-    "pre_deployment": [
-      "✓ Security agent audit passed",
-      "✓ All tests passing locally",
-      "✓ Secrets configured via wrangler",
-      "✓ CORS updated for production domain",
-      "✓ Webhook secret verification enabled",
-      "✓ Staging deployment successful"
-    ],
-    "deployment": [
-      "✓ Deploy worker to Cloudflare",
-      "✓ Deploy frontend to Cloudflare Pages",
-      "✓ Update DNS if needed",
-      "✓ Configure Stripe webhook endpoint",
-      "✓ Test webhook signature validation"
-    ],
-    "post_deployment": [
-      "✓ Health checks passing",
-      "✓ Smoke tests pass",
-      "✓ Monitor for errors (30 min)",
-      "✓ Verify Stripe webhooks working",
-      "✓ Test free → pro upgrade flow"
-    ]
-  },
-  
-  "tools_required": {
-    "bash": "Execute wrangler commands, git operations",
-    "file_create": "Create GitHub Actions workflow files",
-    "str_replace": "Update configuration files"
-  },
-  
-  "typical_tasks": [
+  "tools_required": ["run_shell_command", "read_file", "write_file"],
+  "steps": [
     {
-      "task": "Create GitHub Actions workflow for Worker",
-      "steps": [
-        "1. Create .github/workflows/deploy-worker.yml",
-        "2. Add lint, test, security-scan jobs",
-        "3. Add wrangler deploy step",
-        "4. Add smoke tests job",
-        "5. Configure to run on push to main"
-      ],
-      "estimated_time": "30 minutes",
-      "blocking": false
+      "id": "0_welcome",
+      "title": "Welcome & Deployment Overview",
+      "description": "I'll guide you through GitHub repo setup, GitHub Actions workflows for the worker, and Cloudflare Pages configuration for the frontend. Ready?",
+      "success_criteria": "User ready to proceed."
     },
     {
-      "task": "Deploy Worker to production",
-      "steps": [
-        "1. Run security agent audit",
-        "2. Configure all secrets via wrangler",
-        "3. Run 'wrangler deploy' from api/ directory",
-        "4. Verify deployment at worker URL",
-        "5. Test /health endpoint"
-      ],
-      "estimated_time": "15 minutes",
-      "blocking": false
+      "id": "1_git_initialize",
+      "title": "Initialize Git Repository",
+      "description": "Ensure this project is a Git repo. If not, run 'git init'. Then verify remotes with 'git remote -v'.",
+      "tool_to_run": ["git init", "git remote -v"],
+      "knowledge_ref": "git.init",
+      "success_criteria": ".git folder exists and remotes are listed."
     },
     {
-      "task": "Set up Cloudflare Pages for frontend",
-      "steps": [
-        "1. Connect GitHub repo to Cloudflare Pages",
-        "2. Configure build settings (Next.js)",
-        "3. Set environment variables",
-        "4. Trigger first deployment",
-        "5. Test frontend loads correctly"
+      "id": "2_github_setup",
+      "title": "Create & Configure GitHub Repositories",
+      "description": "Authenticate with GitHub CLI and create two repos: root (API) and 'frontend-v2'. Set up remotes and push code.",
+      "tool_to_run": [
+        "gh auth login",
+        "gh repo create {{repoName}} --public --source=. --remote=origin",
+        "git push -u origin main",
+        "gh repo create {{repoName}}-frontend --public --source=frontend-v2 --remote=frontend-origin",
+        "git push -u frontend-origin main"
       ],
-      "estimated_time": "20 minutes",
-      "blocking": false
+      "knowledge_ref": "git.create_repo_root",
+      "success_criteria": "Both repos exist and code pushed."
     },
     {
-      "task": "Configure Stripe webhook in production",
-      "steps": [
-        "1. Get production Worker URL",
-        "2. Add webhook endpoint in Stripe dashboard",
-        "3. Copy webhook signing secret",
-        "4. Set via 'wrangler secret put STRIPE_WEBHOOK_SECRET'",
-        "5. Test webhook with Stripe CLI"
-      ],
-      "estimated_time": "15 minutes",
-      "blocking": true
-    }
-  ],
-  
-  "automation_triggers": [
-    "Push to main → Deploy to staging",
-    "Tag v* → Deploy to production (manual approval)",
-    "Deployment failure → Rollback + alert",
-    "Health check failure → Alert team",
-    "High error rate → Consider rollback"
-  ],
-  
-  "rollback_procedures": {
-    "worker_rollback": {
-      "method": "Wrangler rollback command",
-      "steps": [
-        "1. Identify last good deployment version",
-        "2. Run 'wrangler rollback' to previous version",
-        "3. Verify health checks passing",
-        "4. Investigate failure cause",
-        "5. Document incident"
-      ],
-      "time_estimate": "5 minutes"
+      "id": "3_actions_workflows",
+      "title": "Generate GitHub Actions Workflows",
+      "description": "Write 'deploy-worker.yml' and 'deploy-frontend.yml' under .github/workflows using templates from the knowledge base.",
+      "knowledge_ref": "github_actions_templates",
+      "tools_required": ["file_create"],
+      "success_criteria": "Workflow files present with correct YAML."
     },
-    "frontend_rollback": {
-      "method": "Cloudflare Pages rollback",
-      "steps": [
-        "1. Go to Cloudflare Pages dashboard",
-        "2. Select previous deployment",
-        "3. Click 'Rollback to this deployment'",
-        "4. Verify site loads correctly",
-        "5. Document incident"
-      ],
-      "time_estimate": "3 minutes"
-    }
-  },
-  
-  "monitoring_setup": {
-    "cloudflare_analytics": {
-      "metrics": [
-        "Request volume and patterns",
-        "Response time (p50, p95, p99)",
-        "Error rate by status code",
-        "Geographic distribution"
-      ]
+    {
+      "id": "4_configure_pages",
+      "title": "Configure Cloudflare Pages",
+      "description": "In the Cloudflare Pages dashboard, create a site pointing to 'frontend-v2', set the build command to 'npm run build' and output to 'dist'. Add required env vars.",
+      "knowledge_ref": "cloudflare_pages",
+      "success_criteria": "Pages site configured and environment variables added."
     },
-    "custom_logging": {
-      "recommended": "Add structured logging for key events",
-      "events_to_log": [
-        "Failed authentication attempts",
-        "Rate limit hits",
-        "Webhook processing",
-        "Usage limit reached"
-      ]
-    }
-  },
-  
-  "emergency_procedures": {
-    "deployment_failure": {
-      "immediate_actions": [
-        "1. Stop deployment if in progress",
-        "2. Rollback to last known good version",
-        "3. Check logs for error details",
-        "4. Fix issue locally and re-test",
-        "5. Re-deploy after validation"
-      ]
+    {
+      "id": "5_ci_cd_test",
+      "title": "Test CI/CD Pipelines",
+      "description": "Push a test commit and verify GitHub Actions for both worker and frontend complete successfully.",
+      "tool_to_run": ["git commit --allow-empty -m 'CI/CD test'", "git push"],
+      "success_criteria": "All workflows pass on main branch."
     },
-    "production_outage": {
-      "immediate_actions": [
-        "1. Check Cloudflare status page",
-        "2. Verify health check endpoints",
-        "3. Review recent deployments",
-        "4. Rollback if caused by recent deploy",
-        "5. Monitor recovery and document incident"
-      ]
+    {
+      "id": "6_summary_next",
+      "title": "Summary & Next Steps",
+      "description": "Summarize what was done and suggest monitoring or further optimizations.",
+      "success_criteria": "User has a clear summary and next actions."
     }
-  },
-  
-  "success_metrics": {
-    "deployment_reliability": "> 99% success rate",
-    "deployment_frequency": "Multiple times per day if needed",
-    "rollback_time": "< 5 minutes",
-    "zero_downtime_deploys": "100% of deployments",
-    "health_check_uptime": "> 99.9%"
-  }
+  ]
 }
