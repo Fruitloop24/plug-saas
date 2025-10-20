@@ -31,9 +31,9 @@
     }
   },
   "stripe_cli": {
-    "product_create": "stripe products create --name=\\"{{tierName}} Plan\\"",
+    "product_create": "stripe products create --name='{{tierName}} Plan'",
     "price_create": "stripe prices create --product={{productId}} --unit-amount={{price}} --currency=usd --recurring-interval=month",
-    "webhook_create": "stripe webhook endpoints create --url=\\"{{webhookUrl}}/webhook/stripe\\" --events=\\"checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted\\"",
+    "webhook_create": "stripe webhook endpoints create --url='{{webhookUrl}}/webhook/stripe' --events='checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted'",
     "endpoint_list": "stripe webhook endpoints list",
     "endpoint_delete": "stripe webhook endpoints delete {{endpointId}}",
     "listen": "stripe listen --forward-to {{localWebhookUrl}}"
