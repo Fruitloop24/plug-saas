@@ -35,245 +35,89 @@
   },
   
   "available_agents": {
-    "security-agent": {
-      "config_path": "../agents/security-agent.json",
-      "base_knowledge": null,
-      "priority": "MEDIUM",
-      "blocks_production": false,
-      "specialty": "Security hardening (CORS ✅, webhook secret ✅, env validation pending)",
-      "invoke_for": [
-        "✅ RESOLVED: Fix CORS wildcard (2025-10-19)",
-        "✅ RESOLVED: Enforce webhook secret (2025-10-19)",
-        "⚠️ PENDING: Move env validation to worker startup"
-      ]
+    "onboarding-agent": {
+      "config_path": "../agents/onboarding-agent.json",
+      "knowledge_bases": ["../base/project-config.json"],
+      "priority": "HIGH",
+      "specialty": "Project Onboarding",
+      "invoke_for": ["Initial environment setup", "Dependency installation", "Local & production env config"]
+    },
+    "clerk-agent": {
+      "config_path": "../agents/clerk-agent.json",
+      "knowledge_bases": ["../base/clerk-knowledge.json","../base/project-config.json"],
+      "priority": "HIGH",
+      "specialty": "Clerk API and JWT configuration",
+      "invoke_for": ["Retrieve Clerk keys","Configure JWT template","Populate env files","Set production secrets"]
+    },
+    "tiers-agent": {
+      "config_path": "../agents/tiers-agent.json",
+      "knowledge_bases": ["../base/tiers-knowledge.json","../base/project-config.json","../base/frontend-knowledge.json"],
+      "priority": "HIGH",
+      "specialty": "Tier configuration and Stripe integration",
+      "invoke_for": ["Refactor backend limits","Create Stripe products & prices","Configure webhook","Export frontend KB"]
     },
     "frontend-agent": {
       "config_path": "../agents/frontend-agent.json",
-      "base_knowledge": null,
-      "priority": "HIGH",
-      "specialty": "React components, Tailwind, Clerk integration",
-      "invoke_for": [
-        "Generate landing page",
-        "Build dashboard UI",
-        "Create auth pages",
-        "Port components from Next.js to React"
-      ]
-    },
-    "cf-specialist": {
-      "config_path": "../agents/cf-specialist.json",
-      "base_knowledge": "../base/cloudflare-workers.txt",
-      "priority": "HIGH",
-      "specialty": "CF Workers deployment, CF Pages setup, wrangler",
-      "invoke_for": [
-        "Deploy worker to production",
-        "Set up CF Pages",
-        "Manage wrangler secrets",
-        "Fix CF-specific issues",
-        "Create GitHub Actions workflow"
-      ]
-    },
-    "testing-agent": {
-      "config_path": "../agents/testing-agent.json",
-      "base_knowledge": null,
+      "knowledge_bases": ["../base/vite-react-tailwind.txt","../base/frontend-knowledge.json"],
       "priority": "MEDIUM",
-      "specialty": "E2E tests with Playwright",
-      "invoke_for": [
-        "Test upgrade flow end-to-end",
-        "Test rate limiting",
-        "Test auth integration",
-        "Write Playwright test suites"
-      ]
+      "specialty": "UI component generation and integration",
+      "invoke_for": ["Render tier UI","Setup customer portal button","Local dev guidance","CF Pages env setup"]
     }
   },
-  
   "execution_phases": [
     {
-      "phase_id": "1_security",
-      "phase_name": "Improve Environment Validation",
-      "description": "Move env validation to worker startup instead of first request (2 critical blockers already resolved on 2025-10-19: CORS and webhook security)",
-      "blocking": false,
-      "agent": "security-agent",
-      "human_approval": "AFTER_EACH_FIX",
-
-      "resolved_tasks": [
-        {
-          "task_id": "1.1_fix_cors",
-          "name": "Fix CORS wildcard",
-          "blocker": "BLOCKER_1_CORS_WILDCARD",
-          "status": "✅ RESOLVED (2025-10-19)",
-          "location": "api/src/index.ts:140-165"
-        },
-        {
-          "task_id": "1.2_fix_webhook",
-          "name": "Enforce webhook secret",
-          "blocker": "BLOCKER_2_WEBHOOK_SECRET_OPTIONAL",
-          "status": "✅ RESOLVED (2025-10-19)",
-          "location": "api/src/stripe-webhook.ts:29-36"
-        }
-      ],
-
+      "phase_id": "1_onboarding",
+      "phase_name": "Onboarding",
+      "agent": "onboarding-agent",
+      "description": "Run the onboarding agent to configure local and production environments and install dependencies.",
       "tasks": [
         {
-          "task_id": "1.3_fix_env_validation",
-          "name": "Move env validation to worker startup",
-          "blocker": "MEDIUM_ENV_VALIDATION_TIMING",
-          "location": "api/src/index.ts (startup)",
-          "estimated_time": "10 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Worker fails to start if env vars missing"
+          "task_id": "1.1_run_onboarding",
+          "name": "Run onboarding-agent end-to-end",
+          "acceptance": "Local and production env configured, dependencies installed"
         }
-      ],
-
-      "phase_acceptance": "Env validation moved to startup, worker fails fast on missing config"
+      ]
     },
-    
     {
-      "phase_id": "2_frontend",
-      "phase_name": "Migrate Frontend to React + CF Pages",
-      "description": "Replace Next.js with React (Vite) and deploy to CF Pages",
-      "blocking": false,
-      "agents": ["cf-specialist", "frontend-agent"],
-      "human_approval": "AFTER_EACH_COMPONENT",
-      
+      "phase_id": "2_clerk",
+      "phase_name": "Clerk Configuration",
+      "agent": "clerk-agent",
+      "description": "Retrieve Clerk API keys, configure JWT template, update env files, and set production secrets.",
       "tasks": [
         {
-          "task_id": "2.1_create_react_app",
-          "name": "Create Vite + React app",
-          "agent": "cf-specialist",
-          "estimated_time": "10 minutes",
-          "wait_for_approval": true,
-          "acceptance": "App builds and runs locally"
-        },
-        {
-          "task_id": "2.2_setup_clerk",
-          "name": "Set up Clerk client-side",
-          "agent": "frontend-agent",
-          "estimated_time": "15 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Sign in/sign up/sign out work"
-        },
-        {
-          "task_id": "2.3_build_landing",
-          "name": "Build landing page",
-          "agent": "frontend-agent",
-          "estimated_time": "30 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Landing page looks good, responsive"
-        },
-        {
-          "task_id": "2.4_build_dashboard",
-          "name": "Build dashboard",
-          "agent": "frontend-agent",
-          "estimated_time": "30 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Dashboard shows usage, plan, upgrade button"
-        },
-        {
-          "task_id": "2.5_deploy_pages",
-          "name": "Deploy to CF Pages",
-          "agent": "cf-specialist",
-          "estimated_time": "20 minutes",
-          "wait_for_approval": true,
-          "acceptance": "App live on CF Pages, Clerk auth works"
-        },
-        {
-          "task_id": "2.6_update_cors",
-          "name": "Update worker CORS for CF Pages",
-          "agent": "cf-specialist",
-          "estimated_time": "5 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Frontend can call API successfully"
+          "task_id": "2.1_run_clerk",
+          "name": "Run clerk-agent end-to-end",
+          "acceptance": "Clerk keys set locally and in production, JWT template configured"
         }
-      ],
-      
-      "phase_acceptance": "React app on CF Pages, auth works, API calls work"
+      ]
     },
-    
     {
-      "phase_id": "3_testing",
-      "phase_name": "Write E2E Tests",
-      "description": "Create Playwright tests for critical user journeys",
-      "blocking": false,
-      "agent": "testing-agent",
-      "human_approval": "AFTER_EACH_TEST",
-      
+      "phase_id": "3_tiers",
+      "phase_name": "Tier Setup",
+      "agent": "tiers-agent",
+      "description": "Run the tiers-agent to refactor backend, set up Stripe products/prices/webhook, and export frontend KB.",
       "tasks": [
         {
-          "task_id": "3.1_setup_playwright",
-          "name": "Set up Playwright",
-          "estimated_time": "10 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Playwright installed and configured"
-        },
-        {
-          "task_id": "3.2_upgrade_flow_test",
-          "name": "Write upgrade flow test",
-          "estimated_time": "30 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Test passes: sign up → limit → upgrade → unlimited"
-        },
-        {
-          "task_id": "3.3_rate_limit_test",
-          "name": "Write rate limit test",
-          "estimated_time": "20 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Test passes: 100 requests succeed, 101st fails"
+          "task_id": "2.1_run_tiers",
+          "name": "Run tiers-agent end-to-end",
+          "acceptance": "Backend and frontend tier configuration complete"
         }
-      ],
-      
-      "phase_acceptance": "E2E tests pass, critical flows validated"
+      ]
     },
-    
     {
-      "phase_id": "4_deployment",
-      "phase_name": "Set Up CI/CD",
-      "description": "Create GitHub Actions for auto-deploy on push",
-      "blocking": false,
-      "agent": "cf-specialist",
-      "human_approval": "AFTER_WORKFLOW_CREATED",
-      
+      "phase_id": "4_frontend",
+      "phase_name": "Frontend Integration",
+      "agent": "frontend-agent",
+      "description": "Run the frontend-agent to generate and integrate UI components for tiers and customer portal.",
       "tasks": [
         {
-          "task_id": "4.1_create_workflow",
-          "name": "Create GitHub Actions workflow",
-          "estimated_time": "20 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Workflow file created, looks correct"
-        },
-        {
-          "task_id": "4.2_set_secrets",
-          "name": "Set GitHub secrets",
-          "estimated_time": "5 minutes",
-          "wait_for_approval": true,
-          "acceptance": "CLOUDFLARE_API_TOKEN and ACCOUNT_ID set"
-        },
-        {
-          "task_id": "4.3_test_autodeploy",
-          "name": "Test auto-deploy",
-          "estimated_time": "10 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Push to main → worker auto-deploys"
+          "task_id": "3.1_run_frontend",
+          "name": "Run frontend-agent end-to-end",
+          "acceptance": "Components created, app runs locally with tier UI and billing portal"
         }
-      ],
-      
-      "phase_acceptance": "CI/CD working, push to main auto-deploys"
+      ]
     }
   ],
-  
-  "invocation_pattern": {
-    "description": "How to use this orchestrator one task at a time",
-    "example_session": [
-      "Human: 'Run security-agent to fix CORS (task 1.1)'",
-      "Claude: [Reads security-agent.json, fixes code, shows diff]",
-      "Claude: 'CORS fixed. Waiting for approval.'",
-      "Human: 'Test it first'",
-      "Claude: [Runs curl test with unauthorized origin]",
-      "Claude: 'Test passed. CORS blocks unauthorized origins.'",
-      "Human: 'Approved. Next task.'",
-      "Claude: [Moves to task 1.2 - webhook secret]"
-    ]
-  },
-  
   "coordination_rules": {
     "never_skip_approval": "Always wait for human approval after each task",
     "read_config_first": "Always read agent config before invoking",

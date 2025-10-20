@@ -46,7 +46,38 @@ mcp-agents/
 
 ## 🚀 Usage
 
-### Starting a Session
+### AI-driven Installation Flow
+
+1. Clone the repo:
+   ```bash
+   git clone <your-repo-url>
+   cd clerk
+   ```
+2. Open the project in your AI IDE (e.g., Claude Code, Genmini, Cursor):
+   ```bash
+   claude code mcp-agents/orchestration/coordinator.json
+   ```
+3. Ask the AI: "Run the orchestrator to set up the project." It will execute, in order (awaiting your approval between each):
+   - `onboarding-agent` (configures local & prod envs, installs dependencies)
+   - `tiers-agent` (refactors backend, creates Stripe products/prices/webhook, exports frontend KB)
+   - `frontend-agent` (generates UI components, wiring customer portal & env guidance)
+4. During the flow, provide any required values (API keys, price IDs, webhook secret).
+5. Once complete, test locally:
+   ```bash
+   # API
+   cd api && npm run dev      # http://localhost:8787
+   # Frontend
+   cd ../frontend-v2 && npm run dev  # http://localhost:5173
+   ```
+6. To deploy, re-run the orchestrator or invoke specific agents for production steps.
+
+> Note: More agents can be added later; this orchestrator currently includes only onboarding, tiers, and frontend.  
+> Each agent reads its own knowledge base:
+> - Onboarding: `base/project-config.json`
+> - Tiers: `base/tiers-knowledge.json`, `base/frontend-knowledge.json`
+> - Frontend: `base/vite-react-tailwind.txt`, `base/frontend-knowledge.json`
+>
+> For detailed agent configs and docs, see `agents/` and `base/` folders.
 ```bash
 # You tell Claude what to do:
 "Run security-agent to fix CORS wildcard (task 1.1)"
@@ -108,17 +139,55 @@ curl -H "Origin: https://evil.com" http://localhost:8787/api/usage
 
 ## 🤖 Available Agents
 
-### security-agent
-**Purpose:** Fix critical security blockers before production
-**Specialty:** CORS, webhook verification, env validation
+### onboarding-agent
+**Purpose:** Guide project setup: prerequisites, env config, secret files, dependency installation  
+**Specialty:** Initial project onboarding for local and production  
 **Invoke for:**
-- Fix CORS wildcard (BLOCKER_1)
-- Enforce webhook secret (BLOCKER_2)
-- Add startup env validation (BLOCKER_3)
+- Welcome user and environment overview  
+- Validate CLI tools (node, npm, wrangler, stripe)  
+- Populate `.dev.vars` and frontend `.env`  
+- Install dependencies in `api` and `frontend-v2`  
 
-**Config:** `agents/security-agent.json`
-**Base knowledge:** None (uses project-specific knowledge)
+**Config:** `agents/onboarding-agent.json`  
+**Base knowledge:** `base/project-config.json`  
 
+---
+### clerk-agent
+**Purpose:** Retrieve Clerk keys and configure JWT template  
+**Specialty:** Clerk Dashboard & CLI integration, JWT setup  
+**Invoke for:**
+- Retrieve CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY, CLERK_JWT_TEMPLATE  
+- Populate backend and production secrets  
+
+**Config:** `agents/clerk-agent.json`  
+**Base knowledge:** `base/clerk-knowledge.json`, `base/project-config.json`  
+
+---
+### tiers-agent
+**Purpose:** Configure subscription plans: code refactors, Stripe CLI, webhook, frontend KB export  
+**Specialty:** Tier limits, Stripe product/price creation, environment wiring  
+**Invoke for:**
+- Refactor backend to use dynamic tier limits  
+- Create Stripe products and prices  
+- Configure Stripe webhook endpoint  
+- Export tier definitions to frontend KB  
+
+**Config:** `agents/tiers-agent.json`  
+**Base knowledge:** `base/tiers-knowledge.json`, `base/project-config.json`, `base/frontend-knowledge.json`  
+
+---
+### frontend-agent
+**Purpose:** Generate React components and UI  
+**Specialty:** React, Tailwind, Clerk integration, accessibility  
+**Invoke for:**
+- Create landing page  
+- Build dashboard  
+- Port components from Next.js  
+- Generate new UI components  
+
+**Config:** `agents/frontend-agent.json`  
+**Base knowledge:** `base/vite-react-tailwind.txt`, `base/frontend-knowledge.json`  
+  
 ---
 
 ### frontend-agent
@@ -203,7 +272,7 @@ curl -H "Origin: https://evil.com" http://localhost:8787/api/usage
 - **Best for:** Repetitive deployments, CI/CD, batch operations
 - **Workflow:** Phase → Execute all tasks → Report results
 
-**Current mode set in:** `orchestration/orchestrator.json`
+**Current mode set in:** `orchestration/coordinator.json`
 
 ---
 

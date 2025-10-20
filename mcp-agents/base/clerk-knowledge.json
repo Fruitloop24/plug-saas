@@ -1,0 +1,30 @@
+{
+  "keys": [
+    {
+      "name": "CLERK_SECRET_KEY",
+      "description": "Clerk API Secret Key used on the backend for authentication and admin operations.",
+      "docsUrl": "https://dashboard.clerk.com/last-active?path=api-keys"
+    },
+    {
+      "name": "CLERK_PUBLISHABLE_KEY",
+      "description": "Clerk Publishable Key used on the frontend to initialize Clerk client.",
+      "docsUrl": "https://dashboard.clerk.com/last-active?path=api-keys"
+    },
+    {
+      "name": "CLERK_JWT_TEMPLATE",
+      "description": "Name of the JWT Template in Clerk (e.g., 'pan-api') that includes custom claims like user plan.",
+      "docsUrl": "https://clerk.com/docs/authentication/configuration/jwt-templates",
+      "example": "{ \"plan\": \"{{user.public_metadata.plan}}\" }"
+    }
+  ],
+  "jwt_templates": {
+    "login_cli": "npx @clerk/clerk-cli login",
+    "list_templates": "npx @clerk/clerk-cli template list",
+    "create_template": "npx @clerk/clerk-cli template create --name={templateName} --claims='{customClaimsJson}'"
+  },
+  "dashboard": {
+    "url": "https://dashboard.clerk.com/",
+    "description": "Clerk Dashboard UI for API keys and JWT templates management."
+  },
+  "notes": "Ensure you have a Clerk account and a project set up. These keys are sensitive and should be stored securely."
+}
