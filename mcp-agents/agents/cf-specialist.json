@@ -55,27 +55,30 @@
     }
   },
   
-  "current_blockers": [
+  "resolved_blockers": [
     {
       "id": "CORS_WILDCARD",
-      "severity": "CRITICAL",
-      "location": "api/src/index.ts:26",
-      "issue": "Using '*' for CORS, allows any origin to call API",
-      "fix": "Dynamic origin check with env.FRONTEND_URL + CF Pages preview pattern"
+      "severity": "CRITICAL (RESOLVED)",
+      "fixed_date": "2025-10-19",
+      "location": "api/src/index.ts:140-165",
+      "fix_applied": "Dynamic origin validation with env-configurable allowlist"
     },
     {
       "id": "WEBHOOK_SECRET_OPTIONAL",
-      "severity": "CRITICAL",
-      "location": "api/src/stripe-webhook.ts:36",
-      "issue": "Webhook signature verification is optional (dev mode convenience)",
-      "fix": "Fail hard if STRIPE_WEBHOOK_SECRET missing in production"
-    },
+      "severity": "CRITICAL (RESOLVED)",
+      "fixed_date": "2025-10-19",
+      "location": "api/src/stripe-webhook.ts:29-36",
+      "fix_applied": "Fail-hard if STRIPE_WEBHOOK_SECRET missing"
+    }
+  ],
+
+  "current_blockers": [
     {
-      "id": "NO_ENV_VALIDATION",
-      "severity": "HIGH",
+      "id": "ENV_VALIDATION_TIMING",
+      "severity": "MEDIUM",
       "location": "api/src/index.ts (startup)",
-      "issue": "Worker starts without validating required env vars exist",
-      "fix": "Add startup validation that throws error if vars missing"
+      "issue": "Env validation happens on first request instead of worker startup",
+      "fix": "Move validation to worker initialization"
     }
   ],
   
@@ -107,7 +110,9 @@
       "prerequisites": [
         "All secrets set via 'wrangler secret put SECRET_NAME'",
         "KV namespace created and bound in wrangler.toml",
-        "Security blockers fixed (CORS, webhook secret, env validation)"
+        "✅ CORS security fixed (2025-10-19)",
+        "✅ Webhook signature verification enforced (2025-10-19)",
+        "⚠️ Env validation timing improvement pending"
       ],
       "verification": [
         "curl https://pan-api.../health → {status: 'ok'}",
@@ -165,21 +170,6 @@
         "Update worker CORS to allow new CF Pages URL"
       ],
       "estimated_time": "45 minutes"
-    },
-    {
-      "task": "Fix CORS security issue",
-      "approach": "Read base knowledge for CORS best practices, apply dynamic origin checking",
-      "steps": [
-        "Read ../base/cloudflare-workers.txt for CORS security patterns",
-        "Identify production origin (env.FRONTEND_URL)",
-        "Identify CF Pages preview URL pattern (*.pages.dev)",
-        "Replace wildcard '*' with dynamic origin checking",
-        "Allow origin if it matches whitelist",
-        "Test with authorized origin (production URL) → succeeds",
-        "Test with unauthorized origin (https://evil.com) → CORS error",
-        "Document allowed origins in README"
-      ],
-      "estimated_time": "10 minutes"
     },
     {
       "task": "Set up GitHub Actions for auto-deploy",

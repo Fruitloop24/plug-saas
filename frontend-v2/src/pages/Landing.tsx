@@ -43,7 +43,7 @@ export default function Landing() {
       {/* Navigation */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-6 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 sticky top-0 z-50">
         <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Panacea Tech
+          CloudDocs Pro
         </div>
         <div className="flex gap-4 items-center">
           <SignedOut>
@@ -89,19 +89,18 @@ export default function Landing() {
         <div className="relative text-center px-6 md:px-8 py-20 md:py-32 max-w-6xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full text-sm font-semibold mb-8">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            Production SaaS Starter Template
+            Powered by Edge Computing
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white tracking-tight">
-            Launch Your SaaS in<br />
+            AI Document Processing<br />
             <span className="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
-              Hours, Not Months
+              Lightning Fast & Secure
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl mb-12 text-blue-100 leading-relaxed max-w-3xl mx-auto">
-            Complete production-ready starter with Clerk authentication, Stripe billing,
-            Cloudflare Workers edge deployment, and enterprise security. Stop building boilerplate, start shipping features.
+            Extract, analyze, and transform your documents with advanced AI. Process invoices, receipts, contracts, and more with enterprise-grade security and global edge deployment.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -127,59 +126,6 @@ export default function Landing() {
               </Link>
             </SignedIn>
           </div>
-
-          {/* Code Preview Snippet */}
-          <div className="max-w-3xl mx-auto mt-16 bg-slate-900/90 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              </div>
-              <span className="text-slate-400 text-sm ml-4">Quick Start</span>
-            </div>
-            <pre className="text-left text-sm md:text-base">
-              <code className="text-green-400">
-                <span className="text-purple-400">import</span> <span className="text-blue-300">{'{ SignedIn, SignedOut }'}</span> <span className="text-purple-400">from</span> <span className="text-orange-300">'@clerk/clerk-react'</span>;{'\n'}
-                <span className="text-purple-400">import</span> <span className="text-blue-300">{'{ createCheckout }'}</span> <span className="text-purple-400">from</span> <span className="text-orange-300">'./api'</span>;{'\n\n'}
-                <span className="text-slate-500">// Authentication built-in</span>{'\n'}
-                <span className="text-blue-300">{'<SignedIn>'}</span>{'\n'}
-                {'  '}<span className="text-green-300">{'<Dashboard />'}</span>{'\n'}
-                <span className="text-blue-300">{'</SignedIn>'}</span>{'\n\n'}
-                <span className="text-slate-500">// Stripe billing ready</span>{'\n'}
-                <span className="text-purple-400">const</span> <span className="text-blue-300">checkout</span> = <span className="text-purple-400">await</span> <span className="text-yellow-300">createCheckout</span>();
-              </code>
-            </pre>
-          </div>
-        </div>
-      </div>
-
-      {/* Tech Stack Badges */}
-      <div className="py-16 px-6 bg-white border-y border-slate-200">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center text-slate-600 text-sm font-semibold uppercase tracking-wider mb-8">
-            Built for developers who ship fast
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
-            <div className="px-6 py-3 bg-slate-50 rounded-lg border border-slate-200 font-semibold text-slate-700 text-sm">
-              React 19
-            </div>
-            <div className="px-6 py-3 bg-slate-50 rounded-lg border border-slate-200 font-semibold text-slate-700 text-sm">
-              TypeScript
-            </div>
-            <div className="px-6 py-3 bg-orange-50 rounded-lg border border-orange-200 font-semibold text-orange-700 text-sm">
-              Cloudflare Workers
-            </div>
-            <div className="px-6 py-3 bg-purple-50 rounded-lg border border-purple-200 font-semibold text-purple-700 text-sm">
-              Clerk Auth
-            </div>
-            <div className="px-6 py-3 bg-blue-50 rounded-lg border border-blue-200 font-semibold text-blue-700 text-sm">
-              Stripe
-            </div>
-            <div className="px-6 py-3 bg-slate-50 rounded-lg border border-slate-200 font-semibold text-slate-700 text-sm">
-              Tailwind CSS
-            </div>
-          </div>
         </div>
       </div>
 
@@ -188,140 +134,90 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">
-              Everything You Need to Launch
+              Powerful Features Built for Scale
             </h2>
             <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto">
-              Production-ready features that would take weeks to build from scratch
+              Enterprise-grade document processing with security and reliability you can trust
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 - Authentication */}
+            {/* Feature 1 - AI Processing */}
             <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-purple-300 hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                🔐
+                🤖
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Clerk Authentication
+                AI-Powered Extraction
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Complete auth system with social logins, magic links, MFA, and user management out of the box
+                Advanced AI automatically identifies and extracts fields from invoices, receipts, contracts, and more
               </p>
             </div>
 
-            {/* Feature 2 - Billing */}
+            {/* Feature 2 - Speed */}
             <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                💳
-              </div>
-              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Stripe Billing
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Subscriptions, usage-based billing, webhooks, and customer portal fully integrated and tested
-              </p>
-            </div>
-
-            {/* Feature 3 - Edge Deployment */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 ⚡
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Edge Deployment
+                Lightning Fast
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Cloudflare Workers for global low-latency API with zero cold starts and automatic scaling
+                Process documents in seconds with global edge deployment and zero cold starts
               </p>
             </div>
 
-            {/* Feature 4 - Usage Tracking */}
+            {/* Feature 3 - Security */}
             <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                🔐
+              </div>
+              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
+                Secure & Private
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Bank-level encryption, secure authentication, and compliant data handling for your documents
+              </p>
+            </div>
+
+            {/* Feature 4 - API Access */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                📡
+              </div>
+              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
+                RESTful API
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Simple REST API with JWT authentication for seamless integration into your workflow
+              </p>
+            </div>
+
+            {/* Feature 5 - Usage Tracking */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-pink-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 📊
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Usage Tracking
+                Usage Dashboard
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Built-in usage metering and quota enforcement with real-time updates synced to user metadata
+                Track your monthly quota, view processing history, and monitor API usage in real-time
               </p>
             </div>
 
-            {/* Feature 5 - Webhooks */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-pink-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                🔔
-              </div>
-              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Webhook Handlers
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Stripe and Clerk webhook processors with signature verification, retry logic, and idempotency
-              </p>
-            </div>
-
-            {/* Feature 6 - Security */}
+            {/* Feature 6 - Reliability */}
             <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-red-300 hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 🛡️
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Security Headers
+                99.9% Uptime
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Enterprise-grade security with CORS, CSP, rate limiting, and comprehensive security headers
+                Enterprise SLA with automatic scaling, rate limiting, and comprehensive monitoring
               </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Code Example Section */}
-      <div className="px-6 md:px-8 py-24 bg-slate-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
-              Simple, Clean API
-            </h2>
-            <p className="text-slate-400 text-lg md:text-xl">
-              Everything is pre-configured and ready to customize
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Auth Example */}
-            <div className="bg-slate-800/50 backdrop-blur rounded-2xl p-8 border border-slate-700">
-              <h4 className="text-green-400 font-semibold mb-4 text-sm uppercase tracking-wider">Protected Routes</h4>
-              <pre className="text-sm overflow-x-auto">
-                <code className="text-slate-300">
-                  <span className="text-purple-400">const</span> <span className="text-blue-300">Dashboard</span> = () {'=> {'}{'\n'}
-                  {'  '}<span className="text-purple-400">const</span> {'{ user }'} = <span className="text-yellow-300">useUser</span>();{'\n'}
-                  {'  '}<span className="text-purple-400">const</span> plan = user<span className="text-pink-400">?.</span>publicMetadata<span className="text-pink-400">?.</span>plan;{'\n\n'}
-                  {'  '}<span className="text-purple-400">return</span> ({'\n'}
-                  {'    '}<span className="text-blue-300">{'<div>'}</span>{'\n'}
-                  {'      '}<span className="text-slate-500">// Your dashboard code</span>{'\n'}
-                  {'    '}<span className="text-blue-300">{'</div>'}</span>{'\n'}
-                  {'  '});{'\n'}
-                  {'}'};
-                </code>
-              </pre>
-            </div>
-
-            {/* Stripe Example */}
-            <div className="bg-slate-800/50 backdrop-blur rounded-2xl p-8 border border-slate-700">
-              <h4 className="text-green-400 font-semibold mb-4 text-sm uppercase tracking-wider">Stripe Checkout</h4>
-              <pre className="text-sm overflow-x-auto">
-                <code className="text-slate-300">
-                  <span className="text-purple-400">const</span> <span className="text-yellow-300">handleUpgrade</span> = <span className="text-purple-400">async</span> () {'=> {'}{'\n'}
-                  {'  '}<span className="text-purple-400">const</span> token = <span className="text-purple-400">await</span> <span className="text-yellow-300">getToken</span>();{'\n'}
-                  {'  '}<span className="text-purple-400">const</span> res = <span className="text-purple-400">await</span> <span className="text-yellow-300">fetch</span>(<span className="text-orange-300">'/api/checkout'</span>, {'{'}{'\n'}
-                  {'    '}headers: {'{ '}Authorization: <span className="text-orange-300">`Bearer ${'{token}'}`</span>{' },'}{'\n'}
-                  {'  '}{'});'}{'\n\n'}
-                  {'  '}window<span className="text-pink-400">.</span>location = data<span className="text-pink-400">.</span>url;{'\n'}
-                  {'}'};
-                </code>
-              </pre>
             </div>
           </div>
         </div>
@@ -335,7 +231,7 @@ export default function Landing() {
               Simple, Transparent Pricing
             </h2>
             <p className="text-slate-600 text-lg md:text-xl">
-              Try it free, upgrade when you're ready to launch
+              Start free, upgrade when you need more processing power
             </p>
           </div>
 
@@ -348,28 +244,28 @@ export default function Landing() {
                   <span className="text-6xl font-extrabold text-slate-900">$0</span>
                   <span className="text-xl text-slate-600 font-medium">/month</span>
                 </div>
-                <p className="text-slate-600">Perfect for testing and development</p>
+                <p className="text-slate-600">Perfect for trying out the service</p>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3 text-slate-700">
                   <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>5 API requests/month</span>
+                  <span>5 documents/month</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-700">
                   <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>Full authentication system</span>
+                  <span>AI-powered extraction</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-700">
                   <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>Usage tracking & quotas</span>
+                  <span>Secure cloud storage</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-400">
                   <span className="text-slate-300 text-xl flex-shrink-0">✗</span>
-                  <span>Priority support</span>
+                  <span>Priority processing</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-400">
                   <span className="text-slate-300 text-xl flex-shrink-0">✗</span>
-                  <span>Custom branding</span>
+                  <span>API access</span>
                 </li>
               </ul>
               <SignedOut>
@@ -402,28 +298,28 @@ export default function Landing() {
                   <span className="text-6xl font-extrabold">$29</span>
                   <span className="text-xl opacity-90 font-medium">/month</span>
                 </div>
-                <p className="text-blue-100">For production applications</p>
+                <p className="text-blue-100">For businesses and teams</p>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Unlimited API requests</span>
+                  <span className="font-medium">Unlimited documents</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">All authentication features</span>
+                  <span className="font-medium">Full REST API access</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Advanced usage analytics</span>
+                  <span className="font-medium">Priority processing queue</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-xl flex-shrink-0">✓</span>
+                  <span className="font-medium">Advanced analytics dashboard</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0">✓</span>
                   <span className="font-medium">Priority email support</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Remove Panacea branding</span>
                 </li>
               </ul>
               <SignedOut>

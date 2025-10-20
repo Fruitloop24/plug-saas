@@ -99,6 +99,30 @@ export default function Dashboard() {
     }
   };
 
+  const handleManageBilling = async () => {
+    try {
+      const token = await getToken({ template: 'pan-api' });
+      const response = await fetch(`${API_URL}/api/customer-portal`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        // Redirect to Stripe customer portal
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to open billing portal');
+      }
+    } catch (error) {
+      console.error('Billing portal error:', error);
+      alert('Failed to open billing portal');
+    }
+  };
+
   useEffect(() => {
     const success = searchParams.get('success');
 
@@ -120,16 +144,23 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       {/* Navigation */}
       <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
-        <Link to="/" className="no-underline text-slate-800 text-2xl font-bold">
-          ⚡ Panacea Tech
+        <Link to="/" className="no-underline bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-2xl font-bold">
+          CloudDocs Pro
         </Link>
         <div className="flex gap-4 items-center">
-          {plan === 'free' && (
+          {plan === 'free' ? (
             <button
               onClick={handleUpgrade}
               className="px-6 py-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none rounded-lg cursor-pointer font-semibold text-[15px]"
             >
               ⚡ Upgrade to Pro
+            </button>
+          ) : (
+            <button
+              onClick={handleManageBilling}
+              className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg cursor-pointer font-semibold text-[15px] transition-all"
+            >
+              Manage Billing
             </button>
           )}
           <UserButton />

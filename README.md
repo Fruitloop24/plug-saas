@@ -2,7 +2,7 @@
 
 > **A complete, production-ready SaaS template** built entirely on Cloudflare's edge platform. No servers, no databases, just pure edge computing with authentication, billing, and usage tracking.
 
-**Live Demo**: https://clerk-frontend.pages.dev
+**Live Demo**: https://clerk-frontend.pages.dev (CloudDocs Pro - AI Document Processing Demo)
 **API**: https://pan-api.k-c-sheffield012376.workers.dev
 **Stack**: Vite + React 19 + Cloudflare Workers + Clerk + Stripe
 
@@ -17,6 +17,7 @@ Most SaaS tutorials stop at "hello world." This template goes all the way to pro
 **This Solution**: A complete, documented, production-tested stack that handles:
 - ✅ User authentication with JWT (Clerk)
 - ✅ Subscription billing with webhooks (Stripe)
+- ✅ Stripe Customer Portal (manage subscriptions, update payment methods, view invoices)
 - ✅ Usage tracking with monthly reset (KV)
 - ✅ Rate limiting per user (100 req/min)
 - ✅ Webhook idempotency (prevents duplicate charges)
@@ -50,7 +51,7 @@ Most SaaS tutorials stop at "hello world." This template goes all the way to pro
 ✅ **User isolation** - All data keyed by `userId` from JWT claims
 ✅ **No database** - Clerk for identity, Stripe for billing, KV for counters
 ✅ **Edge-native** - Deploy globally, scale infinitely
-✅ **100% Static** - Pure client-side React, no server actions
+✅ **100% Static** - Pure client-side React (Vite)
 
 ---
 
@@ -60,16 +61,17 @@ Most SaaS tutorials stop at "hello world." This template goes all the way to pro
 - **Location**: `frontend-v2/`
 - **Hosted**: Cloudflare Pages (global CDN)
 - **Auth**: `@clerk/clerk-react` with complete auth flows
-- **UI**: Modern responsive design with Tailwind CSS
+- **UI**: Modern responsive design with Tailwind CSS v3
 - **Features**:
   - Landing page with pricing
   - Protected dashboard with usage tracking
   - Stripe checkout integration
+  - Stripe billing portal integration
   - User profile management
 - **Performance**: Instant HMR, optimized production builds
 
 ### Backend (Cloudflare Worker)
-- **Location**: `api/src/index.ts` (~750 lines, heavily documented)
+- **Location**: `api/src/index.ts` (~830 lines, heavily documented)
 - **Hosted**: Cloudflare Workers (global edge deployment)
 - **Authentication**: JWT verification on every request
 - **API Endpoints**:
@@ -77,6 +79,7 @@ Most SaaS tutorials stop at "hello world." This template goes all the way to pro
   - `GET /api/usage` - Get user usage stats (requires JWT)
   - `POST /api/data` - Process request + increment usage (requires JWT)
   - `POST /api/create-checkout` - Create Stripe checkout session (requires JWT)
+  - `POST /api/customer-portal` - Create Stripe billing portal session (requires JWT)
   - `POST /webhook/stripe` - Stripe webhook handler (signature verified)
 
 ### Stripe Webhook Handler
@@ -103,6 +106,11 @@ Most SaaS tutorials stop at "hello world." This template goes all the way to pro
 - **Free tier**: 5 requests/month with automatic reset
 - **Pro tier**: Unlimited usage ($29/month)
 - Stripe Checkout for payment processing
+- **Stripe Customer Portal** for self-service billing management:
+  - Update payment methods
+  - View invoices and billing history
+  - Cancel or upgrade subscriptions
+  - PCI compliant (no credit card handling in our code)
 - **Webhook integration** with idempotency protection
 - Automatic plan upgrades via metadata sync
 
@@ -184,7 +192,9 @@ cd ../frontend-v2 && npm install
    - Free: $0/month (for reference)
    - Pro: $29/month (or your price)
 3. Copy the Pro price ID (starts with `price_`)
-4. Set up webhook endpoint (see [Stripe Webhook Setup](#stripe-webhook-setup))
+4. Set up Stripe Customer Portal at https://dashboard.stripe.com/settings/billing/portal
+5. Copy the portal configuration ID (starts with `bpc_`)
+6. Set up webhook endpoint (see [Stripe Webhook Setup](#stripe-webhook-setup))
 
 ### 4. Set Environment Variables
 
@@ -196,6 +206,7 @@ CLERK_JWT_TEMPLATE=pan-api
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_ID=price_...
+STRIPE_PORTAL_CONFIG_ID=bpc_...
 ```
 
 **Frontend** (`frontend-v2/.env`):
@@ -258,13 +269,21 @@ wrangler secret put STRIPE_WEBHOOK_SECRET
 # Paste the whsec_... value when prompted
 ```
 
-### Step 3: Test End-to-End
+### Step 3: Set Portal Configuration ID
+```bash
+wrangler secret put STRIPE_PORTAL_CONFIG_ID
+# Paste the bpc_... value when prompted
+```
+
+### Step 4: Test End-to-End
 1. Sign up as a new user
 2. Use 5 free requests
 3. Click "Upgrade to Pro"
 4. Complete checkout (test card: `4242 4242 4242 4242`)
 5. Verify dashboard shows "Unlimited • Pro Plan Active"
 6. Test unlimited usage
+7. Click "Manage Billing" and verify portal opens
+8. Test cancellation (webhook updates plan back to free)
 
 ---
 
@@ -275,7 +294,7 @@ wrangler secret put STRIPE_WEBHOOK_SECRET
 | **Frontend** | Vite + React 19 | Pure client-side SPA |
 | **Hosting** | Cloudflare Pages | Static hosting + global CDN |
 | **Auth** | Clerk | User management + JWT |
-| **Payments** | Stripe | Subscription billing + webhooks |
+| **Payments** | Stripe | Subscription billing + webhooks + portal |
 | **API** | Cloudflare Workers | Serverless edge functions |
 | **Storage** | Cloudflare KV | Usage counters + idempotency |
 | **CI/CD** | GitHub Actions | Automated deployment |
@@ -288,7 +307,7 @@ wrangler secret put STRIPE_WEBHOOK_SECRET
 clerk/
 ├── api/                        # Cloudflare Worker
 │   ├── src/
-│   │   ├── index.ts           # Main API (~750 lines, heavily documented)
+│   │   ├── index.ts           # Main API (~830 lines, heavily documented)
 │   │   └── stripe-webhook.ts  # Stripe webhook handler (~190 lines)
 │   ├── wrangler.toml          # Worker configuration
 │   ├── .dev.vars              # Local secrets (gitignored)
@@ -304,14 +323,14 @@ clerk/
 │   │   ├── main.tsx           # Entry point + ClerkProvider
 │   │   └── index.css          # Tailwind directives
 │   ├── vite.config.ts         # Vite configuration
-│   ├── tailwind.config.js     # Tailwind configuration
+│   ├── tailwind.config.js     # Tailwind v3 configuration
 │   └── package.json
 ├── .github/workflows/
 │   └── deploy-worker.yml      # CI/CD for Worker deployment
 └── README.md                  # This file
 ```
 
-**Total Code**: ~2,500 lines TypeScript (940 backend, ~1,500 frontend)
+**Total Code**: ~2,500 lines TypeScript (1,020 backend, ~1,500 frontend)
 
 ---
 
@@ -326,6 +345,7 @@ clerk/
 - **User data isolation** (all data keyed by userId)
 - **Dynamic CORS** (no wildcard, validated origins)
 - **Environment variable validation** (fails fast on misconfiguration)
+- **PCI compliance** via Stripe-hosted checkout and portal
 
 ### Production Hardening TODO
 - [ ] Error tracking (Sentry or Cloudflare Logs)
@@ -364,68 +384,6 @@ clerk/
 
 ---
 
-## Why Vite + React (Not Next.js)?
-
-**The Problem**: We initially built with Next.js, but Clerk's `<UserButton>` component uses server actions, which causes 405 errors when deployed as a static site to Cloudflare Pages.
-
-**Solutions Attempted**:
-- ❌ Custom sign-out button (works, but loses profile UI)
-- ❌ Next.js edge runtime (breaks - Clerk uses Node APIs)
-- ❌ `@cloudflare/next-on-pages` (archived, unmaintained)
-
-**The Switch to Vite**:
-- ✅ 100% client-side React (no server actions)
-- ✅ Perfect for Cloudflare Pages
-- ✅ Smaller bundle size
-- ✅ Faster dev experience (instant HMR)
-- ✅ Zero configuration needed
-
-**Result**: All functionality preserved, better performance, no hosting limitations.
-
----
-
-## Lessons Learned / Best Practices
-
-### 1. JWT Claims Are Your Friend
-Instead of calling `clerkClient.users.getUser()` on every request, put user plan in JWT claims:
-```json
-{
-  "plan": "{{user.public_metadata.plan}}"
-}
-```
-- No extra API call
-- Faster response times
-- True stateless architecture
-
-### 2. Webhook Idempotency Is Critical
-Stripe will retry webhooks. Without idempotency:
-- Users get upgraded multiple times
-- Inconsistent state
-- Hard-to-debug race conditions
-
-**Solution**: Store event IDs in KV with TTL matching Stripe's retention (30 days).
-
-### 3. Error Handling = Reliability
-Wrap Clerk API calls in try-catch. Return 500 on failure so Stripe automatically retries:
-```typescript
-try {
-  await clerkClient.users.updateUser(userId, { ... });
-} catch (err) {
-  return new Response('Failed', { status: 500 }); // Stripe will retry
-}
-```
-
-### 4. Security Headers Add Zero Overhead
-Adding CSP, HSTS, X-Frame-Options, etc. is just setting response headers. No performance cost, massive security benefit.
-
-### 5. Dynamic CORS > Wildcards
-Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
-- Maintain an allowlist of domains
-- Use regex for preview URLs
-- Echo back the validated origin
-
----
-
 ## Testing Checklist
 
 ### Manual Testing Flow (End-to-End)
@@ -438,7 +396,9 @@ Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
 6. ✅ **Webhook Processing**: Verify plan updates (check Clerk metadata)
 7. ✅ **Pro Tier**: Dashboard shows "Unlimited • Pro Plan Active"
 8. ✅ **Unlimited Usage**: Process 20+ requests successfully
-9. ✅ **Sign Out**: Verify redirect to landing page
+9. ✅ **Billing Portal**: Click "Manage Billing" → Portal opens successfully
+10. ✅ **Cancellation**: Test subscription cancellation via portal
+11. ✅ **Sign Out**: Verify redirect to landing page
 
 ### What to Test in Production
 - Rate limiting (100 req/min)
@@ -446,6 +406,7 @@ Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
 - Security headers (use https://securityheaders.com)
 - CORS (test from different origins)
 - Error handling (kill Clerk API temporarily)
+- Billing portal (update payment method, view invoices)
 
 ---
 
@@ -478,16 +439,18 @@ Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
 
 ## Next Steps / Roadmap
 
+### Completed ✅
+1. ~~**GitHub Actions debugging**~~ - Worker deployment via GitHub Actions complete
+2. ~~**Billing portal**~~ - Stripe customer portal for subscription management complete
+
 ### High Priority
-1. ~~**GitHub Actions debugging**~~ - ✓ Worker deployment via GitHub Actions complete
-2. **SEO optimization** - Meta tags, robots.txt, sitemap for discoverability
-3. **Custom domain** - Point custom domain to CF Pages
-4. **Production keys** - Prod keys obtained after verification (holding off on switching for now)
+3. **SEO optimization** - Meta tags, robots.txt, sitemap for discoverability
+4. **Custom domain** - Point custom domain to CF Pages
+5. **Production keys** - Prod keys obtained after verification (holding off on switching for now)
 
 ### Medium Priority
-5. **Load testing** - Test rate limits, concurrent users, edge cases
-6. **Monitoring** - Using Clerk and Stripe dashboards for now
-7. **Billing portal** - Stripe customer portal for subscription management
+6. **Load testing** - Test rate limits, concurrent users, edge cases
+7. **Monitoring** - Using Clerk and Stripe dashboards for now
 8. **E2E tests** - Playwright tests for complete user flows
 
 ### Low Priority
@@ -495,6 +458,19 @@ Never use `Access-Control-Allow-Origin: *` with credentials. Instead:
 10. **TypeScript strictness** - Enable stricter type checking
 11. **Caching strategy** - Use CF Cache API for static responses
 12. **Analytics dashboard** - Show usage trends over time
+
+---
+
+## Demo Site
+
+The live demo at https://clerk-frontend.pages.dev showcases this template as **CloudDocs Pro** - a fictional AI document processing service. The demo illustrates how the template can be branded and customized for a real SaaS product while demonstrating all core features:
+
+- User authentication and registration
+- Free tier with usage limits
+- Subscription upgrade flow
+- Usage tracking and display
+- Billing portal integration
+- Professional landing page and dashboard
 
 ---
 
@@ -529,6 +505,7 @@ MIT - Use this template for your SaaS, commercial or personal projects.
 - **Auth not working**: Verify Clerk JWT template includes `plan` claim
 - **Usage not tracking**: Check KV namespace binding in `wrangler.toml`
 - **Webhook fails**: Verify `STRIPE_WEBHOOK_SECRET` matches Stripe dashboard
+- **Portal not opening**: Verify `STRIPE_PORTAL_CONFIG_ID` is set and portal is enabled in Stripe dashboard
 
 **Need help?** Open an issue on GitHub or check the inline code documentation (heavily commented).
 
@@ -548,13 +525,12 @@ MIT - Use this template for your SaaS, commercial or personal projects.
 
 **⭐ If this template helped you, consider starring the repo!**
 
-
 ---
 
 ## Technical Notes
 
 ### Tailwind CSS Version Fix (Oct 2025)
-**Issue**: Tailwind v4 has breaking PostCSS changes causing incomplete CSS builds (4-7KB instead of 25-30KB).  
+**Issue**: Tailwind v4 has breaking PostCSS changes causing incomplete CSS builds (4-7KB instead of 25-30KB).
 **Solution**: Use Tailwind CSS v3 with standard PostCSS config.
 
 ```bash
@@ -575,7 +551,3 @@ export default {
 **DO NOT use**: `@tailwindcss/postcss` (v4 package) - causes missing utility classes.
 
 **Verification**: After build, check that `dist/assets/*.css` is ~29KB and includes classes like `bg-white`, `from-blue-600`.
-
----
-
-hey web claude how you doing

@@ -22,50 +22,31 @@
     "rate_limiting": "Implement and monitor per-user API rate limits"
   },
   
-  "critical_issues": {
+  "resolved_issues": {
     "BLOCKER_1_CORS_WILDCARD": {
-      "severity": "CRITICAL",
-      "blocks_production": true,
-      "location": "api/src/index.ts:26",
-      "current_code": "'Access-Control-Allow-Origin': '*'",
-      "security_risk": "Allows any domain to call API, enables CSRF attacks",
-      "required_fix": "Whitelist production frontend domain(s)",
-      "code_fix": {
-        "find": "'Access-Control-Allow-Origin': '*'",
-        "replace": "'Access-Control-Allow-Origin': env.FRONTEND_URL || 'http://localhost:3000'"
-      },
-      "validation": "Test that unauthorized origins are rejected with CORS error",
-      "acceptance_criteria": [
-        "CORS headers restrict to env.FRONTEND_URL in production",
-        "Localhost allowed in development only",
-        "Unauthorized origins return CORS error"
-      ]
+      "severity": "CRITICAL (RESOLVED)",
+      "fixed_date": "2025-10-19",
+      "implementation": "Dynamic origin validation with env-configurable allowlist",
+      "location": "api/src/index.ts:140-165",
+      "validation": "CORS now restricts to whitelisted domains, rejects unauthorized origins"
     },
     "BLOCKER_2_WEBHOOK_SECRET_OPTIONAL": {
-      "severity": "CRITICAL",
-      "blocks_production": true,
-      "location": "api/src/stripe-webhook.ts:36",
-      "current_code": "if (!env.STRIPE_WEBHOOK_SECRET) { console.warn(...); event = JSON.parse(body); }",
-      "security_risk": "Allows fake Stripe webhooks, could enable payment fraud",
-      "required_fix": "Fail hard if STRIPE_WEBHOOK_SECRET missing in production",
-      "code_fix": {
-        "find": "if (!env.STRIPE_WEBHOOK_SECRET) {\n\t\tconsole.warn('⚠️ STRIPE_WEBHOOK_SECRET not set - skipping signature verification (development only)');\n\t\tevent = JSON.parse(body);\n\t}",
-        "replace": "if (!env.STRIPE_WEBHOOK_SECRET) {\n\t\tconsole.error('❌ STRIPE_WEBHOOK_SECRET required in production');\n\t\treturn new Response(JSON.stringify({ error: 'Webhook secret not configured' }), { status: 500 });\n\t}"
-      },
-      "validation": "Test that webhook endpoint rejects requests without valid signature",
-      "acceptance_criteria": [
-        "Webhook endpoint requires STRIPE_WEBHOOK_SECRET in production",
-        "Invalid signatures are rejected with 400 error",
-        "Valid signatures are accepted and processed"
-      ]
-    },
-    "HIGH_ENV_VALIDATION_MISSING": {
-      "severity": "HIGH",
+      "severity": "CRITICAL (RESOLVED)",
+      "fixed_date": "2025-10-19",
+      "implementation": "Fail-hard if STRIPE_WEBHOOK_SECRET missing",
+      "location": "api/src/stripe-webhook.ts:29-36",
+      "validation": "Webhook endpoint now requires secret, rejects unsigned requests"
+    }
+  },
+
+  "critical_issues": {
+    "MEDIUM_ENV_VALIDATION_TIMING": {
+      "severity": "MEDIUM",
       "blocks_production": false,
       "location": "api/src/index.ts (worker startup)",
-      "current_code": "validateEnv() called on first request only",
+      "current_code": "validateEnv() called on first request instead of worker startup",
       "security_risk": "Worker starts with missing env vars, fails on first user request",
-      "required_fix": "Add environment validation at worker initialization",
+      "required_fix": "Move environment validation to worker initialization",
       "code_fix": {
         "location": "After export default { async fetch(...) } declaration",
         "add_code": "\n// Validate environment on worker startup\nconst envCheck = validateEnv(env);\nif (!envCheck.valid) {\n\tthrow new Error(`Missing required environment variables: ${envCheck.missing.join(', ')}`);\n}"
@@ -91,10 +72,10 @@
   
   "security_checklist": {
     "before_production_deployment": [
-      "✓ CORS configured with production domain whitelist",
-      "✓ STRIPE_WEBHOOK_SECRET required and verified",
+      "✅ CORS configured with production domain whitelist (RESOLVED 2025-10-19)",
+      "✅ STRIPE_WEBHOOK_SECRET required and verified (RESOLVED 2025-10-19)",
       "✓ All secrets set via 'wrangler secret put'",
-      "✓ Environment validation at worker startup",
+      "⚠️ Environment validation at worker startup (PENDING)",
       "✓ Rate limiting tested under load (100 req/min)",
       "✓ JWT token validation tested with invalid tokens",
       "✓ No secrets in .git history (check with git log -p)",
@@ -126,31 +107,7 @@
   
   "typical_tasks": [
     {
-      "task": "Fix CORS wildcard",
-      "steps": [
-        "1. Edit api/src/index.ts line 26",
-        "2. Replace '*' with env.FRONTEND_URL",
-        "3. Add FRONTEND_URL to .env.example",
-        "4. Test with unauthorized origin",
-        "5. Verify production origin works"
-      ],
-      "estimated_time": "5 minutes",
-      "blocking": true
-    },
-    {
-      "task": "Enforce webhook secret",
-      "steps": [
-        "1. Edit api/src/stripe-webhook.ts line 36",
-        "2. Change optional check to required + error",
-        "3. Test webhook with missing secret",
-        "4. Test webhook with invalid signature",
-        "5. Test webhook with valid signature"
-      ],
-      "estimated_time": "10 minutes",
-      "blocking": true
-    },
-    {
-      "task": "Add startup env validation",
+      "task": "Move env validation to worker startup",
       "steps": [
         "1. Move validateEnv call to worker initialization",
         "2. Throw error if validation fails",
@@ -216,9 +173,9 @@
   },
   
   "success_metrics": {
-    "cors_fixed": "No wildcard in production, domain-restricted",
-    "webhook_secured": "100% signature verification in production",
-    "env_validated": "Worker fails fast on missing env vars",
+    "cors_fixed": "✅ ACHIEVED - No wildcard in production, domain-restricted (2025-10-19)",
+    "webhook_secured": "✅ ACHIEVED - 100% signature verification in production (2025-10-19)",
+    "env_validated": "⚠️ PENDING - Worker fails fast on missing env vars",
     "zero_secrets_leaked": "No API keys in git history",
     "rate_limiting_effective": "Abuse attempts blocked successfully"
   }

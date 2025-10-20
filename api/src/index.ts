@@ -31,6 +31,7 @@ interface Env {
 	STRIPE_SECRET_KEY: string;          // Stripe secret key (sk_test_...)
 	STRIPE_WEBHOOK_SECRET?: string;     // Stripe webhook signing secret (whsec_...)
 	STRIPE_PRICE_ID: string;            // Stripe price ID for Pro tier (price_...)
+	STRIPE_PORTAL_CONFIG_ID?: string;   // OPTIONAL: Stripe portal configuration ID (bpc_...)
 	ALLOWED_ORIGINS?: string;           // OPTIONAL: Comma-separated list of allowed origins
 	                                     // Example: "https://app.example.com,https://staging.example.com"
 	                                     // If not set, falls back to defaults (see CORS section)
@@ -564,6 +565,10 @@ export default {
 				return await handleCreateCheckout(userId, clerkClient, env, corsHeaders, origin);
 			}
 
+			if (url.pathname === '/api/customer-portal' && request.method === 'POST') {
+				return await handleCustomerPortal(userId, clerkClient, env, corsHeaders, origin);
+			}
+
 			return new Response(JSON.stringify({ error: 'Not found' }), {
 				status: 404,
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -738,6 +743,93 @@ async function handleCreateCheckout(
 		console.error('Checkout error:', error);
 		return new Response(
 			JSON.stringify({ error: error.message || 'Failed to create checkout' }),
+			{
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
+		);
+	}
+}
+
+/**
+ * Creates a Stripe Customer Portal session for managing subscription
+ *
+ * The Customer Portal allows users to:
+ * - Update payment methods
+ * - View invoices and payment history
+ * - Cancel or pause subscriptions
+ * - Update billing information
+ *
+ * @param userId - Clerk user ID (from JWT)
+ * @param clerkClient - Clerk client instance
+ * @param env - Environment variables
+ * @param corsHeaders - CORS headers for response
+ * @param origin - Request origin for return URL
+ * @returns Response with portal URL or error
+ */
+async function handleCustomerPortal(
+	userId: string,
+	clerkClient: any,
+	env: Env,
+	corsHeaders: Record<string, string>,
+	origin: string
+): Promise<Response> {
+	try {
+		// Get user from Clerk to retrieve Stripe customer ID
+		const user = await clerkClient.users.getUser(userId);
+		const stripeCustomerId = user.publicMetadata?.stripeCustomerId as string;
+
+		if (!stripeCustomerId) {
+			return new Response(
+				JSON.stringify({ error: 'No active subscription found' }),
+				{
+					status: 400,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		// Use origin from request for return URL
+		const frontendUrl = origin || 'https://app.panacea-tech.net';
+
+		// Build portal session params
+		const portalParams: Record<string, string> = {
+			'customer': stripeCustomerId,
+			'return_url': `${frontendUrl}/dashboard`,
+		};
+
+		// Add portal configuration ID if provided in env
+		if (env.STRIPE_PORTAL_CONFIG_ID) {
+			portalParams['configuration'] = env.STRIPE_PORTAL_CONFIG_ID;
+		}
+
+		// Create Stripe billing portal session
+		const portalSession = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams(portalParams).toString(),
+		});
+
+		const session = await portalSession.json() as { url?: string; error?: { message: string } };
+
+		if (!portalSession.ok) {
+			throw new Error(session.error?.message || 'Failed to create portal session');
+		}
+
+		return new Response(
+			JSON.stringify({ url: session.url }),
+			{
+				status: 200,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
+		);
+	} catch (error: any) {
+		console.error('Customer portal error:', error);
+		return new Response(
+			JSON.stringify({ error: error.message || 'Failed to create portal session' }),
 			{
 				status: 500,
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },

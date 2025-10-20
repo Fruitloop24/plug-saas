@@ -14,7 +14,7 @@
     "base_path": "/home/mini/Documents/clerk"
   },
   
-  "current_goal": "Migrate Next.js → React on CF Pages + Fix 3 security blockers",
+  "current_goal": "Migrate Next.js → React on CF Pages + Improve env validation (2 security blockers already resolved)",
   
   "project_state": {
     "frontend": {
@@ -23,9 +23,9 @@
       "status": "NEEDS_MIGRATION"
     },
     "backend": {
-      "current": "CF Worker with 3 security blockers",
-      "target": "CF Worker, production-ready",
-      "status": "NEEDS_HARDENING"
+      "current": "CF Worker (2/3 security blockers resolved: CORS + webhook)",
+      "target": "CF Worker, production-ready (pending: env validation timing)",
+      "status": "MOSTLY_HARDENED"
     },
     "deployment": {
       "current": "Manual wrangler deploy",
@@ -38,13 +38,13 @@
     "security-agent": {
       "config_path": "../agents/security-agent.json",
       "base_knowledge": null,
-      "priority": "CRITICAL",
-      "blocks_production": true,
-      "specialty": "Fix CORS, webhook secret, env validation",
+      "priority": "MEDIUM",
+      "blocks_production": false,
+      "specialty": "Security hardening (CORS ✅, webhook secret ✅, env validation pending)",
       "invoke_for": [
-        "Fix CORS wildcard (BLOCKER_1)",
-        "Enforce webhook secret (BLOCKER_2)",
-        "Add startup env validation (BLOCKER_3)"
+        "✅ RESOLVED: Fix CORS wildcard (2025-10-19)",
+        "✅ RESOLVED: Enforce webhook secret (2025-10-19)",
+        "⚠️ PENDING: Move env validation to worker startup"
       ]
     },
     "frontend-agent": {
@@ -89,43 +89,42 @@
   "execution_phases": [
     {
       "phase_id": "1_security",
-      "phase_name": "Fix Security Blockers",
-      "description": "Fix 3 critical blockers that prevent production deployment",
-      "blocking": true,
+      "phase_name": "Improve Environment Validation",
+      "description": "Move env validation to worker startup instead of first request (2 critical blockers already resolved on 2025-10-19: CORS and webhook security)",
+      "blocking": false,
       "agent": "security-agent",
       "human_approval": "AFTER_EACH_FIX",
-      
-      "tasks": [
+
+      "resolved_tasks": [
         {
           "task_id": "1.1_fix_cors",
           "name": "Fix CORS wildcard",
           "blocker": "BLOCKER_1_CORS_WILDCARD",
-          "location": "api/src/index.ts:26",
-          "estimated_time": "5 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Unauthorized origin returns CORS error"
+          "status": "✅ RESOLVED (2025-10-19)",
+          "location": "api/src/index.ts:140-165"
         },
         {
           "task_id": "1.2_fix_webhook",
           "name": "Enforce webhook secret",
           "blocker": "BLOCKER_2_WEBHOOK_SECRET_OPTIONAL",
-          "location": "api/src/stripe-webhook.ts:36",
-          "estimated_time": "5 minutes",
-          "wait_for_approval": true,
-          "acceptance": "Webhook rejects requests without valid signature"
-        },
+          "status": "✅ RESOLVED (2025-10-19)",
+          "location": "api/src/stripe-webhook.ts:29-36"
+        }
+      ],
+
+      "tasks": [
         {
           "task_id": "1.3_fix_env_validation",
-          "name": "Add startup env validation",
-          "blocker": "HIGH_ENV_VALIDATION_MISSING",
+          "name": "Move env validation to worker startup",
+          "blocker": "MEDIUM_ENV_VALIDATION_TIMING",
           "location": "api/src/index.ts (startup)",
           "estimated_time": "10 minutes",
           "wait_for_approval": true,
           "acceptance": "Worker fails to start if env vars missing"
         }
       ],
-      
-      "phase_acceptance": "All 3 blockers fixed, tests pass, ready for deployment"
+
+      "phase_acceptance": "Env validation moved to startup, worker fails fast on missing config"
     },
     
     {
@@ -292,7 +291,7 @@
   },
   
   "success_metrics": {
-    "security_blockers_fixed": "All 3 blockers resolved",
+    "security_blockers_fixed": "✅ 2/3 blockers resolved (CORS, webhook secret), 1 pending (env validation timing)",
     "frontend_migrated": "React app on CF Pages, fully functional",
     "tests_passing": "E2E tests cover critical flows",
     "ci_cd_working": "Auto-deploy on push to main",
