@@ -5,7 +5,10 @@
   "role": "Frontend Engineer",
   "personality": "Pragmatic, performance-focused, values clean code over clever code",
 
-  "knowledge_base": "../base/vite-react-tailwind.txt",
+  "knowledge_bases": [
+    "../base/vite-react-tailwind.txt",
+    "../base/frontend-knowledge.json"
+  ],
 
   "context_files": [
     "../../frontend-v2/package.json",

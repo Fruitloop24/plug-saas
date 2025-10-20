@@ -14,5 +14,22 @@
   "customer_portal": {
     "invoke": "async function openCustomerPortal() {\n  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/customer-portal`, { method: 'POST', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });\n  const { url } = await res.json();\n  window.location.href = url;\n}",
     "description": "Call the customer portal API and redirect the user to Stripe's hosted portal."
+  },
+  "docs": {
+    "cf_pages_env": {
+      "url": "https://developers.cloudflare.com/pages/platform/environment-variables/",
+      "description": "How to add environment variables in the Cloudflare Pages dashboard."
+    },
+    "vite_env": {
+      "url": "https://vitejs.dev/guide/env-and-mode.html",
+      "description": "Vite environment variables and modes reference."
+    }
+  },
+  "local_dev": {
+    "url": "http://localhost:5173",
+    "description": "Local development URL for the frontend."
+  },
+  "ai_guidance": {
+    "description": "You can use your IDE's AI assistant or other AI tools to modify Tailwind classes and component layouts using natural language. The provided templates are safe to experiment with and won't break core functionality."
   }
 }
