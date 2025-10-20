@@ -1,0 +1,73 @@
+{
+  "files": {
+    "backend_env_example": "api/.env.example",
+    "backend_env_final": "api/.dev.vars",
+    "frontend_env_example": "frontend-v2/.env.example",
+    "frontend_env_final": "frontend-v2/.env"
+  },
+  "secrets": [
+    {
+      "name": "CLERK_SECRET_KEY",
+      "description": "Clerk Secret Key. Found in your Clerk Dashboard under API Keys.",
+      "docsUrl": "https://dashboard.clerk.com/last-active?path=api-keys",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "CLERK_PUBLISHABLE_KEY",
+      "description": "Clerk Publishable Key. Found in your Clerk Dashboard under API Keys.",
+      "docsUrl": "https://dashboard.clerk.com/last-active?path=api-keys",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "CLERK_JWT_TEMPLATE",
+      "description": "The name of your Clerk JWT Template. The README recommends 'pan-api'.",
+      "docsUrl": "https://clerk.com/docs/authentication/configuration/jwt-templates",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "description": "Stripe Secret Key. Found in your Stripe Dashboard under Developers > API keys.",
+      "docsUrl": "https://dashboard.stripe.com/test/apikeys",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "STRIPE_WEBHOOK_SECRET",
+      "description": "Stripe Webhook Signing Secret. Generated when you create a webhook endpoint.",
+      "docsUrl": "https://dashboard.stripe.com/test/webhooks",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "STRIPE_PRICE_ID",
+      "description": "The Stripe Price ID for your 'Pro' plan (e.g., price_...).",
+      "docsUrl": "https://dashboard.stripe.com/test/products",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "STRIPE_PORTAL_CONFIG_ID",
+      "description": "The Stripe Customer Portal Configuration ID (e.g., bpc_...).",
+      "docsUrl": "https://dashboard.stripe.com/test/settings/billing/portal",
+      "target": "backend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "VITE_CLERK_PUBLISHABLE_KEY",
+      "description": "Clerk Publishable Key (this is the same key as before).",
+      "docsUrl": "https://dashboard.clerk.com/last-active?path=api-keys",
+      "target": "frontend",
+      "scope": "local_and_prod"
+    },
+    {
+      "name": "VITE_API_URL",
+      "description": "The URL of your deployed API worker. For local dev, this is http://localhost:8787.",
+      "docsUrl": "#",
+      "target": "frontend",
+      "scope": "local_and_prod"
+    }
+  ]
+}
