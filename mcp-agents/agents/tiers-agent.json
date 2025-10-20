@@ -5,7 +5,8 @@
   "persona": "You are a friendly and expert automation assistant for setting up and securing application tiers. Your goal is to make tier configuration seamless and secure. You are direct, helpful, and always offer context and follow-up. IMPORTANT: After each step, ask if the user needs anything else or is ready to proceed.",
   "knowledge_bases": [
     "../base/tiers-knowledge.json",
-    "../base/project-config.json"
+    "../base/project-config.json",
+    "../base/frontend-knowledge.json"
   ],
   "tools_required": [
     "run_shell_command",
@@ -47,6 +48,13 @@
       "success_criteria": "A complete tiers array with name, limit, and price for each tier."
     },
     {
+      "id": "3b_export_frontend_kb",
+      "title": "Export Frontend Knowledge Base",
+      "description": "Write the collected tiers array into '../base/frontend-knowledge.json' under the 'tiers' key. Merge with existing file contents, preserving component templates and file mappings.",
+      "tools_required": ["write_file", "read_file"],
+      "success_criteria": "frontend-knowledge.json contains the 'tiers' key with the defined tiers."
+    },
+    {
       "id": "4_create_stripe_products_and_prices",
       "title": "Create Stripe Products & Prices",
       "description": "Using the 'stripe_cli' commands from the tiers knowledge base, run the product_create and price_create commands for each tier. Ensure STRIPE_SECRET_KEY is set or guide the user to set it. Collect the returned productId and priceId for each tier.",
@@ -63,36 +71,37 @@
     {
       "id": "5_update_backend_env",
       "title": "Populate Backend Environment Variables",
-      "description": "Write the collected price IDs (and optionally product IDs) into the backend environment file defined as 'backend_env_final' in the project-config. Use variable names like TIER_<UPPERCASE_TIER_NAME>_PRICE_ID and TIER_<UPPERCASE_TIER_NAME>_PRODUCT_ID.",
+      "description": "Write the collected price IDs (and optionally product IDs and webhook secret) into the backend environment file defined as 'backend_env_final' in project-config.json. Use variable names like TIER_<NAME>_PRICE_ID, TIER_<NAME>_PRODUCT_ID, and STRIPE_WEBHOOK_SECRET.",
       "knowledge_ref": "files.backend_env_final",
-      "success_criteria": "The backend .dev.vars file contains entries for each tier's product and price IDs."
+      "success_criteria": "The backend .dev.vars file contains entries for each tier's product and price IDs, and the webhook secret."
     },
     {
       "id": "6_set_wrangler_secrets",
       "title": "Set Wrangler Secrets for Production",
-      "description": "For each tier, run 'wrangler secret put' to securely store TIER_<UPPERCASE_TIER_NAME>_PRICE_ID and TIER_<UPPERCASE_TIER_NAME>_PRODUCT_ID in your Cloudflare Worker production environment.",
+      "description": "Run 'wrangler secret put' to securely store TIER_<NAME>_PRICE_ID, TIER_<NAME>_PRODUCT_ID, and STRIPE_WEBHOOK_SECRET in your Cloudflare Worker production environment.",
       "tool_to_run": [
-        "wrangler secret put TIER_<UPPERCASE_TIER_NAME>_PRICE_ID",
-        "wrangler secret put TIER_<UPPERCASE_TIER_NAME>_PRODUCT_ID"
+        "wrangler secret put TIER_<NAME>_PRICE_ID",
+        "wrangler secret put TIER_<NAME>_PRODUCT_ID",
+        "wrangler secret put STRIPE_WEBHOOK_SECRET"
       ],
-      "success_criteria": "Wrangler secrets are set for all tiers."
+      "success_criteria": "Wrangler secrets are set for all tiers and webhook secret."
     },
     {
       "id": "7_frontend_integration",
       "title": "Guide Frontend Tier Integration",
-      "description": "Explain how to integrate the tiers array into the frontend code. Recommend creating or updating a file (e.g., frontend-v2/src/tiers.ts) exporting the tiers with name, priceId, limit, and formatted display. Suggest three template components—PricingCard.tsx, TierComparison.tsx, FeatureList.tsx—for rendering tier data, and note that styling can be customized with AI or manual edits.",
-      "success_criteria": "Frontend developers have clear instructions and locations for integrating tier data."
+      "description": "Explain how to integrate the frontend-knowledge.json KB into the frontend. Recommend reading tiers from that file, creating components (Tiers.tsx, PricingCard.tsx, TierComparison.tsx, FeatureList.tsx), and using the customer portal invoke function from the KB.",
+      "success_criteria": "Frontend contains components that render tier cards, pricing comparison, feature lists, and a working 'Manage Billing' button using the customer portal code."
     },
     {
       "id": "8_summary_and_next_steps",
       "title": "Summary & Next Steps",
-      "description": "Summarize all code changes, environment updates, and CLI commands run. Confirm that tier setup is complete and suggest running tests or deploying the worker.",
-      "success_criteria": "User has a clear summary of actions taken and knows how to proceed with testing or deployment."
+      "description": "Summarize all changes: code refactors, CLI commands, env updates, file writes. Confirm that both back and front setup are complete and working.",
+      "success_criteria": "User has a clear summary and can run the app locally or deploy confidently."
     },
     {
       "id": "9_follow_up",
       "title": "Follow-Up & Offer Next Actions",
-      "description": "Offer further assistance: ask if the user wants to run tests, deploy now, review any step again, or integrate additional features.",
+      "description": "Ask if the user wants to run tests, deploy now, review any step again, or customize components further with AI.",
       "success_criteria": "User indicates next desired action or confirms completion."
     }
   ]
