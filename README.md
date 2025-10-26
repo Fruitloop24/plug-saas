@@ -1,16 +1,46 @@
-# Production SaaS Infrastructure - Cloudflare Edition
+# [Project Name] - Ship Your SaaS Today
 
-<div align="center">
+Clone a working SaaS. Add your product. Deploy in 15 minutes.
 
-## Auth, billing, and usage tracking for your API. Deploy in hours.
+[See Live Demo →](https://clerk-frontend.pages.dev) | [Video Tour (3 min) →](#) | [GitHub →](https://github.com/Fruitloop24/clerk)
 
-**What this is:** The infrastructure layer every SaaS needs. You built an API? Wrap it in this. Start charging customers today.
+---
 
-**What this isn't:** Another tutorial project. This is production code running on Cloudflare's edge network (300+ cities, zero cold starts).
+## This is a Complete, Working SaaS Application
 
-[🌐 **Live Demo**](https://clerk-frontend.pages.dev/) • [💰 **Cost Breakdown**](https://github.com/Fruitloop24/clerk/blob/master/docs/features/cost-breakdown.md) • [🏗️ **Architecture**](https://github.com/Fruitloop24/clerk/blob/master/docs/features/architecture.md)
+Go to the [live demo](https://clerk-frontend.pages.dev) right now:
+1. Sign up with Google
+2. Upgrade to Pro (use card `4242 4242 4242 4242`)
+3. Click "Process Document"
+4. See the dashboard update
 
-</div>
+That's auth + billing + usage tracking + customer portal. **Working.**
+
+The "Process Document" button is where YOUR product goes.
+
+---
+
+## What You Get vs What You Add
+
+### ✅ You Get (Complete & Working)
+- Landing page with pricing
+- Clerk authentication (email + OAuth)
+- Stripe checkout + subscriptions
+- Usage tracking with monthly resets
+- Dashboard with real-time counter
+- Customer billing portal
+- Rate limiting (100 req/min)
+- Edge deployment (300+ cities)
+- CI/CD pipeline
+- **Zero database maintenance** - No DB needed for auth/billing
+
+### 🎯 You Add (Your Product)
+Replace the "Process Document" button with your actual logic:
+```typescript
+// api/src/index.ts - around line 650
+const result = await yourFunction(userId, plan, requestBody);
+// That's it. Auth, billing, usage tracking already handled.
+```
 
 ---
 
@@ -104,31 +134,7 @@ Rate limiting, webhook verification, CORS, security headers. **Built-in.**
 
 ## What Makes This Different
 
-**1. JWT as Single Source of Truth**
-
-Traditional SaaS: `Request → Verify auth → Query DB for plan → Check limits → Process`
-
-This template: `Request → Verify JWT (plan included) → Check limits → Process`
-
-**No database lookups.** The user's subscription tier is embedded in their JWT. When they upgrade, Stripe webhooks update Clerk metadata, and the next JWT automatically includes the new plan.
-
-**📖 Deep dive:** [Architecture Guide](https://github.com/Fruitloop24/clerk/blob/master/docs/features/architecture.md)
-
-**2. Edge-Native Architecture**
-
-Your API runs globally, not in a single region. Cloudflare deploys your code to 300+ cities. Users in Tokyo, London, and New York all get ~50ms response times.
-
-**Zero cold starts.** No Lambda spin-up delays. Always-on Workers.
-
-**3. No Database Until You Need One**
-
-- **User identity** → Clerk stores it
-- **Subscription status** → Stripe stores it
-- **Usage counters** → Cloudflare KV (key-value store)
-
-You only add a database when YOU need to store YOUR app's data (documents, files, posts, etc.). Not for auth/billing infrastructure.
-
-**4. Your Product Plugs In**
+**1. Your Product Plugs In**
 
 This template is the infrastructure layer. You provide the product logic:
 
@@ -148,6 +154,30 @@ if (url.pathname === '/api/your-feature' && request.method === 'POST') {
 ```
 
 The JWT, usage tracking, and tier enforcement are already wired up. You write the features.
+
+**2. Edge-Native Architecture**
+
+Your API runs globally, not in a single region. Cloudflare deploys your code to 300+ cities. Users in Tokyo, London, and New York all get ~50ms response times.
+
+**Zero cold starts.** No Lambda spin-up delays. Always-on Workers.
+
+**3. No Database Until You Need One**
+
+- **User identity** → Clerk stores it
+- **Subscription status** → Stripe stores it
+- **Usage counters** → Cloudflare KV (key-value store)
+
+You only add a database when YOU need to store YOUR app's data (documents, files, posts, etc.). Not for auth/billing infrastructure.
+
+**JWT as Single Source of Truth:**
+
+Traditional SaaS: `Request → Verify auth → Query DB for plan → Check limits → Process`
+
+This template: `Request → Verify JWT (plan included) → Check limits → Process`
+
+**No database lookups.** The user's subscription tier is embedded in their JWT. When they upgrade, Stripe webhooks update Clerk metadata, and the next JWT automatically includes the new plan.
+
+**📖 Deep dive:** [Architecture Guide](https://github.com/Fruitloop24/clerk/blob/master/docs/features/architecture.md)
 
 ---
 
