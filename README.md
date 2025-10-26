@@ -411,7 +411,7 @@ Once local development is working, you're ready to deploy your SaaS to productio
 
 Your backend API will run on Cloudflare's global edge network (300+ cities worldwide) with ~50ms response times.
 
-**📖 Follow the detailed deployment guide:** [Cloudflare Workers Deployment](docs/platforms/cloudflare.md)
+**📖 Follow the detailed deployment guide:** [Cloudflare Workers Deployment](docs/deployments/cloudflare.md)
 
 This guide will walk you through:
 - Authenticating with Cloudflare
@@ -662,7 +662,7 @@ MIT - Use this template for commercial or personal SaaS projects.
 **Platform Setup Guides:**
 - **[Clerk Setup](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/clerk.md)** - Authentication configuration
 - **[Stripe Setup](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/stripe.md)** - Payment processing configuration
-- **[Cloudflare Workers Deployment](docs/platforms/cloudflare.md)** - Backend deployment
+- **[Cloudflare Workers Deployment](docs/deployments/cloudflare.md)** - Backend deployment
 
 **Deployment Guides:**
 - **[Stripe Webhooks](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/deployments/stripe-deploy.md)** - Production webhook configuration
