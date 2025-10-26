@@ -153,7 +153,7 @@ export default function Dashboard() {
       {/* Navigation */}
       <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
         <Link to="/" className="no-underline bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-2xl font-bold">
-          CloudDocs Pro
+          [Your Logo]
         </Link>
         <div className="flex gap-4 items-center">
           <button
