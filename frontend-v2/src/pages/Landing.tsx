@@ -1,42 +1,94 @@
-import { SignedIn, SignedOut, useAuth, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserButton } from '@clerk/clerk-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+interface Tier {
+  id: string;
+  name: string;
+  price: number;
+  limit: number | 'unlimited';
+  hasPriceId: boolean;
+}
+
+// Tier styling configuration for landing page
+const TIER_STYLES: Record<string, {
+  containerClass: string;
+  textColor: string;
+  checkColor: string;
+  buttonClass: string;
+  buttonText: string;
+  highlighted: boolean;
+}> = {
+  free: {
+    containerClass: 'p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all',
+    textColor: 'text-slate-700',
+    checkColor: 'text-green-500',
+    buttonClass: 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+    buttonText: 'text-slate-600',
+    highlighted: false
+  },
+  pro: {
+    containerClass: 'relative p-8 bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 rounded-3xl text-white shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all',
+    textColor: 'text-white',
+    checkColor: 'text-white',
+    buttonClass: 'bg-white text-cyan-600 hover:bg-cyan-50',
+    buttonText: 'text-cyan-600',
+    highlighted: true
+  },
+  enterprise: {
+    containerClass: 'relative p-8 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-3xl text-white shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all',
+    textColor: 'text-white',
+    checkColor: 'text-white',
+    buttonClass: 'bg-white text-purple-600 hover:bg-purple-50',
+    buttonText: 'text-purple-600',
+    highlighted: true
+  }
+};
+
+// Helper to get tier features based on limit
+const getTierFeatures = (tier: Tier): string[] => {
+  const features: string[] = [];
+
+  if (tier.limit === 'unlimited') {
+    features.push('Unlimited documents');
+  } else {
+    features.push(`${tier.limit} documents/month`);
+  }
+
+  if (tier.id === 'free') {
+    features.push('api');
+  } else if (tier.id === 'pro') {
+    features.push('api');
+  } else if (tier.id === 'enterprise') {
+    features.push('support');
+  }
+
+  return features;
+};
 
 export default function Landing() {
-  const { getToken } = useAuth();
   const { user } = useUser();
   const navigate = useNavigate();
-  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [tiers, setTiers] = useState<Tier[]>([]);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
   const plan = (user?.publicMetadata?.plan as string) || 'free';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
-  const handleUpgrade = async () => {
-    setIsUpgrading(true);
-    try {
-      const token = await getToken({ template: 'pan-api' });
-      const response = await fetch(`${API_URL}/api/create-checkout`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-
-      if (response.ok && data.url) {
-        window.location.href = data.url;
-      } else {
-        alert('Failed to create checkout session');
-        setIsUpgrading(false);
+  useEffect(() => {
+    // Fetch available tiers from API
+    const fetchTiers = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/tiers`);
+        const data = await response.json();
+        setTiers(data.tiers || []);
+      } catch (err) {
+        console.error('Failed to fetch tiers:', err);
       }
-    } catch (error) {
-      console.error('Upgrade error:', error);
-      alert('Failed to start upgrade process');
-      setIsUpgrading(false);
-    }
-  };
+    };
+
+    fetchTiers();
+  }, [API_URL]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -63,13 +115,10 @@ export default function Landing() {
           <SignedIn>
             {plan === 'free' && (
               <button
-                onClick={handleUpgrade}
-                disabled={isUpgrading}
-                className={`px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 border-none rounded-lg text-white text-sm font-semibold hover:shadow-lg transition-all ${
-                  isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                }`}
+                onClick={() => navigate('/choose-plan')}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 border-none rounded-lg text-white text-sm font-semibold hover:shadow-lg transition-all cursor-pointer"
               >
-                {isUpgrading ? 'Loading...' : 'Upgrade to Pro'}
+                Upgrade Plan
               </button>
             )}
             <Link to="/dashboard" className="text-slate-700 no-underline px-4 py-2 hover:bg-slate-100 rounded-lg text-sm font-medium transition-all">
@@ -235,119 +284,83 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Tier */}
-            <div className="p-10 bg-white rounded-3xl border-2 border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl mb-2 text-slate-700 font-bold">Free</h3>
-                <div className="mb-4">
-                  <span className="text-6xl font-extrabold text-slate-900">$0</span>
-                  <span className="text-xl text-slate-600 font-medium">/month</span>
-                </div>
-                <p className="text-slate-600">Perfect for trying out the service</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3 text-slate-700">
-                  <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>5 documents/month</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-700">
-                  <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>AI-powered extraction</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-700">
-                  <span className="text-green-500 text-xl flex-shrink-0">✓</span>
-                  <span>Secure cloud storage</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-400">
-                  <span className="text-slate-300 text-xl flex-shrink-0">✗</span>
-                  <span>Priority processing</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-400">
-                  <span className="text-slate-300 text-xl flex-shrink-0">✗</span>
-                  <span>API access</span>
-                </li>
-              </ul>
-              <SignedOut>
-                <button
-                  onClick={() => navigate('/sign-up')}
-                  className="w-full px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border-none rounded-xl cursor-pointer font-bold text-base transition-all"
-                >
-                  Get Started Free
-                </button>
-              </SignedOut>
-              <SignedIn>
-                {plan === 'free' && (
-                  <Link to="/dashboard">
-                    <button className="w-full px-6 py-4 bg-slate-100 text-slate-700 border-none rounded-xl cursor-pointer font-bold text-base">
-                      Current Plan
-                    </button>
-                  </Link>
-                )}
-              </SignedIn>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {/* Dynamic Tier Cards */}
+            {tiers.map((tier) => {
+              const style = TIER_STYLES[tier.id] || TIER_STYLES.free;
+              const features = getTierFeatures(tier);
+              const isCurrent = plan === tier.id;
+              const isFree = tier.id === 'free';
 
-            {/* Pro Tier */}
-            <div className="relative p-10 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 rounded-3xl text-white shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-slate-900 px-6 py-2 rounded-full text-xs font-bold tracking-wider uppercase shadow-lg">
-                Most Popular
-              </div>
-              <div className="text-center mb-8">
-                <h3 className="text-2xl mb-2 font-bold">Pro</h3>
-                <div className="mb-4">
-                  <span className="text-6xl font-extrabold">$29</span>
-                  <span className="text-xl opacity-90 font-medium">/month</span>
+              return (
+                <div key={tier.id} className={style.containerClass}>
+                  {/* Popular Badge */}
+                  {style.highlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-slate-900 px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase shadow-lg">
+                      Popular
+                    </div>
+                  )}
+
+                  {/* Tier Header */}
+                  <div className="text-center mb-6">
+                    <h3 className={`text-xl mb-2 font-bold ${style.textColor}`}>
+                      {tier.name}
+                    </h3>
+                    <div className="mb-3">
+                      <span className={`text-5xl font-extrabold ${style.textColor}`}>
+                        ${tier.price}
+                      </span>
+                      <span className={`text-lg font-medium ${style.textColor === 'text-white' ? 'opacity-90' : 'text-slate-600'}`}>
+                        /month
+                      </span>
+                    </div>
+                    <p className={`text-sm ${style.textColor === 'text-white' ? 'opacity-90' : 'text-slate-600'}`}>
+                      {isFree ? 'Perfect for trying out' : 'For power users'}
+                    </p>
+                  </div>
+
+                  {/* Features List */}
+                  <ul className="space-y-3 mb-6">
+                    {features.map((feature, idx) => (
+                      <li key={idx} className={`flex items-start gap-2 text-sm ${style.textColor}`}>
+                        <span className={`${style.checkColor} text-lg flex-shrink-0`}>✓</span>
+                        <span className={style.textColor === 'text-white' ? 'font-medium' : ''}>
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Action Buttons */}
+                  <SignedOut>
+                    <button
+                      onClick={() => navigate('/sign-up')}
+                      className={`w-full px-4 py-3 border-none rounded-xl cursor-pointer font-bold text-sm shadow-xl transition-all ${style.buttonClass}`}
+                    >
+                      {isFree ? 'Get Started Free' : 'Get Started'}
+                    </button>
+                  </SignedOut>
+                  <SignedIn>
+                    {isCurrent ? (
+                      <button className={`w-full px-4 py-3 rounded-xl cursor-default font-bold text-sm ${
+                        style.textColor === 'text-white'
+                          ? 'bg-white/20 text-white border-2 border-white'
+                          : `bg-slate-100 ${style.textColor} border-none`
+                      }`}>
+                        ✓ Current Plan
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => navigate('/choose-plan')}
+                        className={`w-full px-4 py-3 border-none rounded-xl font-bold text-sm shadow-xl transition-all cursor-pointer ${style.buttonClass}`}
+                      >
+                        Select Plan
+                      </button>
+                    )}
+                  </SignedIn>
                 </div>
-                <p className="text-blue-100">For businesses and teams</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Unlimited documents</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Full REST API access</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Priority processing queue</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Advanced analytics dashboard</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">✓</span>
-                  <span className="font-medium">Priority email support</span>
-                </li>
-              </ul>
-              <SignedOut>
-                <button
-                  onClick={() => navigate('/sign-up')}
-                  className="w-full px-6 py-4 bg-white text-blue-600 border-none rounded-xl cursor-pointer font-bold text-base hover:bg-blue-50 shadow-xl transition-all"
-                >
-                  Start Free Trial
-                </button>
-              </SignedOut>
-              <SignedIn>
-                {plan === 'free' ? (
-                  <button
-                    onClick={handleUpgrade}
-                    disabled={isUpgrading}
-                    className={`w-full px-6 py-4 bg-white text-blue-600 border-none rounded-xl font-bold text-base shadow-xl transition-all ${
-                      isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-blue-50'
-                    }`}
-                  >
-                    {isUpgrading ? 'Loading...' : 'Upgrade to Pro'}
-                  </button>
-                ) : (
-                  <button className="w-full px-6 py-4 bg-white/20 text-white border-2 border-white rounded-xl cursor-default font-bold text-base">
-                    ✓ Current Plan
-                  </button>
-                )}
-              </SignedIn>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -379,13 +392,10 @@ export default function Landing() {
           <SignedIn>
             {plan === 'free' ? (
               <button
-                onClick={handleUpgrade}
-                disabled={isUpgrading}
-                className={`px-12 py-6 text-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none rounded-2xl font-bold shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all ${
-                  isUpgrading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                }`}
+                onClick={() => navigate('/choose-plan')}
+                className="px-12 py-6 text-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none rounded-2xl font-bold shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all cursor-pointer"
               >
-                {isUpgrading ? 'Loading...' : 'Upgrade to Pro'}
+                View Plans
               </button>
             ) : (
               <Link to="/dashboard">

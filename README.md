@@ -1,200 +1,267 @@
 # Production SaaS Starter - Cloudflare Edge Edition
 
-> **A complete, production-ready SaaS template** built entirely on Cloudflare's edge platform. Stateless JWT authentication, no database to maintain, lightning-fast global deployment, and free hosting until 10,000+ users.
+<div align="center">
 
-**Live Demo**: https://clerk-frontend.pages.dev (CloudDocs Pro - AI Document Processing Demo)
-**API**: https://pan-api.k-c-sheffield012376.workers.dev
-**Stack**: Vite + React 19 + Cloudflare Workers + Clerk + Stripe
+## 🚀 Ship your SaaS in days, not months
 
----
+**Complete auth + billing + tier management on Cloudflare's edge**
 
-## Why This Stack?
+Stateless JWT architecture • No database to maintain • Free hosting until 10,000+ users
 
-Most SaaS tutorials stop at "hello world." This template goes all the way to production with battle-tested patterns that scale.
-
-### Core Architecture Advantages
-
-✅ **Stateless JWT Auth** - No sessions, no cookies, fully stateless authentication via Clerk
-✅ **Cloudflare Edge** - Deploy globally in 300+ cities, zero cold starts, infinite scale
-✅ **No Database to Maintain** - Clerk stores identity, Stripe handles billing, KV for counters
-✅ **Free Hosting Until 10k+ Users** - Start with $0/month hosting costs (see [Cost Analysis](#cost-analysis))
-✅ **Production-Ready Patterns** - Rate limiting, webhook idempotency, security headers, CORS hardening
-
-### What's Included (Production Features)
-
-**Authentication & Authorization**
-- ✅ Complete sign-up/sign-in flows with email verification
-- ✅ JWT token verification on every API request
-- ✅ User plan metadata in JWT claims (no extra DB lookups)
-- ✅ Works perfectly on static hosting (no server sessions)
-
-**Subscription Billing**
-- ✅ Stripe Checkout integration for payment processing
-- ✅ Free tier (5 requests/month) with automatic reset
-- ✅ Pro tier (unlimited usage, $29/month)
-- ✅ Stripe Customer Portal (update payment methods, view invoices, cancel subscriptions)
-- ✅ Webhook integration with signature verification
-- ✅ Automatic plan upgrades via metadata sync
-
-**Security & Reliability**
-- ✅ Rate limiting (100 requests/minute per user)
-- ✅ Webhook idempotency (prevents duplicate processing)
-- ✅ Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- ✅ Dynamic CORS (no wildcard, validated origins)
-- ✅ User data isolation (all data keyed by userId)
-- ✅ PCI compliance via Stripe-hosted checkout and portal
-
-**Performance & Scalability**
-- ✅ Global edge deployment (300+ cities)
-- ✅ Zero cold starts (always-on Workers)
-- ✅ Instant HMR in development (Vite)
-- ✅ Optimized production builds
-- ✅ CDN-first static frontend (Cloudflare Pages)
-
-**Developer Experience**
-- ✅ CI/CD pipeline (GitHub Actions)
-- ✅ Heavily documented code (~2,500 lines TypeScript)
-- ✅ Environment variable validation
-- ✅ Local development with hot reload
-- ✅ TypeScript throughout
+**[📊 See cost breakdown →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)**
 
 ---
 
-## Architecture Overview
+### 🌐 Live Demo
+**https://clerk-frontend.pages.dev/**
 
-### Data Flow: JWT-Based Stateless Authentication
+### ⚡ Tech Stack
+React 19 + Cloudflare Workers + Clerk + Stripe
 
+</div>
+
+---
+
+## Why This Template?
+
+Most SaaS templates are "hello world" demos. **This is production-ready infrastructure.**
+
+## ✨ The Hard Parts, Already Built
+
+<table>
+<tr>
+<td width="50%">
+
+### 🎨 Complete Frontend Template
+**Working React template included**: Pricing pages, protected routes, customer portal, dashboard, tier cards. All wired up and ready to use.
+
+</td>
+<td width="50%">
+
+### 🤖 AI-Guided Tier Configuration
+**Claude Code `/configure-tiers`**: Answer questions, automatically updates frontend routes, pricing cards, backend limits, Stripe integration. **[See command →](https://github.com/Fruitloop24/clerk-exp/blob/master/.claude/commands/configure-tiers.md)**
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🔐 Stateless JWT Authentication
+User's plan lives in the token. **Zero database lookups** for authorization.
+
+**[🔍 Architecture deep dive →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)**
+
+</td>
+<td width="50%">
+
+### 💳 Subscription Billing
+Stripe integration with webhooks, customer portal, and tier management.
+
+**[💰 Cost breakdown →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)**
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📊 Usage Limits & Tracking
+Per-tier request limits with monthly resets. Built-in enforcement.
+
+**[🏗️ Architecture guide →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)**
+
+</td>
+<td width="50%">
+
+### 🌍 Global Edge Deployment
+Runs in **300+ cities**. ~50ms response times worldwide. Zero cold starts.
+
+**[📐 How it works →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)**
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🛡️ Security Hardening
+Rate limiting, webhook verification, CORS, security headers. **Built-in.**
+
+**[🔒 Security guide →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/security.md)**
+
+</td>
+<td width="50%">
+
+### 💵 $0 Hosting Costs
+**Free until 10k+ users** on Cloudflare's free tier. Then ~$31/month.
+
+**[📈 See cost breakdown →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)**
+
+</td>
+</tr>
+</table>
+
+### What Makes This Different
+
+**1. JWT as Single Source of Truth**
+
+Traditional SaaS: `Request → Verify auth → Query DB for plan → Check limits → Process`
+
+This template: `Request → Verify JWT (plan included) → Check limits → Process`
+
+**No database lookups.** The user's subscription tier is embedded in their JWT. When they upgrade, Stripe webhooks update Clerk metadata, and the next JWT automatically includes the new plan.
+
+**📖 Deep dive:** [Architecture Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)
+
+**2. Edge-Native Architecture**
+
+Your API runs globally, not in a single region. Cloudflare deploys your code to 300+ cities. Users in Tokyo, London, and New York all get ~50ms response times.
+
+**Zero cold starts.** No Lambda spin-up delays. Always-on Workers.
+
+**3. No Database Until You Need One**
+
+- **User identity** → Clerk stores it
+- **Subscription status** → Stripe stores it
+- **Usage counters** → Cloudflare KV (key-value store)
+
+You only add a database when YOU need to store YOUR app's data (documents, files, posts, etc.). Not for auth/billing infrastructure.
+
+---
+
+## Who Needs This
+
+### 🎯 Perfect For
+
+<table>
+<tr>
+<td width="50%">
+
+**🚀 Indie Hackers**
+Ship MVPs fast, validate ideas cheaply
+
+</td>
+<td width="50%">
+
+**👨‍💻 Solo Developers**
+Complete backend infrastructure, no team needed
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**🏗️ SaaS Builders**
+Focus on YOUR product, not auth/billing wiring
+
+</td>
+<td width="50%">
+
+**⚡ Edge-First Teams**
+Leverage Cloudflare's global network
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="center">
+
+**💰 Cost-Conscious Founders**
+$0/month until you're making money • **[See detailed costs →](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)**
+
+</td>
+</tr>
+</table>
+
+### Drop Your App Behind It
+
+This template provides the **infrastructure layer:**
+- ✅ User sign-up and authentication
+- ✅ Subscription checkout and management
+- ✅ Usage tracking and tier enforcement
+- ✅ JWT routing to protect endpoints
+
+**You provide the product logic:**
+- AI document processing? Plug it in.
+- Image generation API? Drop it behind the auth layer.
+- Analytics dashboard? Protected routes ready.
+- Whatever you're building? The separation is clean.
+
+**Example integration:**
+```typescript
+// api/src/index.ts - Add your endpoint
+
+if (url.pathname === '/api/your-feature' && request.method === 'POST') {
+  // JWT already verified, userId and plan available
+  // Tier limits already checked
+
+  // YOUR CODE HERE
+  const result = await yourBusinessLogic(userId, plan);
+
+  // Usage automatically tracked
+  return new Response(JSON.stringify({ result }), { status: 200 });
+}
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      USER AUTHENTICATES                          │
-│                     (Clerk Sign-In Flow)                         │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│                   CLERK ISSUES JWT TOKEN                         │
-│                                                                   │
-│  Token Payload:                                                  │
-│  {                                                                │
-│    "userId": "user_abc123",                                      │
-│    "plan": "free"  ← from user.public_metadata                  │
-│  }                                                                │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│              FRONTEND STORES TOKEN IN MEMORY                     │
-│              (ClerkProvider auto-manages)                        │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│           USER MAKES API REQUEST WITH JWT                        │
-│                                                                   │
-│  GET /api/data                                                    │
-│  Authorization: Bearer <jwt_token>                               │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│        CLOUDFLARE WORKER VERIFIES JWT & EXTRACTS CLAIMS         │
-│                                                                   │
-│  const { userId, plan } = verifyToken(token)                     │
-│  const limit = TIER_LIMITS[plan]  // "free" → 5, "pro" → ∞     │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│           WORKER CHECKS USAGE IN CLOUDFLARE KV                  │
-│                                                                   │
-│  const usage = await KV.get(`usage:${userId}`)                  │
-│  if (usage.count >= limit) return 429 Rate Limited              │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────────┐
-│              PROCESS REQUEST & INCREMENT COUNTER                 │
-│                                                                   │
-│  await KV.put(`usage:${userId}`, count + 1)                     │
-│  return 200 Success                                              │
-└─────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────┐
-│           WHEN USER UPGRADES (STRIPE WEBHOOK)                    │
-│                                                                   │
-│  1. User completes Stripe checkout                               │
-│  2. Stripe sends webhook → Worker verifies signature             │
-│  3. Worker updates Clerk metadata: { plan: "pro" }              │
-│  4. Next JWT refresh includes plan: "pro"                        │
-│  5. Unlimited usage automatically enabled                        │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Key Insight**: The user's plan is stored in Clerk metadata and included in every JWT. This means zero database lookups for authorization checks. The Worker reads the plan from the token and enforces limits instantly.
+The JWT, usage tracking, and tier enforcement are already wired up. You write the features.
 
 ---
 
-## 🤖 AI-Powered Installer (Optional Accelerator)
+## What You Get
 
-Want to skip manual configuration? We've built an **AI orchestrator** with specialized agents to guide you through setup.
+### Authentication & Authorization
+- Complete sign-up/sign-in flows with email verification
+- JWT token verification on every API request
+- User plan metadata in JWT claims (no DB lookups)
+- Works perfectly on static hosting (no server sessions)
 
-**What it automates:**
-- ✅ Environment configuration (local + production)
-- ✅ Clerk API key retrieval and JWT template setup
-- ✅ Stripe product/price creation via CLI
-- ✅ Webhook endpoint configuration
-- ✅ GitHub Actions workflow generation
-- ✅ Security audit and validation
+### Subscription Billing
+- Stripe Checkout integration for payment processing
+- Default: **2 tiers** (Free + Pro) - add more with MCP agent
+- Stripe Customer Portal (manage subscriptions, update cards, view invoices)
+- Webhook integration with signature verification and idempotency
+- Automatic plan upgrades via metadata sync
 
-**What still requires manual steps:**
-- ⚠️ Creating Clerk and Stripe accounts
-- ⚠️ Cloudflare Pages dashboard configuration
-- ⚠️ Approving each automation step (human-in-the-loop)
+### Security & Reliability
+- Rate limiting (100 requests/minute per user)
+- Webhook idempotency (prevents duplicate processing)
+- Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
+- Dynamic CORS (no wildcards, validated origins)
+- User data isolation (all data keyed by userId)
+- PCI compliance via Stripe-hosted checkout
 
-**[→ Read the AI Installer Guide](mcp-agents/README.md)**
+### Performance & Scalability
+- Global edge deployment (300+ cities)
+- Zero cold starts (always-on Workers)
+- Instant HMR in development (Vite)
+- Optimized production builds
+- CDN-first static frontend (Cloudflare Pages)
 
-### Quick Start with AI Installer
-
-```bash
-# 1. Clone and navigate to installer
-cd mcp-agents
-
-# 2. Launch with Claude Code
-claude code orchestration/coordinator.json
-
-# 3. Tell Claude
-"Run the orchestrator to perform full project setup"
-
-# 4. Follow AI prompts and approve each step
-# The orchestrator will invoke 6 specialized agents in sequence:
-#   - onboarding-agent (env setup)
-#   - clerk-agent (auth config)
-#   - tiers-agent (Stripe setup)
-#   - frontend-agent (UI components)
-#   - deployment-agent (CI/CD)
-#   - security-agent (audit)
-```
-
-**Estimated time**: ~30-45 minutes with AI guidance (vs 2-3 hours manually)
+### Developer Experience
+- CI/CD pipeline ready (GitHub Actions)
+- Heavily commented code (~2,500 lines TypeScript)
+- Environment variable validation
+- Local development with hot reload
+- TypeScript throughout
 
 ---
 
-## Manual Setup (Complete Instructions)
-
-Prefer full control? Follow these step-by-step instructions.
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
-- Cloudflare account (free tier works)
-- Clerk account (free up to 10k users)
-- Stripe account (test mode)
+Before you begin, make sure you have:
+
+- **Node.js 20+** installed
+- **Wrangler CLI** - Cloudflare's deployment tool: `npm install -g wrangler`
+- **Stripe CLI** - For webhook testing: [Install guide](https://stripe.com/docs/stripe-cli#install)
+- **Accounts created** (all free to start):
+  - Cloudflare account (free tier)
+  - Clerk account (free up to 10k users)
+  - Stripe account (test mode)
 
 ### 1. Clone & Install
 
 ```bash
 git clone <your-repo>
-cd clerk
+cd clerk-exp
 
 # Install backend dependencies
 cd api && npm install
@@ -203,180 +270,219 @@ cd api && npm install
 cd ../frontend-v2 && npm install
 ```
 
-### 2. Configure Clerk
+### 2. Set Up Clerk Authentication
 
-1. Create a Clerk application at https://clerk.com
-2. Create a JWT template named `pan-api` with claims:
-   ```json
-   {
-     "plan": "{{user.public_metadata.plan}}"
-   }
-   ```
-3. Copy your publishable and secret keys
+Clerk handles all user authentication and JWT tokens for this application.
 
-### 3. Configure Stripe
+**📖 Follow the detailed setup guide:** [Clerk Setup Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/clerk.md)
 
-1. Create a Stripe account at https://stripe.com
-2. Create a product with two prices:
-   - Free: $0/month (for reference)
-   - Pro: $29/month (or your price)
-3. Copy the Pro price ID (starts with `price_`)
-4. Set up Stripe Customer Portal at https://dashboard.stripe.com/settings/billing/portal
-5. Copy the portal configuration ID (starts with `bpc_`)
-6. Set up webhook endpoint (see [Stripe Webhook Setup](#stripe-webhook-setup))
+This guide will walk you through:
+- Creating your Clerk application
+- Setting up the JWT template (required for tier system)
+- Getting your API keys
 
-### 4. Set Environment Variables
+**✅ When complete, you should have:**
 
-**Backend** (`api/.dev.vars`):
+Copy the example files and fill in your Clerk keys:
 ```bash
-CLERK_SECRET_KEY=sk_test_...
-CLERK_PUBLISHABLE_KEY=pk_test_...
+# Backend
+cp api/.dev.vars.example api/.dev.vars
+
+# Frontend
+cp frontend-v2/.env.example frontend-v2/.env
+```
+
+**📋 See complete examples:** [Backend .dev.vars](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/backend-dev-vars-example.md) | [Frontend .env](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/frontend-env-example.md)
+
+Your `api/.dev.vars` should look like this:
+```bash
+# Clerk Configuration
+CLERK_SECRET_KEY=sk_test_abc123...      # From Clerk Dashboard
+CLERK_PUBLISHABLE_KEY=pk_test_xyz789... # From Clerk Dashboard
+CLERK_JWT_TEMPLATE=pan-api              # Exact value (must match template name)
+
+```
+
+Your `frontend-v2/.env` should look like this:
+```bash
+# Clerk Configuration
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xyz789... # Same as above
+VITE_API_URL=http://localhost:8787           # Local backend URL
+```
+
+### 3. Set Up Stripe Payments
+
+Stripe handles all payment processing and subscription billing for this application.
+
+**📖 Follow the detailed setup guide:** [Stripe Setup Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/stripe.md)
+
+This guide will walk you through:
+- Getting your Stripe API keys
+- Creating products for each paid tier (Pro, Enterprise, etc.)
+- Setting up the Customer Portal for subscription management
+- Getting your Price IDs and Portal Configuration ID
+
+**📋 See complete backend config:** [Backend .dev.vars Example](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/backend-dev-vars-example.md)
+
+**✅ When complete, you should have:**
+
+Your `api/.dev.vars` should now look like this:
+```bash
+# Clerk Configuration (from Step 2)
+CLERK_SECRET_KEY=sk_test_abc123...
+CLERK_PUBLISHABLE_KEY=pk_test_xyz789...
 CLERK_JWT_TEMPLATE=pan-api
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_ID=price_...
-STRIPE_PORTAL_CONFIG_ID=bpc_...
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_def456...           # From Stripe Dashboard
+STRIPE_PRICE_ID_PRO=price_1Abc23DEfg45HIjk    # Pro tier product price ID
+
+# Add a STRIPE_PRICE_ID for each paid tier you created in Stripe
+# The variable name should match whatever you named your tiers/products
+STRIPE_PRICE_ID_ENTERPRISE=price_1Xyz98WVut76 # Enterprise tier product price ID (if applicable)
+
+STRIPE_PORTAL_CONFIG_ID=bpc_1SK6M             # For customer subscription management
 ```
 
-**Frontend** (`frontend-v2/.env`):
-```bash
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-VITE_API_URL=http://localhost:8787
+### 4. Configure Your Pricing Tiers (Optional)
+
+The default template provides a complete multi-tier system (Free, Pro, Enterprise) with frontend routes, pricing cards, and backend enforcement. You can easily customize this using natural language with any AI CLI.
+
+**🤖 Use the `/configure-tiers` Command (Recommended - works best with Claude Code)**
+
+```
+/configure-tiers
 ```
 
-### 5. Run Locally
+Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. Or manually call `.claude/commands/configure-tiers.md` with your AI tool.
 
-```bash
-# Terminal 1: Start backend
-cd api
-npm run dev  # http://localhost:8787
+Answer questions about your tiers (name, price, limit, features), and it updates:
+- ✅ Backend tier limits and Stripe integration
+- ✅ Frontend pricing cards and routes
+- ✅ Dashboard tier displays
+- ✅ Environment variables
 
-# Terminal 2: Start frontend
-cd frontend-v2
-npm run dev  # http://localhost:5173
-```
+Modify everything in natural language to fit your product.
 
-### 6. Deploy
+**📝 Manual Configuration**
 
-**Backend** (Cloudflare Workers):
-```bash
-cd api
-npm run deploy
-```
-
-**Frontend** (Cloudflare Pages):
-1. Push to GitHub
-2. Connect repo to Cloudflare Pages
-3. Configure build:
-   - **Root directory**: `frontend-v2`
-   - **Build command**: `npm run build`
-   - **Output directory**: `dist`
-4. Add environment variables in CF dashboard
-5. Deploy!
+Prefer manual control? Follow the [Manual Tier Setup Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/manual-tier-setup.md) for step-by-step instructions on updating each file.
 
 ---
 
-## Stripe Webhook Setup
+### 5. Run Locally (3 Terminals)
 
-### Step 1: Create Webhook Endpoint
-
-1. Go to https://dashboard.stripe.com/webhooks
-2. Click **"Add endpoint"**
-3. Enter your worker URL + `/webhook/stripe`:
-   ```
-   https://YOUR-WORKER.workers.dev/webhook/stripe
-   ```
-4. Select events:
-   - `checkout.session.completed`
-   - `customer.subscription.created`
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-5. Copy the **Signing secret** (starts with `whsec_`)
-
-### Step 2: Set Webhook Secret
-
+**Terminal 1 - Backend:**
 ```bash
-cd api
-wrangler secret put STRIPE_WEBHOOK_SECRET
-# Paste the whsec_... value when prompted
+cd api && npm run dev
+# http://localhost:8787
 ```
 
-### Step 3: Set Portal Configuration ID
-
+**Terminal 2 - Frontend:**
 ```bash
-wrangler secret put STRIPE_PORTAL_CONFIG_ID
-# Paste the bpc_... value when prompted
+cd frontend-v2 && npm run dev
+# http://localhost:5173
 ```
 
-### Step 4: Test End-to-End
+**Terminal 3 - Stripe Webhooks:**
+```bash
+stripe listen --forward-to http://localhost:8787/webhook/stripe
+# Copy whsec_... to api/.dev.vars and restart Terminal 1
+```
 
-1. Sign up as a new user
-2. Use 5 free requests
-3. Click "Upgrade to Pro"
-4. Complete checkout (test card: `4242 4242 4242 4242`)
-5. Verify dashboard shows "Unlimited • Pro Plan Active"
-6. Test unlimited usage
-7. Click "Manage Billing" and verify portal opens
-8. Test cancellation (webhook updates plan back to free)
+### 5. Test End-to-End
+
+1. Open http://localhost:5173
+2. Sign up with email
+3. Make 5 free requests (hit the limit)
+4. Click "Upgrade to Pro"
+5. Use test card: `4242 4242 4242 4242`
+6. Verify unlimited access after refresh
+
+**It works!** 🎉
 
 ---
 
-## File Structure
+## Deploy to Production
 
-```
-clerk/
-├── api/                        # Cloudflare Worker
-│   ├── src/
-│   │   ├── index.ts           # Main API (~830 lines, heavily documented)
-│   │   └── stripe-webhook.ts  # Stripe webhook handler (~190 lines)
-│   ├── wrangler.toml          # Worker configuration
-│   ├── .dev.vars              # Local secrets (gitignored)
-│   └── package.json
-│
-├── frontend-v2/                # Vite + React app
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Landing.tsx    # Landing page with pricing
-│   │   │   ├── Dashboard.tsx  # Protected dashboard
-│   │   │   ├── SignInPage.tsx # Sign-in flow
-│   │   │   └── SignUpPage.tsx # Sign-up flow
-│   │   ├── App.tsx            # React Router + protected routes
-│   │   ├── main.tsx           # Entry point + ClerkProvider
-│   │   └── index.css          # Tailwind directives
-│   ├── vite.config.ts         # Vite configuration
-│   ├── tailwind.config.js     # Tailwind v3 configuration
-│   └── package.json
-│
-├── mcp-agents/                 # AI-powered installer
-│   ├── orchestration/
-│   │   └── coordinator.json   # Master orchestrator
-│   ├── agents/                # Individual agent configs
-│   │   ├── onboarding-agent.json
-│   │   ├── clerk-agent.json
-│   │   ├── tiers-agent.json
-│   │   ├── frontend-agent.json
-│   │   ├── deployment-agent.json
-│   │   ├── security-agent.json
-│   │   ├── testing-agent.json
-│   │   └── cf-specialist.json
-│   ├── base/                  # Knowledge bases
-│   │   ├── project-config.json
-│   │   ├── clerk-knowledge.json
-│   │   ├── tiers-knowledge.json
-│   │   ├── frontend-knowledge.json
-│   │   ├── deployment-knowledge.json
-│   │   ├── security-knowledge.json
-│   │   ├── cloudflare-workers.txt
-│   │   └── vite-react-tailwind.txt
-│   └── README.md              # AI installer guide
-│
-├── .github/workflows/
-│   └── deploy-worker.yml      # CI/CD for Worker deployment
-│
-└── README.md                  # This file
-```
+Once local development is working, you're ready to deploy your SaaS to production.
 
-**Total Code**: ~2,500 lines TypeScript (1,020 backend, ~1,500 frontend)
+### 6. Deploy Backend API (Cloudflare Workers)
+
+Your backend API will run on Cloudflare's global edge network (300+ cities worldwide) with ~50ms response times.
+
+**📖 Follow the detailed deployment guide:** [Cloudflare Workers Deployment](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/cf.md)
+
+This guide will walk you through:
+- Authenticating with Cloudflare
+- Creating a KV namespace for usage tracking
+- Setting production secrets (live Clerk & Stripe keys)
+- Deploying your worker to the edge
+- Verifying your deployment
+
+**✅ When complete, you'll have:**
+- Your API live at: `https://your-worker.workers.dev`
+- All secrets configured securely
+- KV namespace created and bound
+- Real-time logs available via `wrangler tail`
+
+---
+
+### 7. Configure Production Webhooks
+
+In local development, you used `stripe listen --forward-to` to simulate webhooks. Now you'll set up real production webhooks so Stripe can notify your API when subscriptions are created, updated, or cancelled.
+
+**📖 Follow the detailed deployment guide:** [Stripe Webhooks Deployment](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/deployments/stripe-deploy.md)
+
+This guide will walk you through:
+- Migrating your Stripe products from test mode to live mode
+- Updating environment variables with live Stripe keys and Price IDs
+- Creating a production webhook endpoint in Stripe
+- Adding the webhook signing secret to your worker
+- Testing webhook delivery and the full upgrade flow
+
+**✅ When complete, you'll have:**
+- All products recreated in Stripe live mode with correct metadata
+- Live Stripe keys and Price IDs configured in your worker
+- Production webhook endpoint pointing to your API
+- Real-time subscription updates working (upgrade/downgrade/cancel)
+
+---
+
+### 8. Deploy Frontend
+
+Deploy your React frontend to Cloudflare Pages so users can access your SaaS from anywhere in the world with fast load times.
+
+**📖 Follow the detailed deployment guide:** [Cloudflare Pages Frontend Deployment](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/deployments/frontend-deploy.md)
+
+This guide will walk you through:
+- Pushing your code to GitHub and connecting your repository
+- Creating a Cloudflare Pages project (watch for the Workers vs Pages tabs!)
+- Configuring build settings for Vite
+- Adding production environment variables (live Clerk keys and API URL)
+- Deploying and verifying your live frontend
+- Testing the full end-to-end flow (sign up, upgrade, billing portal)
+
+**✅ When complete, you'll have:**
+- Your frontend live at: `https://your-project.pages.dev`
+- Connected to your production backend API
+- Automatic deployments on every git push
+- Full authentication and subscription flows working
+
+---
+
+## Architecture
+
+Want to understand how the stateless JWT architecture works? How Stripe webhooks sync with Clerk? How usage tracking works without a database?
+
+**📖 Read the complete architecture guide:** [Architecture Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)
+
+This guide covers:
+- JWT as single source of truth (how plan metadata flows)
+- Complete data flow diagrams (sign-up → upgrade → tier enforcement)
+- Webhook integration architecture (Stripe → Clerk sync)
+- Usage tracking with Cloudflare KV
+- Why this approach scales without a database
 
 ---
 
@@ -385,240 +491,186 @@ clerk/
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
 | **Frontend** | Vite + React 19 | Pure client-side SPA |
-| **Hosting (Frontend)** | Cloudflare Pages | Static hosting + global CDN |
-| **Auth** | Clerk | User management + JWT |
-| **Payments** | Stripe | Subscription billing + webhooks + portal |
+| **Frontend Hosting** | Cloudflare Pages | Static CDN (free, unlimited) |
+| **Auth** | Clerk | User management + JWT issuance |
+| **Payments** | Stripe | Subscriptions + webhooks + portal |
 | **API** | Cloudflare Workers | Serverless edge functions |
-| **Storage** | Cloudflare KV | Usage counters + idempotency |
+| **Storage** | Cloudflare KV | Usage counters (key-value store) |
 | **CSS** | Tailwind CSS v3 | Utility-first styling |
-| **Testing** | Vitest + Miniflare | Unit + integration tests |
-| **CI/CD** | GitHub Actions | Automated deployment |
+| **CI/CD** | GitHub Actions | Automated Worker deployment |
 
 ---
 
-## Cost Analysis
+## Cost Breakdown
 
-### Development (Free Tier)
+**$0/month until 10,000+ users. Then ~$31/month. At 100k users: ~$109/month.**
 
-| Service | Cost | Notes |
-|---------|------|-------|
-| Cloudflare Pages | **$0** | Unlimited static sites |
-| Cloudflare Workers | **$0** | 100k requests/day free |
-| Cloudflare KV | **$0** | 100k reads/day free |
-| Clerk | **$0** | Free up to 10k MAU |
-| Stripe | **$0** | Pay per transaction (2.9% + 30¢) |
-| **Total** | **$0/month** | Perfect for MVPs |
+Compare that to typical SaaS stacks costing $75-150/month from day one.
 
-### Production (10k Active Users)
+**📖 See the complete cost analysis:** [Cost Breakdown & Comparison](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)
 
-| Service | Cost | Notes |
-|---------|------|-------|
-| Cloudflare Pages | **$0** | Still free! |
-| Cloudflare Workers | **$5/mo** | Paid plan (10M req included) |
-| Cloudflare KV | **$0.50/mo** | Estimated for 10k users |
-| Clerk | **$25/mo** | 10k-50k MAU tier |
-| Stripe | **2.9% + $0.30** | Per transaction |
-| **Total** | **~$30/month** | + transaction fees |
+This guide includes:
+- Detailed cost breakdown at every scale (0-100k+ users)
+- What triggers each cost increase (so you can forecast)
+- Comparisons to other stacks (Vercel, AWS, Firebase, other SaaS templates)
+- Cost optimization strategies (batch operations, caching, aggregation)
+- Real-world cost projections with revenue scenarios
+- Hidden costs you avoid (database maintenance, CDN, SSL, monitoring)
 
-**Scalability**: Can handle 10M requests/month for $5 on Workers. Pages scales infinitely. No database costs ever.
+**TL;DR:** Infrastructure costs ~3% of revenue instead of 15%. More money for building your product.
 
 ---
 
-## Security Features
+## File Structure
 
-### Implemented ✅
+**Backend:** `api/` - Cloudflare Worker with JWT auth + Stripe webhooks (~1,020 lines)
+**Frontend:** `frontend-v2/` - React + Vite SPA (~1,500 lines)
+**Docs:** `docs/` - Complete setup and deployment guides
 
-- **JWT verification** on every API request
-- **Stripe webhook signature verification** (prevents spoofing)
-- **Idempotency protection** (prevents duplicate webhook processing)
-- **Security headers** (CSP, HSTS, X-Frame-Options, etc.)
-- **Rate limiting** (100 req/min per user)
-- **User data isolation** (all data keyed by userId)
-- **Dynamic CORS** (no wildcard, validated origins)
-- **Environment variable validation** (fails fast on misconfiguration)
-- **PCI compliance** via Stripe-hosted checkout and portal
+**📖 See the complete project structure:** [Project File Structure](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/project-file-structure.md)
 
-### Production Hardening TODO
-
-- [ ] Error tracking (Sentry or Cloudflare Logs)
-- [ ] Request logging (Axiom/Logflare)
-- [ ] Audit logs for plan changes
-- [ ] CAPTCHA for sign-up (bot prevention)
-- [ ] Content moderation (if applicable)
+This guide includes:
+- Full directory tree with explanations
+- Key files and what they do
+- Environment variables reference
+- Build artifacts and gitignored files
+- Common file operations (adding pages, endpoints, tiers)
 
 ---
 
-## Testing Checklist
+## FAQ
 
-### Manual Testing Flow (End-to-End)
+Got questions about the template? How to customize it? What works with what?
 
-1. ✅ **Sign Up**: New user registration with email verification
-2. ✅ **Dashboard**: Check usage shows "0 / 5" for free tier
-3. ✅ **Make Requests**: Process 5 documents, verify counter increments
-4. ✅ **Hit Limit**: 6th request shows "Free tier limit reached"
-5. ✅ **Upgrade Flow**: Click "Upgrade to Pro" → Complete Stripe checkout
-6. ✅ **Webhook Processing**: Verify plan updates (check Clerk metadata)
-7. ✅ **Pro Tier**: Dashboard shows "Unlimited • Pro Plan Active"
-8. ✅ **Unlimited Usage**: Process 20+ requests successfully
-9. ✅ **Billing Portal**: Click "Manage Billing" → Portal opens successfully
-10. ✅ **Cancellation**: Test subscription cancellation via portal
-11. ✅ **Sign Out**: Verify redirect to landing page
+**📖 Read the complete FAQ:** [Frequently Asked Questions](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/faq.md)
 
-### What to Test in Production
-
-- Rate limiting (100 req/min)
-- Webhook idempotency (use Stripe CLI to replay events)
-- Security headers (use https://securityheaders.com)
-- CORS (test from different origins)
-- Error handling (kill Clerk API temporarily)
-- Billing portal (update payment method, view invoices)
+Common topics covered:
+- Framework compatibility (Next.js, Vue, Svelte, React Native)
+- Alternative payment providers (Paddle, LemonSqueezy, PayPal)
+- Platform alternatives (Vercel Edge, Netlify, Deno Deploy)
+- Adding a database (when and how)
+- Troubleshooting common issues
+- Security best practices
+- Performance optimization
 
 ---
 
-## Deployment & CI/CD
+## Security
 
-### GitHub Actions Workflow
+**Small attack surface. No servers to hack. Enterprise-grade security included for free.**
 
-**Triggers**:
-- Push to `master` (if `api/**` changed)
-- Manual workflow dispatch
+Built-in: JWT verification, webhook signing, rate limiting, security headers, PCI compliance.
+Cloudflare: DDoS protection, WAF, Bot Fight Mode, IP restrictions, Access policies - all free.
 
-**Steps**:
-1. Checkout code
-2. Setup Node.js 20
-3. Install dependencies
-4. Install Wrangler v4
-5. Deploy to Cloudflare Workers
-6. Deploy includes minification
+**📖 Read the complete security guide:** [Security Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/security.md)
 
-**Configuration**: `.github/workflows/deploy-worker.yml`
-
-### Frontend Deployment
-
-**Automatic via Cloudflare Pages**:
-- Triggers on every push to main
-- Preview URLs for every PR
-- Configured in CF dashboard
+This guide covers:
+- Why edge deployment means fewer vulnerabilities (no servers to SSH into!)
+- All 8 built-in security features explained (with code locations)
+- **Cloudflare's 11 free security features** (DDoS, WAF, Bot Fight, Rate Limiting, Access, and more)
+- Security best practices and monitoring
+- Incident response procedures
+- Compliance (SOC 2, ISO 27001, PCI DSS, GDPR)
 
 ---
 
-## Next Steps / Roadmap
+## Work Together
 
-### Completed ✅
+### 🚀 Need Help?
 
-1. ~~**GitHub Actions debugging**~~ - Worker deployment via GitHub Actions complete
-2. ~~**Billing portal**~~ - Stripe customer portal for subscription management complete
+Stuck on setup? Want custom features? Need it deployed ASAP?
 
-### High Priority
+**I offer paid consulting and setup services:**
+- Complete deployment and configuration
+- Custom tier structures and integrations
+- Additional payment providers or databases
+- Architecture consulting and optimization
 
-3. **SEO optimization** - Meta tags, robots.txt, sitemap for discoverability
-4. **Custom domain** - Point custom domain to CF Pages
-5. **Production keys** - Prod keys obtained after verification (holding off on switching for now)
+**Contact:** [kc@panacea-tech.net](mailto:kc@panacea-tech.net)
 
-### Medium Priority
+### ⭐ Show Support
 
-6. **Load testing** - Test rate limits, concurrent users, edge cases
-7. **Monitoring** - Using Clerk and Stripe dashboards for now
-8. **E2E tests** - Playwright tests for complete user flows
+- **Star this repo** - Helps others discover it
+- **Fork and build** - Make something awesome
+- **Share it** - Help other builders find this
 
-### Low Priority
+### 💬 Get Involved
 
-9. **Code organization** - Extract tier config to separate module
-10. **TypeScript strictness** - Enable stricter type checking
-11. **Caching strategy** - Use CF Cache API for static responses
-12. **Analytics dashboard** - Show usage trends over time
+- **Questions?** Open a GitHub issue or email me
+- **Bug?** Submit an issue with details
+- **Built something cool?** Share it!
+- **Want to contribute?** PRs welcome
 
----
+### 🤝 Open to Opportunities
 
-## Demo Site
+Interested in partnerships, revenue shares, or white-label licensing?
 
-The live demo at https://clerk-frontend.pages.dev showcases this template as **CloudDocs Pro** - a fictional AI document processing service. The demo illustrates how the template can be branded and customized for a real SaaS product while demonstrating all core features:
-
-- User authentication and registration
-- Free tier with usage limits
-- Subscription upgrade flow
-- Usage tracking and display
-- Billing portal integration
-- Professional landing page and dashboard
+**Let's talk:** [kc@panacea-tech.net](mailto:kc@panacea-tech.net)
 
 ---
 
-## Contributing
+## Known Limitations
 
-This is an open-source SaaS starter template. Contributions welcome!
+This template is optimized for speed and simplicity. We've identified some trade-offs:
 
-**How to contribute**:
-- 🐛 Report bugs via GitHub Issues
-- 💡 Suggest features or improvements
-- 🔀 Submit Pull Requests with enhancements
-- 📖 Improve documentation
+**📖 Read the full analysis:** [Known Limitations & Trade-Offs](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/limitations.md)
 
-**Areas that need help**:
-- E2E testing setup (Playwright)
-- Additional payment providers
-- Multi-currency support
-- Example feature implementations
+- KV eventual consistency (pay-per-use apps)
+- Multi-dashboard observability
+- No built-in CRM or customer success tools
+- Single-region KV writes
+- No testing suite
+
+**Found something we missed?** [Let us know](mailto:kc@panacea-tech.net) - we're always improving this template.
 
 ---
 
 ## License
 
-MIT - Use this template for your SaaS, commercial or personal projects.
-
----
-
-## Questions & Support
-
-**Common Issues**:
-- **Deployment fails**: Check GitHub Actions logs or CF Workers dashboard
-- **Auth not working**: Verify Clerk JWT template includes `plan` claim
-- **Usage not tracking**: Check KV namespace binding in `wrangler.toml`
-- **Webhook fails**: Verify `STRIPE_WEBHOOK_SECRET` matches Stripe dashboard
-- **Portal not opening**: Verify `STRIPE_PORTAL_CONFIG_ID` is set and portal is enabled in Stripe dashboard
-
-**Need help?** Open an issue on GitHub or check the inline code documentation (heavily commented).
+MIT - Use this template for commercial or personal SaaS projects.
 
 ---
 
 ## Acknowledgments
 
-**Built with**:
+**Built with:**
 - [Claude Code](https://claude.com/claude-code) - AI pair programming
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge compute platform
+- [Gemini CLI](https://ai.google.dev/) - AI assistance
+- [Codex CLI](https://openai.com/codex) - AI code generation
+- [DeepSeek](https://www.deepseek.com/) - AI development
+- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge compute
 - [Clerk](https://clerk.com/) - Authentication
 - [Stripe](https://stripe.com/) - Payments
 
-**Timeline**: Production-ready SaaS on Cloudflare in under a week.
+**Contributors:**
+- Claude Code
+- Gemini CLI
+- Codex CLI
+- DeepSeek
 
 ---
 
-**⭐ If this template helped you, consider starring the repo!**
+## Documentation
+
+- **[Architecture Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/architecture.md)** - How JWT routing works, data flow diagrams
+- **[Cost Breakdown](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/features/cost-breakdown.md)** - Detailed cost analysis at every scale
+- **[Security Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/security.md)** - Built-in security + Cloudflare's free features
+- **[Testing Guide](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/testing.md)** - End-to-end testing checklist, 3-terminal setup
+- **[FAQ](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/information/faq.md)** - Common issues, troubleshooting, best practices
+
+**Platform Setup Guides:**
+- **[Clerk Setup](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/clerk.md)** - Authentication configuration
+- **[Stripe Setup](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/stripe.md)** - Payment processing configuration
+- **[Cloudflare Workers Deployment](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/platforms/cf.md)** - Backend deployment
+
+**Deployment Guides:**
+- **[Stripe Webhooks](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/deployments/stripe-deploy.md)** - Production webhook configuration
+- **[Frontend Deployment](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/deployments/frontend-deploy.md)** - Cloudflare Pages deployment
+
+**Reference:**
+- **[Manual Tier Setup](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/manual-tier-setup.md)** - Add/modify pricing tiers manually
+- **[Project File Structure](https://github.com/Fruitloop24/clerk-exp/blob/master/docs/sample-files/project-file-structure.md)** - Complete file organization
 
 ---
 
-## Technical Notes
-
-### Tailwind CSS Version Fix (Oct 2025)
-
-**Issue**: Tailwind v4 has breaking PostCSS changes causing incomplete CSS builds (4-7KB instead of 25-30KB).
-
-**Solution**: Use Tailwind CSS v3 with standard PostCSS config.
-
-```bash
-# Correct installation
-npm install -D tailwindcss@3 postcss autoprefixer
-```
-
-**postcss.config.js** - use standard plugin:
-```js
-export default {
-  plugins: {
-    tailwindcss: {},      // ✅ Correct (v3)
-    autoprefixer: {},
-  },
-}
-```
-
-**DO NOT use**: `@tailwindcss/postcss` (v4 package) - causes missing utility classes.
-
-**Verification**: After build, check that `dist/assets/*.css` is ~29KB and includes classes like `bg-white`, `from-blue-600`.
+**⭐ If this template saves you time, consider starring the repo!**

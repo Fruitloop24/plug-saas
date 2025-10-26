@@ -1,6 +1,8 @@
 import { SignUp } from '@clerk/clerk-react'
 
 export default function SignUpPage() {
+  // After signup, always redirect to choose-plan page
+  // User can select their tier from there
   return (
     <div style={{
       display: 'flex',
@@ -13,7 +15,7 @@ export default function SignUpPage() {
         routing="path"
         path="/sign-up"
         signInUrl="/sign-in"
-        afterSignUpUrl="/dashboard"
+        forceRedirectUrl="/choose-plan"
       />
     </div>
   )
