@@ -95,7 +95,7 @@ export default function Landing() {
       {/* Navigation */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-6 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 sticky top-0 z-50">
         <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          CloudDocs Pro
+          [Your Logo Here]
         </div>
         <div className="flex gap-4 items-center">
           <SignedOut>
@@ -138,18 +138,18 @@ export default function Landing() {
         <div className="relative text-center px-6 md:px-8 py-20 md:py-32 max-w-6xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full text-sm font-semibold mb-8">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            Powered by Edge Computing
+            SaaS Infrastructure Template • Auth + Billing + Usage Tracking
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white tracking-tight">
-            AI Document Processing<br />
+            [Your Product Name]<br />
             <span className="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
-              Lightning Fast & Secure
+              Drop Your App Here
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl mb-12 text-blue-100 leading-relaxed max-w-3xl mx-auto">
-            Extract, analyze, and transform your documents with advanced AI. Process invoices, receipts, contracts, and more with enterprise-grade security and global edge deployment.
+            <strong>This is a live template.</strong> Replace this text with your product pitch. We handle auth, billing, usage tracking, and tier management. You bring your API—we wrap it in infrastructure. Deploy in hours, not weeks.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -183,89 +183,89 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">
-              Powerful Features Built for Scale
+              We Handle The Boring Infrastructure
             </h2>
             <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto">
-              Enterprise-grade document processing with security and reliability you can trust
+              <strong>You build features.</strong> We provide auth, billing, usage tracking, and deployment. $0 until you're making money.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 - AI Processing */}
+            {/* Feature 1 - Auth */}
             <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-purple-300 hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                🤖
-              </div>
-              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                AI-Powered Extraction
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Advanced AI automatically identifies and extracts fields from invoices, receipts, contracts, and more
-              </p>
-            </div>
-
-            {/* Feature 2 - Speed */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                ⚡
-              </div>
-              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Lightning Fast
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Process documents in seconds with global edge deployment and zero cold starts
-              </p>
-            </div>
-
-            {/* Feature 3 - Security */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 🔐
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Secure & Private
+                Complete Authentication
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Bank-level encryption, secure authentication, and compliant data handling for your documents
+                Sign up, login, password reset with Clerk. JWT verification on every request. Zero database lookups.
               </p>
             </div>
 
-            {/* Feature 4 - API Access */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                📡
+            {/* Feature 2 - Billing */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                💳
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                RESTful API
+                Stripe Billing Ready
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Simple REST API with JWT authentication for seamless integration into your workflow
+                Checkout, webhooks, customer portal all wired up. Users manage their own subscriptions.
               </p>
             </div>
 
-            {/* Feature 5 - Usage Tracking */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-pink-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+            {/* Feature 3 - Usage Tracking */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 📊
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                Usage Dashboard
+                Usage Limits Enforced
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Track your monthly quota, view processing history, and monitor API usage in real-time
+                Per-tier request limits with monthly resets. Automatic tracking. Users see their quota in real-time.
               </p>
             </div>
 
-            {/* Feature 6 - Reliability */}
-            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-red-300 hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                🛡️
+            {/* Feature 4 - Edge Deploy */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                ⚡
               </div>
               <h3 className="text-2xl mb-3 text-slate-900 font-bold">
-                99.9% Uptime
+                Global Edge (Zero Cold Starts)
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Enterprise SLA with automatic scaling, rate limiting, and comprehensive monitoring
+                Runs in 300+ cities. ~50ms response times worldwide. No Lambda spin-up delays.
+              </p>
+            </div>
+
+            {/* Feature 5 - AI Config */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-pink-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                🤖
+              </div>
+              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
+                AI Tier Configurator
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Answer questions in natural language. AI updates backend limits, frontend cards, Stripe integration automatically.
+              </p>
+            </div>
+
+            {/* Feature 6 - Cost */}
+            <div className="group p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-red-300 hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-3xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                💰
+              </div>
+              <h3 className="text-2xl mb-3 text-slate-900 font-bold">
+                $0 Until You're Making Money
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Free until 10k users. Then ~$31/month. At 100k users: ~$109/month. Compare that to $150+/month from day one.
               </p>
             </div>
           </div>
@@ -277,10 +277,10 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">
-              Simple, Transparent Pricing
+              Example Pricing Tiers (AI Customizable)
             </h2>
             <p className="text-slate-600 text-lg md:text-xl">
-              Start free, upgrade when you need more processing power
+              <strong>These tiers are just examples.</strong> Configure your own with <code>/configure-tiers</code> command. AI updates everything automatically.
             </p>
           </div>
 
@@ -411,11 +411,17 @@ export default function Landing() {
       {/* Footer */}
       <div className="bg-slate-900 px-6 md:px-8 py-12 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-slate-400 text-sm mb-2">
-            Built with the <span className="font-semibold text-slate-200">Production SaaS Starter Template</span>
+          <p className="text-slate-400 text-sm mb-4">
+            <strong className="text-slate-200">This is a LIVE TEMPLATE Demo</strong>
+          </p>
+          <p className="text-slate-300 text-sm mb-4 max-w-3xl mx-auto">
+            This entire site is the template you get. Auth works, billing works, tiers work. Replace the hero text, add your product logic, deploy. That's it.
+          </p>
+          <p className="text-slate-400 text-xs mb-2">
+            Built with the <span className="font-semibold text-slate-200">Production SaaS Infrastructure Template</span>
           </p>
           <p className="text-slate-500 text-xs">
-            React 19 • TypeScript • Cloudflare Workers • Clerk Auth • Stripe • Tailwind CSS
+            React 19 • TypeScript • Cloudflare Workers • Clerk Auth • Stripe • Tailwind CSS • CI/CD Included
           </p>
         </div>
       </div>
