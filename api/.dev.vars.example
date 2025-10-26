@@ -53,3 +53,24 @@ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 # Development: Your local Vite dev server
 # Production: Your deployed frontend domain
 FRONTEND_URL=http://localhost:5173
+
+# ===================================
+# MICROSERVICES (OPTIONAL)
+# ===================================
+# Add URLs for external microservices that your worker will proxy to
+# These services handle your actual product logic
+# Your CF Worker handles auth/billing/usage tracking and forwards to these
+
+# Example: Image generation service
+# IMAGE_SERVICE_URL=https://image-gen.railway.app
+# IMAGE_SERVICE_SECRET=your_service_auth_secret_here
+
+# Example: Analytics service
+# ANALYTICS_SERVICE_URL=https://analytics.fly.dev
+# ANALYTICS_SERVICE_SECRET=your_service_auth_secret_here
+
+# Example: Document processing service
+# DOCUMENT_SERVICE_URL=https://docs.render.com
+# DOCUMENT_SERVICE_SECRET=your_service_auth_secret_here
+
+# Add as many services as you need - each gets its own endpoint in the worker

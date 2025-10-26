@@ -1,30 +1,33 @@
-# Production SaaS Starter - Cloudflare Edge Edition
+# Production SaaS Infrastructure - Cloudflare Edition
 
 <div align="center">
 
-## 🚀 Ship your SaaS in days, not months
+## Auth, billing, and usage tracking for your API. Deploy in hours.
 
-**Complete auth + billing + tier management on Cloudflare's edge**
+**What this is:** The infrastructure layer every SaaS needs. You built an API? Wrap it in this. Start charging customers today.
 
-Stateless JWT architecture • No database to maintain • Free hosting until 10,000+ users
+**What this isn't:** Another tutorial project. This is production code running on Cloudflare's edge network (300+ cities, zero cold starts).
 
-**[📊 See cost breakdown →](https://github.com/Fruitloop24/clerk/blob/master/docs/features/cost-breakdown.md)**
-
----
-
-### 🌐 Live Demo
-**https://clerk-frontend.pages.dev/**
-
-### ⚡ Tech Stack
-React 19 + Cloudflare Workers + Clerk + Stripe
+[🌐 **Live Demo**](https://clerk-frontend.pages.dev/) • [💰 **Cost Breakdown**](https://github.com/Fruitloop24/clerk/blob/master/docs/features/cost-breakdown.md) • [🏗️ **Architecture**](https://github.com/Fruitloop24/clerk/blob/master/docs/features/architecture.md)
 
 </div>
 
 ---
 
-## Why This Template?
+## Who This Is For
 
-Most SaaS templates are "hello world" demos. **This is production-ready infrastructure.**
+**Got an app?** Deploy this, wire it up, start charging.
+**Got an API?** Same deal. 15 minutes to connect.
+**Got an idea?** Build your thing, plug it in later. The hard part's done.
+**Got nothing but ambition?** Clone this, figure out your product while your competitors are still setting up Stripe.
+
+**Perfect for:**
+- Indie hackers who've built the 10th auth system and are done with that
+- Developers with APIs that need monetization yesterday
+- Teams who'd rather ship features than debug webhooks
+- Anyone allergic to $150/month hosting bills before their first customer
+
+---
 
 ## ✨ The Hard Parts, Already Built
 
@@ -99,7 +102,7 @@ Rate limiting, webhook verification, CORS, security headers. **Built-in.**
 </tr>
 </table>
 
-### What Makes This Different
+## What Makes This Different
 
 **1. JWT as Single Source of Truth**
 
@@ -125,66 +128,10 @@ Your API runs globally, not in a single region. Cloudflare deploys your code to 
 
 You only add a database when YOU need to store YOUR app's data (documents, files, posts, etc.). Not for auth/billing infrastructure.
 
----
+**4. Your Product Plugs In**
 
-## Who Needs This
+This template is the infrastructure layer. You provide the product logic:
 
-### 🎯 Perfect For
-
-<table>
-<tr>
-<td width="50%">
-
-**🚀 Indie Hackers**
-Ship MVPs fast, validate ideas cheaply
-
-</td>
-<td width="50%">
-
-**👨‍💻 Solo Developers**
-Complete backend infrastructure, no team needed
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-**🏗️ SaaS Builders**
-Focus on YOUR product, not auth/billing wiring
-
-</td>
-<td width="50%">
-
-**⚡ Edge-First Teams**
-Leverage Cloudflare's global network
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="center">
-
-**💰 Cost-Conscious Founders**
-$0/month until you're making money • **[See detailed costs →](https://github.com/Fruitloop24/clerk/blob/master/docs/features/cost-breakdown.md)**
-
-</td>
-</tr>
-</table>
-
-### Drop Your App Behind It
-
-This template provides the **infrastructure layer:**
-- ✅ User sign-up and authentication
-- ✅ Subscription checkout and management
-- ✅ Usage tracking and tier enforcement
-- ✅ JWT routing to protect endpoints
-
-**You provide the product logic:**
-- AI document processing? Plug it in.
-- Image generation API? Drop it behind the auth layer.
-- Analytics dashboard? Protected routes ready.
-- Whatever you're building? The separation is clean.
-
-**Example integration:**
 ```typescript
 // api/src/index.ts - Add your endpoint
 
@@ -201,45 +148,6 @@ if (url.pathname === '/api/your-feature' && request.method === 'POST') {
 ```
 
 The JWT, usage tracking, and tier enforcement are already wired up. You write the features.
-
----
-
-## What You Get
-
-### Authentication & Authorization
-- Complete sign-up/sign-in flows with email verification
-- JWT token verification on every API request
-- User plan metadata in JWT claims (no DB lookups)
-- Works perfectly on static hosting (no server sessions)
-
-### Subscription Billing
-- Stripe Checkout integration for payment processing
-- Default: **2 tiers** (Free + Pro) - add more with MCP agent
-- Stripe Customer Portal (manage subscriptions, update cards, view invoices)
-- Webhook integration with signature verification and idempotency
-- Automatic plan upgrades via metadata sync
-
-### Security & Reliability
-- Rate limiting (100 requests/minute per user)
-- Webhook idempotency (prevents duplicate processing)
-- Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- Dynamic CORS (no wildcards, validated origins)
-- User data isolation (all data keyed by userId)
-- PCI compliance via Stripe-hosted checkout
-
-### Performance & Scalability
-- Global edge deployment (300+ cities)
-- Zero cold starts (always-on Workers)
-- Instant HMR in development (Vite)
-- Optimized production builds
-- CDN-first static frontend (Cloudflare Pages)
-
-### Developer Experience
-- CI/CD pipeline ready (GitHub Actions)
-- Heavily commented code (~2,500 lines TypeScript)
-- Environment variable validation
-- Local development with hot reload
-- TypeScript throughout
 
 ---
 
