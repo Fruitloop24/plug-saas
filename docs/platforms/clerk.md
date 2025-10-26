@@ -24,7 +24,7 @@ By the end of this guide, you'll have three values:
 - ✅ **Secret Key** (starts with `sk_test_...`)
 - ✅ **JWT Template** configured (named "pan-api")
 
-These go in your config files → See [Backend ENV Example](../example-files/backend-env.md)
+These go in your config files → See [Backend ENV Example](../sample-files/backend-dev-vars-example.md)
 
 ---
 
@@ -208,7 +208,7 @@ CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
 ```
 
-📋 **See complete example:** [Backend ENV File](../example-files/backend-env.md)
+📋 **See complete example:** [Backend ENV File](../sample-files/backend-dev-vars-example.md)
 
 ---
 
@@ -246,4 +246,4 @@ You now have authentication set up with JWT tokens that include subscription tie
 
 - 📖 [Clerk Official Documentation](https://clerk.com/docs)
 - 🔐 [JWT Templates Guide](https://clerk.com/docs/backend-requests/making/jwt-templates)
-- 🐛 [Troubleshooting Guide](../reference/troubleshooting.md) (for errors during testing)
+- 💬 [FAQ](../information/faq.md) - Common questions and troubleshooting

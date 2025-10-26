@@ -647,7 +647,7 @@ stripe listen --forward-to http://localhost:8787/webhook/stripe
 
 - 🤖 Use `/configure-tiers` for automated setup (requires Claude Code)
 - 📖 [Architecture Guide](../features/architecture.md) - How the tier system works
-- 🐛 [FAQ](../faq.md) - Common questions and troubleshooting
+- 🐛 [FAQ](../information/faq.md) - Common questions and troubleshooting
 - 💳 [Stripe Setup Guide](../platforms/stripe.md) - Getting Stripe Price IDs
 
 ---

@@ -317,6 +317,5 @@ The JWT still handles auth/billing. Database only stores your app's domain data.
 ---
 
 **Next Steps:**
-- [Setup Guide](setup.md) - Configure Clerk, Stripe, and deploy
-- [Testing Guide](testing.md) - Verify end-to-end flows
-- [Tier Customization](tier-customization.md) - Add more pricing tiers
+- [Testing Guide](../testing.md) - Verify end-to-end flows
+- [Cost Breakdown](cost-breakdown.md) - See detailed pricing calculations

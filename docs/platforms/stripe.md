@@ -25,7 +25,7 @@ By the end of this guide, you'll have:
 - ✅ **Price ID** for each paid tier (starts with `price_...`)
 - ✅ **Portal Configuration ID** (starts with `bpc_...`)
 
-These go in your config files → See [Backend ENV Example](../example-files/backend-env.md)
+These go in your config files → See [Backend ENV Example](../sample-files/backend-dev-vars-example.md)
 
 ---
 
@@ -226,7 +226,7 @@ STRIPE_PORTAL_CONFIG_ID=bpc_YOUR_ID_HERE
 # STRIPE_PRICE_ID_STARTER=price_YOUR_ID_HERE
 ```
 
-📋 **See complete example:** [Backend ENV File](../example-files/backend-env.md)
+📋 **See complete example:** [Backend ENV File](../sample-files/backend-dev-vars-example.md)
 
 ---
 
@@ -275,7 +275,7 @@ You now have:
 
 **Next:** Add these values to your config files, then continue with the remaining setup steps in the main README.
 
-📋 **See where to add these:** [Backend ENV File](../example-files/backend-env.md)
+📋 **See where to add these:** [Backend ENV File](../sample-files/backend-dev-vars-example.md)
 
 ---
 
@@ -284,4 +284,4 @@ You now have:
 - 📖 [Stripe Official Documentation](https://stripe.com/docs)
 - 💳 [Test Card Numbers](https://stripe.com/docs/testing) (for testing payments later)
 - 🔔 [Webhooks Guide](https://stripe.com/docs/webhooks) (you'll set these up during testing)
-- 🐛 [Troubleshooting Guide](../reference/troubleshooting.md) (for errors during testing)
+- 💬 [FAQ](../information/faq.md) - Common questions and troubleshooting

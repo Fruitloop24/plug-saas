@@ -459,6 +459,20 @@ This guide includes:
 
 ---
 
+## Testing
+
+**📖 See the complete testing guide:** [Testing Guide](https://github.com/Fruitloop24/clerk/blob/master/docs/testing.md)
+
+The testing guide covers:
+- Setting up local development with Stripe webhooks
+- End-to-end flow testing (sign up → upgrade → usage tracking)
+- Test card numbers for different payment scenarios
+- Webhook verification and debugging
+
+**Important Note:** The specific test cases in the guide are examples. Since you'll be replacing the "Process Document" logic with your own product functionality, your actual tests will differ. Use the guide as a framework for testing the infrastructure (auth, billing, usage tracking), then add tests specific to your product logic.
+
+---
+
 ## File Structure
 
 **Backend:** `api/` - Cloudflare Worker with JWT auth + Stripe webhooks (~1,020 lines)
