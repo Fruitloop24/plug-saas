@@ -148,9 +148,24 @@ export default function Landing() {
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl mb-12 text-blue-100 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl mb-8 text-blue-100 leading-relaxed max-w-3xl mx-auto">
             <strong>This is a live template.</strong> Replace this text with your product pitch. We handle auth, billing, usage tracking, and tier management. You bring your API—we wrap it in infrastructure. Deploy in hours, not weeks.
           </p>
+
+          {/* Prominent Template Callout */}
+          <div className="max-w-4xl mx-auto mb-12 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-2xl p-8 shadow-2xl">
+            <div className="text-yellow-300 text-sm font-bold uppercase tracking-wider mb-3 flex items-center justify-center gap-2">
+              <span className="text-2xl">⚡</span>
+              <span>This Entire Site Is The Template You Get</span>
+              <span className="text-2xl">⚡</span>
+            </div>
+            <p className="text-white text-lg md:text-xl font-semibold leading-relaxed mb-4">
+              Auth works. Billing works. Tiers work. Replace the hero text, add your product logic, deploy. <strong>That's it.</strong>
+            </p>
+            <p className="text-blue-100 text-base md:text-lg leading-relaxed">
+              Everything's wired up and ready. Sign up for the platforms (free tiers), follow the guides to get your keys, configure the template, and launch. The infrastructure is done—you just bring your product.
+            </p>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <SignedOut>
@@ -200,7 +215,7 @@ export default function Landing() {
                 Complete Authentication
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Sign up, login, password reset with Clerk. JWT verification on every request. Zero database lookups.
+                Sign up, login, password reset with Clerk. JWT verification on every request. Zero database lookups. <strong className="text-purple-600">Auth UI included—customize the frontend with Claude Code.</strong>
               </p>
             </div>
 
@@ -213,7 +228,7 @@ export default function Landing() {
                 Stripe Billing Ready
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Checkout, webhooks, customer portal all wired up. Users manage their own subscriptions.
+                Checkout, webhooks, customer portal all wired up. Users manage their own subscriptions. <strong className="text-blue-600">Billing dashboard included—modify pricing pages easily.</strong>
               </p>
             </div>
 
@@ -226,7 +241,7 @@ export default function Landing() {
                 Usage Limits Enforced
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Per-tier request limits with monthly resets. Automatic tracking. Users see their quota in real-time.
+                Per-tier request limits with monthly resets. Automatic tracking. Users see their quota in real-time. <strong className="text-green-600">Usage dashboard fully styled—just add your branding.</strong>
               </p>
             </div>
 
@@ -252,7 +267,7 @@ export default function Landing() {
                 AI Tier Configurator
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Answer questions in natural language. AI updates backend limits, frontend cards, Stripe integration automatically.
+                Answer questions in natural language. AI updates backend limits, frontend cards, Stripe integration automatically. <strong className="text-pink-600">Configure pricing tiers without touching code.</strong>
               </p>
             </div>
 
@@ -265,7 +280,7 @@ export default function Landing() {
                 $0 Until You're Making Money
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                Free until 10k users. Then ~$31/month. At 100k users: ~$109/month. Compare that to $150+/month from day one.
+                Free until 10k users. Then ~$31/month. At 100k users: ~$109/month. Compare that to $150+/month from day one. <strong className="text-red-600">Template is free—deploy multiple projects with it.</strong>
               </p>
             </div>
           </div>
