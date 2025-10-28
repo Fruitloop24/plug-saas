@@ -80,10 +80,8 @@ export default function ChoosePlanPage() {
     switch (tierId) {
       case 'free':
         return 'bg-white border-2 border-slate-200';
-      case 'pro':
+      case 'developer':
         return 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700';
-      case 'enterprise':
-        return 'bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800';
       default:
         return 'bg-gradient-to-br from-blue-500 to-blue-600';
     }
@@ -94,12 +92,13 @@ export default function ChoosePlanPage() {
 
     const features: string[] = [limitText];
 
-    if (tier.id === 'pro') {
+    if (tier.id === 'free') {
+      features.push('free');
       features.push('api');
-    } else if (tier.id === 'enterprise') {
-      features.push('support');
-    } else if (tier.id === 'free') {
-      features.push('api');
+      features.push('money');
+    } else if (tier.id === 'developer') {
+      features.push('unlimited');
+      features.push('awesome');
     }
 
     return features;
