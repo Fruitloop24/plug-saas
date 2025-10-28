@@ -32,6 +32,7 @@ Backend: `/home/mini/Documents/clerk-exp/api/src/index.ts`
 
 Frontend Dashboard: `/home/mini/Documents/clerk-exp/frontend-v2/src/pages/Dashboard.tsx`
 - Line ~26: TIER_DISPLAY object
+- **IMPORTANT:** Only update TIER_DISPLAY object. Do NOT modify template hints, blue callout boxes, or [Your Metric Name Here] text. Those are intentional template messaging.
 
 Frontend Landing: `/home/mini/Documents/clerk-exp/frontend-v2/src/pages/Landing.tsx`
 - Line ~15: TIER_STYLES object

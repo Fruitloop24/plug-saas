@@ -181,22 +181,29 @@ export default function Dashboard() {
 
         {/* Usage Counter - Dynamic based on tier */}
         {usage && TIER_DISPLAY[plan] && (
-          <div className={`p-12 rounded-3xl mb-8 text-center text-white bg-gradient-to-br ${TIER_DISPLAY[plan].gradient} shadow-2xl ${TIER_DISPLAY[plan].shadow}`}>
-            <div className="text-8xl font-black mb-2 leading-none">
-              {usage.limit === 'unlimited'
-                ? usage.usageCount
-                : `${usage.usageCount} / ${usage.limit}`
-              }
+          <div className="relative">
+            <div className={`p-12 rounded-3xl mb-2 text-center text-white bg-gradient-to-br ${TIER_DISPLAY[plan].gradient} shadow-2xl ${TIER_DISPLAY[plan].shadow}`}>
+              <div className="text-8xl font-black mb-2 leading-none">
+                {usage.limit === 'unlimited'
+                  ? usage.usageCount
+                  : `${usage.usageCount} / ${usage.limit}`
+                }
+              </div>
+              <p className="text-2xl opacity-95 mb-2 font-semibold">
+                [Your Metric Name Here]
+              </p>
+              <p className="text-lg opacity-90">
+                {usage.limit === 'unlimited'
+                  ? `${TIER_DISPLAY[plan].icon} Unlimited • ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan Active`
+                  : `${usage.remaining} remaining this month`
+                }
+              </p>
             </div>
-            <p className="text-2xl opacity-95 mb-2 font-semibold">
-              Documents Processed
-            </p>
-            <p className="text-lg opacity-90">
-              {usage.limit === 'unlimited'
-                ? `${TIER_DISPLAY[plan].icon} Unlimited • ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan Active`
-                : `${usage.remaining} remaining this month`
-              }
-            </p>
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-3 mb-8">
+              <p className="text-slate-700 text-xs text-center">
+                <strong>Customize this counter:</strong> Track API calls, credits, tokens, documents, videos, exports—anything. Limits auto-enforce based on tiers configured with <code className="bg-white px-2 py-1 rounded text-xs">/configure-tiers</code>
+              </p>
+            </div>
           </div>
         )}
 
@@ -252,13 +259,24 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Test API Section */}
-        <div className="bg-white p-10 rounded-2xl border border-gray-200 mb-8">
+        {/* Test API Section - THIS IS WHERE YOUR PRODUCT GOES */}
+        <div className="bg-white p-10 rounded-2xl border-2 border-blue-200 mb-8">
+          {/* Template Callout */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <p className="text-blue-800 text-sm font-semibold mb-2">
+              💡 <strong>TEMPLATE:</strong> Replace this section with YOUR product
+            </p>
+            <p className="text-blue-700 text-xs leading-relaxed">
+              This button calls <code className="bg-blue-100 px-2 py-1 rounded text-xs">/api/data</code> in the backend.
+              Replace it with your API endpoint, keep the usage tracking. That's it.
+            </p>
+          </div>
+
           <h2 className="text-2xl mb-4 text-slate-900 font-bold">
-            Test Document Processing
+            [Your Product Feature Here]
           </h2>
           <p className="text-slate-600 mb-8 leading-relaxed">
-            Click below to simulate processing a document. This counts toward your usage limit.
+            This is a <strong>demo button</strong> that increments the counter. Replace this with your actual product logic (AI tool, API call, file processor, etc.). Usage tracking, tier limits, and billing are already handled.
           </p>
 
           <button
@@ -267,10 +285,10 @@ export default function Dashboard() {
             className={`px-8 py-4 text-base text-white border-none rounded-xl font-semibold transition-all ${
               loading
                 ? 'bg-slate-300 cursor-not-allowed shadow-none'
-                : 'bg-blue-500 cursor-pointer shadow-lg shadow-blue-500/30'
+                : 'bg-blue-500 cursor-pointer shadow-lg shadow-blue-500/30 hover:bg-blue-600'
             }`}
           >
-            {loading ? '⏳ Processing...' : '📄 Process Document'}
+            {loading ? '⏳ Processing...' : '🔧 Test Counter (Replace Me)'}
           </button>
 
           {message && (
@@ -282,6 +300,15 @@ export default function Dashboard() {
               {message}
             </div>
           )}
+
+          {/* Configuration Hint */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-slate-500 text-sm">
+              <strong className="text-slate-700">Customize this dashboard:</strong> Edit <code className="bg-slate-100 px-2 py-1 rounded text-xs">frontend-v2/src/pages/Dashboard.tsx</code>
+              <br />
+              <strong className="text-slate-700 mt-2 inline-block">Configure tiers:</strong> Run <code className="bg-slate-100 px-2 py-1 rounded text-xs">/configure-tiers</code> in Claude Code
+            </p>
+          </div>
         </div>
 
         {/* Upgrade CTA - Dynamic based on tier */}
