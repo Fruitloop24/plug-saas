@@ -1,6 +1,9 @@
 <div align="center">
 
-# plug-saas
+<h1>
+  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Electric%20Plug.png" alt="Plug" width="50" height="50" />
+  plug-saas
+</h1>
 
 ### No DB. No Cost. Just Plug In Your Product.
 

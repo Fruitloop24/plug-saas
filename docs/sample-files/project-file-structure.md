@@ -7,7 +7,7 @@ This document shows the complete file structure of the template after setup.
 ## Overview
 
 ```
-clerk-exp/
+plug-saas/
 ├── api/                    # Backend (Cloudflare Worker)
 ├── frontend-v2/            # Frontend (React + Vite)
 ├── docs/                   # Documentation
@@ -120,27 +120,32 @@ docs/
 ├── platforms/                       # Platform setup guides
 │   ├── clerk.md                     # Clerk authentication setup
 │   ├── stripe.md                    # Stripe payment setup
-│   ├── cf.md                        # Cloudflare Workers deployment
-│   └── react.md                     # (placeholder for React guide)
+│   └── cloudflare.md                # Cloudflare Workers deployment
 ├── deployments/                     # Deployment guides
+│   ├── cloudflare.md                # Backend Worker deployment
 │   ├── stripe-deploy.md             # Production webhook configuration
 │   └── frontend-deploy.md           # Cloudflare Pages deployment
 ├── features/                        # Feature explanations
 │   ├── architecture.md              # JWT routing, data flow diagrams
-│   ├── cost-breakdown.md            # Detailed cost analysis
-│   └── deployment.md                # General deployment overview
+│   └── cost-breakdown.md            # Detailed cost analysis
+├── information/                     # General information
+│   ├── faq.md                       # Frequently asked questions
+│   ├── security.md                  # Security features and best practices
+│   └── limitations.md               # Known limitations and trade-offs
 ├── sample-files/                    # Reference files
+│   ├── backend-dev-vars-example.md  # Backend environment variables example
+│   ├── frontend-env-example.md      # Frontend environment variables example
 │   ├── manual-tier-setup.md         # Manual tier configuration guide
 │   └── project-file-structure.md    # This file
-├── faq.md                           # Frequently asked questions
 └── testing.md                       # Testing guide (3-terminal setup)
 ```
 
 **Purpose:**
 
 - **`platforms/`**: Step-by-step setup guides for each service (Clerk, Stripe, Cloudflare)
-- **`deployments/`**: Production deployment guides (webhooks, frontend)
+- **`deployments/`**: Production deployment guides (Worker, webhooks, frontend)
 - **`features/`**: Deep dives into how features work (architecture, costs)
+- **`information/`**: General information (FAQ, security, limitations)
 - **`sample-files/`**: Reference documentation and examples
 
 ---
@@ -150,10 +155,9 @@ docs/
 ### Root Level
 
 ```
-clerk-exp/
+plug-saas/
 ├── .gitignore                 # Ignores node_modules, .env, .dev.vars, etc.
-├── README.md                  # Main project documentation
-└── claude.md                  # Claude Code notes
+└── README.md                  # Main project documentation
 ```
 
 ### Claude Code Configuration
@@ -325,10 +329,10 @@ node_modules/                # Dependencies
 
 - **[Architecture Guide](../features/architecture.md)** - Understand how the pieces fit together
 - **[Manual Tier Setup](manual-tier-setup.md)** - Detailed guide for customizing tiers
-- **[FAQ](../faq.md)** - Common questions about the project structure
+- **[FAQ](../information/faq.md)** - Common questions about the project structure
 
 ---
 
 **Questions about the file structure?**
 
-Check the [FAQ](../faq.md) or open a GitHub issue.
+Check the [FAQ](../information/faq.md) or open a GitHub issue.
