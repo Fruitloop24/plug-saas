@@ -1,22 +1,38 @@
+<div align="center">
+
 # plug-saas
 
-Production-ready SaaS infrastructure. Auth + Billing + Usage Tracking. Just plug in your product.
+### No DB. No Cost. Just Plug In Your Product.
 
-[See Live Demo →](https://clerk-frontend.pages.dev) | [Video Tour (3 min) →](#) | [GitHub →](https://github.com/Fruitloop24/plug-saas)
+**Production-ready SaaS infrastructure with Auth, Billing, and Usage Tracking built-in.**
+
+**Customize your landing page, pricing tiers, and features with AI-powered configuration.**
+
+[🚀 Live Demo](https://clerk-frontend.pages.dev) • [📹 Deployment Video (5 min)](#deployment-video) • [⚡ Quick Start](#quick-start)
+
+[![GitHub stars](https://img.shields.io/github/stars/Fruitloop24/plug-saas?style=social)](https://github.com/Fruitloop24/plug-saas/stargazers)
+
+---
+
+**$0 hosting until 10k users** • **Deploy in 15 minutes** • **Global edge network (300+ cities)**
+
+</div>
 
 ---
 
 ## This is a Complete, Working SaaS Application
 
-Go to the [live demo](https://clerk-frontend.pages.dev) right now:
+**[👉 Try the live demo now](https://clerk-frontend.pages.dev)** - See it in action:
+
 1. Sign up with Google
-2. Upgrade to Pro (use card `4242 4242 4242 4242`)
-3. Click "Process Document"
-4. See the dashboard update
+2. Upgrade to Pro (use test card `4242 4242 4242 4242`)
+3. Click "Process Document" to test usage tracking
+4. Watch the dashboard update in real-time
+5. Access billing portal to manage subscription
 
-That's auth + billing + usage tracking + customer portal. **Working.**
+That's **auth + billing + usage tracking + customer portal**. All working. Right now.
 
-The "Process Document" button is where YOUR product goes.
+**The "Process Document" button is where YOUR product logic goes.** Everything else is already built.
 
 ---
 
