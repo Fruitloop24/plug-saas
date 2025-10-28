@@ -37,7 +37,7 @@ Frontend Dashboard: `frontend-v2/src/pages/Dashboard.tsx`
 Frontend Landing: `frontend-v2/src/pages/Landing.tsx`
 - Line ~15: TIER_STYLES object
 - Line ~50: getTierFeatures function
-- **IMPORTANT:** There's a "Test This Demo" instructions box above the pricing cards. Keep it there or move it to make sense with the new tier layout. It shows users how to try the demo with test card 4242 4242 4242 4242.
+- **IMPORTANT:** There's a `<DemoInstructions />` component above the pricing cards. Keep it there or move it to make sense with the new tier layout. It shows users how to try the demo with test card 4242 4242 4242 4242. DO NOT delete this component.
 
 Frontend ChoosePlan: `frontend-v2/src/pages/ChoosePlanPage.tsx`
 - Line ~79: getTierGradient function

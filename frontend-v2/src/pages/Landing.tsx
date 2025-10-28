@@ -60,6 +60,15 @@ const getTierFeatures = (tier: Tier): string[] => {
   return features;
 };
 
+// Demo Instructions Component - Compact box, easy to remove when customizing
+const DemoInstructions = () => (
+  <div className="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-300 rounded-lg p-4 shadow-sm">
+    <p className="text-slate-700 text-sm text-center">
+      <strong className="text-blue-600">🎯 Try this demo:</strong> Sign up → Upgrade with test card <code className="bg-slate-800 text-green-400 px-1.5 py-0.5 rounded font-mono text-xs">4242 4242 4242 4242</code> → Test usage tracking
+    </p>
+  </div>
+);
+
 export default function Landing() {
   const { user } = useUser();
   const navigate = useNavigate();
@@ -131,11 +140,14 @@ export default function Landing() {
         <div className="relative text-center px-6 md:px-8 py-20 md:py-32 max-w-6xl mx-auto">
           {/* Try It Now Badge */}
           <div className="inline-flex flex-col items-center gap-3 mb-8">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-400 to-emerald-500 text-slate-900 rounded-full text-sm font-bold shadow-xl animate-bounce">
+            <button
+              onClick={() => document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-400 to-emerald-500 text-slate-900 rounded-full text-sm font-bold shadow-xl animate-bounce hover:scale-105 transition-transform cursor-pointer border-none"
+            >
               <span className="text-lg">👉</span>
               THIS IS A WORKING DEMO - TRY IT NOW
               <span className="text-lg">👈</span>
-            </div>
+            </button>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full text-sm font-semibold">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               SaaS Infrastructure Template • Auth + Billing + Usage Tracking
@@ -289,7 +301,7 @@ export default function Landing() {
       </div>
 
       {/* Pricing Section */}
-      <div className="px-6 md:px-8 py-24 bg-gradient-to-b from-slate-50 to-white">
+      <div id="pricing-section" className="px-6 md:px-8 py-24 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">
@@ -299,6 +311,9 @@ export default function Landing() {
               <strong>These tiers are just examples.</strong> Configure your own with <code>/configure-tiers</code> command. AI updates everything automatically.
             </p>
           </div>
+
+          {/* Demo Instructions - Feel free to move or style this */}
+          <DemoInstructions />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {/* Dynamic Tier Cards */}
