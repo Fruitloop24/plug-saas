@@ -383,6 +383,14 @@ This guide will walk you through:
 - KV namespace created and bound
 - Real-time logs available via `wrangler tail`
 
+**⭐ Optional - Auto-Deploy with GitHub Actions:**
+
+This repo includes GitHub Actions for automatic Worker deployment on push. To enable it, you'll need to add Cloudflare secrets to your repository.
+
+**📖 See setup guide:** [GitHub Actions Auto-Deploy](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/github.md)
+
+If you prefer manual deployment, just run `wrangler deploy` from the api/ folder.
+
 ---
 
 ### 7. Configure Production Webhooks
