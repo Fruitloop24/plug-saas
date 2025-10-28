@@ -129,9 +129,17 @@ export default function Landing() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJ2LTJoLTJ6bTAgNGgtMnYyaDJ2LTJ6bS00IDB2Mmgydi0yaC0yem0wLTRoMnYtMmgtMnYyem0tMiAydjJoMnYtMmgtMnptMC00aDJ2LTJoLTJ2MnptLTIgMHYyaDJ2LTJoLTJ6bTAtNGgydi0yaC0ydjJ6bS0yIDJ2Mmgydi0yaC0yem0wLTRoMnYtMmgtMnYyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
 
         <div className="relative text-center px-6 md:px-8 py-20 md:py-32 max-w-6xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full text-sm font-semibold mb-8">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            SaaS Infrastructure Template • Auth + Billing + Usage Tracking
+          {/* Try It Now Badge */}
+          <div className="inline-flex flex-col items-center gap-3 mb-8">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-400 to-emerald-500 text-slate-900 rounded-full text-sm font-bold shadow-xl animate-bounce">
+              <span className="text-lg">👉</span>
+              THIS IS A WORKING DEMO - TRY IT NOW
+              <span className="text-lg">👈</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full text-sm font-semibold">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              SaaS Infrastructure Template • Auth + Billing + Usage Tracking
+            </div>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white tracking-tight">

@@ -22,7 +22,7 @@ Ask the user SIMPLE questions, update files, and CHECK for common gotchas!
 
 **Update these files:**
 
-Backend: `/home/mini/Documents/clerk-exp/api/src/index.ts`
+Backend: `api/src/index.ts`
 - Line ~50: UsageData plan type union
 - Line ~33-34: Env STRIPE_PRICE_ID vars
 - Line ~64: PlanTier type
@@ -30,19 +30,20 @@ Backend: `/home/mini/Documents/clerk-exp/api/src/index.ts`
 - Line ~86: PRICE_ID_MAP object
 - Line ~758: handleCreateCheckout - MUST use dynamic fallback, not hardcoded tier name
 
-Frontend Dashboard: `/home/mini/Documents/clerk-exp/frontend-v2/src/pages/Dashboard.tsx`
+Frontend Dashboard: `frontend-v2/src/pages/Dashboard.tsx`
 - Line ~26: TIER_DISPLAY object
 - **IMPORTANT:** Only update TIER_DISPLAY object. Do NOT modify template hints, blue callout boxes, or [Your Metric Name Here] text. Those are intentional template messaging.
 
-Frontend Landing: `/home/mini/Documents/clerk-exp/frontend-v2/src/pages/Landing.tsx`
+Frontend Landing: `frontend-v2/src/pages/Landing.tsx`
 - Line ~15: TIER_STYLES object
 - Line ~50: getTierFeatures function
+- **IMPORTANT:** There's a "Test This Demo" instructions box above the pricing cards. Keep it there or move it to make sense with the new tier layout. It shows users how to try the demo with test card 4242 4242 4242 4242.
 
-Frontend ChoosePlan: `/home/mini/Documents/clerk-exp/frontend-v2/src/pages/ChoosePlanPage.tsx`
+Frontend ChoosePlan: `frontend-v2/src/pages/ChoosePlanPage.tsx`
 - Line ~79: getTierGradient function
 - Line ~92: getFeatures function
 
-Env vars: `/home/mini/Documents/clerk-exp/api/.dev.vars`
+Env vars: `api/.dev.vars`
 - Add STRIPE_PRICE_ID_[TIERNAME] lines
 
 **Icons:** 📄 Free, ⚡ Plus, 🚀 Business/Enterprise, ✨ Pro, 💎 Premium
