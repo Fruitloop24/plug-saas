@@ -28,12 +28,20 @@ const TIER_STYLES: Record<string, {
     buttonText: 'text-slate-600',
     highlighted: false
   },
-  developer: {
+  pro: {
     containerClass: 'relative p-8 bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 rounded-3xl text-white shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all',
     textColor: 'text-white',
     checkColor: 'text-white',
     buttonClass: 'bg-white text-cyan-600 hover:bg-cyan-50',
     buttonText: 'text-cyan-600',
+    highlighted: true
+  },
+  enterprise: {
+    containerClass: 'relative p-8 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl text-white shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all',
+    textColor: 'text-white',
+    checkColor: 'text-white',
+    buttonClass: 'bg-white text-purple-600 hover:bg-purple-50',
+    buttonText: 'text-purple-600',
     highlighted: true
   }
 };
@@ -49,12 +57,17 @@ const getTierFeatures = (tier: Tier): string[] => {
   }
 
   if (tier.id === 'free') {
-    features.push('free');
-    features.push('api');
-    features.push('money');
-  } else if (tier.id === 'developer') {
-    features.push('unlimited');
-    features.push('awesome');
+    features.push('Basic API access');
+    features.push('Community support');
+    features.push('Standard features');
+  } else if (tier.id === 'pro') {
+    features.push("It's awesome");
+    features.push('Priority support');
+    features.push('Advanced features');
+  } else if (tier.id === 'enterprise') {
+    features.push('Super awesome');
+    features.push('Dedicated support');
+    features.push('Custom integrations');
   }
 
   return features;
