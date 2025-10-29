@@ -356,11 +356,19 @@ cd frontend-v2 && npm run dev
 # http://localhost:5173
 ```
 
-**Terminal 3 - Stripe Webhooks:**
+**Terminal 3 - Stripe Webhooks (Local Testing):**
 ```bash
 stripe listen --forward-to http://localhost:8787/webhook/stripe
-# Copy whsec_... to api/.dev.vars and restart Terminal 1
 ```
+
+**⚠️ IMPORTANT:** After running this command, the Stripe CLI will output a webhook signing secret starting with `whsec_...`
+
+Copy this secret and add it to your `api/.dev.vars` file:
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_... # Paste the value from the terminal
+```
+
+Then restart Terminal 1 (the backend server) for the change to take effect.
 
 ### 5. Test End-to-End
 
