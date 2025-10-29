@@ -216,24 +216,31 @@ Before you begin, make sure you have:
 
 ### 1. Clone & Install
 
-**Step 1: Clone the repository**
+**Open your terminal and run these commands:**
+
+**a) Clone the repository**
 ```bash
 git clone https://github.com/Fruitloop24/plug-saas.git
 cd plug-saas
 ```
 
-**Step 2: Install backend dependencies**
+**b) Install backend dependencies**
 ```bash
 cd api
 npm install
 cd ..
 ```
 
-**Step 3: Install frontend dependencies**
+**c) Install frontend dependencies**
 ```bash
 cd frontend-v2
 npm install
 cd ..
+```
+
+**✅ Now open the project in VS Code (or your preferred IDE/editor) to continue with configuration:**
+```bash
+code .
 ```
 
 ### 2. Set Up Clerk Authentication
