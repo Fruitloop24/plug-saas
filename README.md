@@ -243,6 +243,14 @@ cd ..
 code .
 ```
 
+**d) Rename the example configuration files (IMPORTANT - required for the app to work):**
+
+In your IDE, locate and rename these files by removing `.example` from the filename:
+- `api/.dev.vars.example` → rename to `api/.dev.vars`
+- `frontend-v2/.env.example` → rename to `frontend-v2/.env`
+
+These files will be filled in with your API keys in the next steps.
+
 ### 2. Set Up Clerk Authentication
 
 Clerk handles all user authentication and JWT tokens for this application.
@@ -254,16 +262,7 @@ This guide will walk you through:
 - Setting up the JWT template (required for tier system)
 - Getting your API keys
 
-**✅ When complete, you should have:**
-
-Copy the example files and fill in your Clerk keys:
-```bash
-# Backend
-cp api/.dev.vars.example api/.dev.vars
-
-# Frontend
-cp frontend-v2/.env.example frontend-v2/.env
-```
+**✅ When complete, add your Clerk keys to the config files you renamed in Step 1:**
 
 **📋 See complete examples:** [Backend .dev.vars](https://github.com/Fruitloop24/plug-saas/blob/master/docs/sample-files/backend-dev-vars-example.md) | [Frontend .env](https://github.com/Fruitloop24/plug-saas/blob/master/docs/sample-files/frontend-env-example.md)
 
