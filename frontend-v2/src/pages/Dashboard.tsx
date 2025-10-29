@@ -60,9 +60,13 @@ export default function Dashboard() {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
-  const fetchUsage = async () => {
+  const fetchUsage = async (forceRefresh = false) => {
     try {
-      const token = await getToken({ template: 'pan-api' });
+      // Allow forcing a fresh token if needed (e.g., after upgrade)
+      const token = await getToken({
+        template: 'pan-api',
+        ...(forceRefresh && { skipCache: true })
+      });
       const response = await fetch(`${API_URL}/api/usage`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -136,15 +140,32 @@ export default function Dashboard() {
 
     if (success === 'true') {
       setMessage('🎉 Upgrade successful! Refreshing your account...');
-      // Wait for user to be loaded, then reload to get fresh JWT with new plan
-      const timer = setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 2000);
+
+      // Force JWT refresh by invalidating cache and fetching fresh token
+      const refreshAndReload = async () => {
+        try {
+          // Force Clerk to fetch a fresh JWT with updated plan metadata
+          // skipCache: true bypasses the cached token and gets a new one from Clerk
+          await getToken({ template: 'pan-api', skipCache: true });
+
+          // Wait a brief moment for the token to be cached
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // Reload to clear success param and show updated plan
+          window.location.href = '/dashboard';
+        } catch (error) {
+          console.error('Token refresh error:', error);
+          // Fallback: just reload anyway
+          window.location.href = '/dashboard';
+        }
+      };
+
+      const timer = setTimeout(refreshAndReload, 2000);
       return () => clearTimeout(timer);
     } else if (isLoaded && user) {
       fetchUsage();
     }
-  }, [isLoaded, user, searchParams]);
+  }, [isLoaded, user, searchParams, getToken]);
 
   const plan = (user?.publicMetadata?.plan as string) || 'free';
 
