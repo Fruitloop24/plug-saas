@@ -391,28 +391,41 @@ Once local development is working, you're ready to deploy your SaaS to productio
 
 Your backend API will run on Cloudflare's global edge network (300+ cities worldwide) with ~50ms response times.
 
-**📖 Follow the detailed deployment guide:** [Cloudflare Workers Deployment](docs/deployments/cloudflare.md)
+**🤖 Use the `/deploy-worker` Command (Recommended - works best with Claude Code)**
 
-This guide will walk you through:
+```
+/deploy-worker
+```
+
+Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. Or manually call `.claude/commands/deploy-worker.md` with your AI tool.
+
+The tool will:
+- ✅ Read and validate your `api/.dev.vars` secrets
+- ✅ Create your KV namespace for usage tracking
+- ✅ Set all production secrets in Cloudflare (Clerk & Stripe keys)
+- ✅ Deploy your worker to the edge network
+- ✅ Return your live worker URL
+- ✅ Guide you to configure webhooks next
+
+**📝 Manual Deployment**
+
+Prefer manual control? Follow the [Cloudflare Workers Deployment Guide](docs/deployments/cloudflare.md) for step-by-step instructions on:
 - Authenticating with Cloudflare
-- Creating a KV namespace for usage tracking
-- Setting production secrets (live Clerk & Stripe keys)
-- Deploying your worker to the edge
-- Verifying your deployment
+- Creating a KV namespace
+- Setting production secrets
+- Deploying and verifying
 
 **✅ When complete, you'll have:**
 - Your API live at: `https://your-worker.workers.dev`
 - All secrets configured securely
 - KV namespace created and bound
-- Real-time logs available via `wrangler tail`
+- Ready for webhook configuration (Step 7)
 
 **⭐ Optional - Auto-Deploy with GitHub Actions:**
 
 This repo includes GitHub Actions for automatic Worker deployment on push. To enable it, you'll need to add Cloudflare secrets to your repository.
 
 **📖 See setup guide:** [GitHub Actions Auto-Deploy](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/github.md)
-
-If you prefer manual deployment, just run `wrangler deploy` from the api/ folder.
 
 ---
 

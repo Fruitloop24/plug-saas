@@ -25,6 +25,7 @@ Before deploying, ensure you have:
 
  **Wrangler CLI installed** - Run `wrangler --version` to check
  **Cloudflare account** - Sign up at https://dash.cloudflare.com
+ **Git initialized & GitHub repo ready** - Your project pushed to a GitHub repository (needed for Cloudflare Pages CI/CD)
  **All local development working** - Tested sign-up, upgrade, webhooks locally
  **Production API keys ready** - You'll need live Clerk and Stripe keys
 
