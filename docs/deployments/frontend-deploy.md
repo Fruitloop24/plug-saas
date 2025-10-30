@@ -71,13 +71,41 @@ Click **"Create repository"**
 
 ### 1.3 Push to GitHub
 
-Copy the commands from GitHub's "push an existing repository" section:
+You can push using either **HTTPS** or **SSH**. Choose one method:
+
+#### Option A: HTTPS Method (Easier, No SSH Setup)
+
+Run each command separately:
 
 ```bash
 git remote add origin https://github.com/your-username/your-repo.git
+```
+
+```bash
 git branch -M main
+```
+
+```bash
 git push -u origin main
 ```
+
+#### Option B: SSH Method (More Secure, Requires SSH Key)
+
+If you have SSH keys set up, use SSH instead:
+
+```bash
+git remote add origin git@github.com:your-username/your-repo.git
+```
+
+```bash
+git branch -M main
+```
+
+```bash
+git push -u origin main
+```
+
+**Don't have SSH set up?** Follow [GitHub's SSH key setup guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-passphrase)
 
 ✅ **Your code is now on GitHub!**
 
