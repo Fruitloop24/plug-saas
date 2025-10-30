@@ -223,6 +223,34 @@ curl https://pan-api.your-subdomain.workers.dev/health
 
 ---
 
+## Step 7: Update Frontend Environment
+
+After successful deployment, automatically update `frontend-v2/.env` with your worker URL:
+
+1. Parse the worker URL from the deployment output (e.g., `https://pan-api.abc123.workers.dev`)
+2. Update `frontend-v2/.env` by replacing:
+   ```
+   VITE_API_URL=http://localhost:8787
+   ```
+   with:
+   ```
+   VITE_API_URL=https://pan-api.abc123.workers.dev
+   ```
+3. Show the user what was updated
+
+**Expected output:**
+```
+✅ FRONTEND UPDATED
+
+Updated frontend-v2/.env:
+VITE_API_URL=https://pan-api.abc123.workers.dev
+
+Your frontend will now connect to your live worker!
+Restart your frontend dev server to pick up the change.
+```
+
+---
+
 ## Success! ✅
 
 Your API is now deployed globally on Cloudflare Workers.
@@ -235,33 +263,29 @@ https://pan-api.your-subdomain.workers.dev
 
 All secrets deployed securely ✅
 KV namespace configured ✅
+Frontend .env updated ✅
 ```
 
 ---
 
 ## ⚠️ Next Steps (IMPORTANT)
 
-**1. Update Your Frontend (Required)**
+**1. Restart Your Frontend**
 
-Update `frontend-v2/.env`:
+Your frontend .env has been updated automatically. Restart your frontend development server:
 
-**Before:**
-```
-VITE_API_URL=http://localhost:8787
-```
-
-**After:**
-```
-VITE_API_URL=https://pan-api.your-subdomain.workers.dev
+```bash
+cd frontend-v2
+npm run dev
 ```
 
-Then restart your frontend development server.
+It will now connect to your live worker!
 
 **2. Configure Stripe Webhooks**
 
 Your worker is live, but Stripe doesn't know where to send webhook notifications yet.
 
-📖 **Continue with Step 7:** [Configure Production Webhooks](../deployments/stripe-deploy.md)
+📖 **Next in README:** Step 7 - [Configure Production Webhooks](../deployments/stripe-deploy.md)
 
 This will:
 - Point Stripe to: `https://pan-api.your-subdomain.workers.dev/webhook/stripe`
@@ -272,7 +296,7 @@ This will:
 
 Once webhooks work, deploy your React frontend to Cloudflare Pages.
 
-📖 **Step 8:** [Cloudflare Pages Frontend Deployment](../deployments/frontend-deploy.md)
+📖 **Step 8 in README:** [Cloudflare Pages Frontend Deployment](../deployments/frontend-deploy.md)
 
 ---
 
