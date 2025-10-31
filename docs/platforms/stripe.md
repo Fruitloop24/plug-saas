@@ -1,7 +1,9 @@
 # Stripe Setup Guide
 
-**Time Estimate:** 10 minutes  
+**Time Estimate:** 10 minutes
 **What You'll Configure:** Payment processing and subscription management
+
+**📹 Video Guide:** [Watch Step 3 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-3.mp4)
 
 ---
 

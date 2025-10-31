@@ -3,6 +3,8 @@
 **Time Estimate:** 15-20 minutes (first time)
 **What You'll Deploy:** Your React frontend to Cloudflare Pages (global CDN)
 
+**📹 Video Guide:** [Watch Step 8 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-8.mp4)
+
 ---
 
 ## What Cloudflare Pages Does

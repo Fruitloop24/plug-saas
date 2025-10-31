@@ -3,6 +3,8 @@
 **Time Estimate:** 20-30 minutes
 **When to Use This:** If you want full manual control over tier configuration, or if you don't have Claude Code available.
 
+**📹 Video Guide:** [Watch Step 4-5 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-4-5.mp4) (includes Step 5: Run Locally)
+
 ---
 
 ## Overview

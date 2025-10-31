@@ -3,6 +3,8 @@
 **Time Estimate:** 15-20 minutes
 **What You'll Configure:** Production Stripe webhooks to sync subscription updates with your live API
 
+**📹 Video Guide:** [Watch Step 7 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-7.mp4)
+
 ---
 
 ## What This Step Does

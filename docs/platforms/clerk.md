@@ -1,7 +1,9 @@
 # Clerk Setup Guide
 
-**Time Estimate:** 10 minutes  
+**Time Estimate:** 10 minutes
 **What You'll Configure:** User authentication and JWT tokens with subscription tier
+
+**📹 Video Guide:** [Watch Step 2 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-2.mp4)
 
 ---
 

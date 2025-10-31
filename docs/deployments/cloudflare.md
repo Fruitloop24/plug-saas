@@ -3,6 +3,8 @@
 **Time Estimate:** 20-30 minutes (first time)
 **What You'll Deploy:** Your backend API to Cloudflare Workers (global edge network)
 
+**📹 Video Guide:** [Watch Step 6 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-6.mp4)
+
 ---
 
 ## What Cloudflare Workers Does

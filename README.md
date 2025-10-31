@@ -90,8 +90,12 @@ const result = await yourFunction(userId, plan, requestBody);
 </td>
 <td width="50%">
 
-### 🤖 AI-Guided Tier Configuration
-**Claude Code `/configure-tiers`**: Answer questions, automatically updates frontend routes, pricing cards, backend limits, Stripe integration. **[See command →](https://github.com/Fruitloop24/plug-saas/blob/master/.claude/commands/configure-tiers.md)**
+### 🤖 AI-Assisted Setup & Deployment
+**Configured via Claude Code commands**: Answer questions, we handle the rest.
+- `/configure-tiers` - Frontend routes, pricing cards, backend limits, Stripe setup
+- `/deploy-worker` - Validates secrets, creates KV, deploys API, generates webhook URL
+
+**[See commands →](https://github.com/Fruitloop24/plug-saas/blob/master/.claude/commands/)**
 
 </td>
 </tr>
@@ -216,6 +220,8 @@ Before you begin, make sure you have:
 
 ### 1. Clone & Install
 
+**📹 Video Guide:** [Watch Step 1 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/Step-1.mp4)
+
 **Open your terminal and run these commands:**
 
 **a) Clone the repository**
@@ -255,6 +261,8 @@ These files will be filled in with your API keys in the next steps.
 
 Clerk handles all user authentication and JWT tokens for this application.
 
+**📹 Video Guide:** [Watch Step 2 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-2.mp4)
+
 **📖 Follow the detailed setup guide:** [Clerk Setup Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/clerk.md)
 
 This guide will walk you through:
@@ -286,6 +294,8 @@ VITE_API_URL=http://localhost:8787           # Local backend URL
 
 Stripe handles all payment processing and subscription billing for this application.
 
+**📹 Video Guide:** [Watch Step 3 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-3.mp4)
+
 **📖 Follow the detailed setup guide:** [Stripe Setup Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/stripe.md)
 
 This guide will walk you through:
@@ -316,29 +326,26 @@ STRIPE_PRICE_ID_ENTERPRISE=price_1Xyz98WVut76 # Enterprise tier product price ID
 STRIPE_PORTAL_CONFIG_ID=bpc_1SK6M             # For customer subscription management
 ```
 
-### 4. Configure Your Pricing Tiers (Optional)
+### 4. Configure Your Pricing Tiers
 
-The default template provides a complete multi-tier system (Free, Pro, Enterprise) with frontend routes, pricing cards, and backend enforcement. You can easily customize this using natural language with any AI CLI.
+The default template includes a complete multi-tier system (Free, Pro, Enterprise) with frontend routes, pricing cards, and backend enforcement. Customize it in minutes:
 
-**🤖 Use the `/configure-tiers` Command (Recommended - works best with Claude Code)**
+**📹 Video Guide:** [Watch Step 4-5 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-4-5.mp4) (includes Step 5: Run Locally)
 
+**Run the configuration command:**
 ```
 /configure-tiers
 ```
 
-Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. Or manually call `.claude/commands/configure-tiers.md` with your AI tool.
-
-Answer questions about your tiers (name, price, limit, features), and it updates:
+Answer questions about your tiers (name, price, limit, features), and it automatically updates:
 - ✅ Backend tier limits and Stripe integration
 - ✅ Frontend pricing cards and routes
 - ✅ Dashboard tier displays
-- ✅ Environment variables
+- ✅ All environment variables
 
-Modify everything in natural language to fit your product.
+Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. [See the command →](.claude/commands/configure-tiers.md)
 
-**📝 Manual Configuration**
-
-Prefer manual control? Follow the [Manual Tier Setup Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/sample-files/manual-tier-setup.md) for step-by-step instructions on updating each file.
+**Prefer manual setup?** Follow the [Manual Tier Setup Guide](./docs/sample-files/manual-tier-setup.md) for step-by-step instructions.
 
 ---
 
@@ -389,86 +396,83 @@ Once local development is working, you're ready to deploy your SaaS to productio
 
 ### 6. Deploy Backend API (Cloudflare Workers)
 
-Your backend API will run on Cloudflare's global edge network (300+ cities worldwide) with ~50ms response times.
+Deploy your API to Cloudflare's global edge network (300+ cities) in minutes:
 
-**🤖 Use the `/deploy-worker` Command (Recommended - works best with Claude Code)**
+**📹 Video Guide:** [Watch Step 6 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-6.mp4)
 
+**Run the deployment command:**
 ```
 /deploy-worker
 ```
 
-Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. Or manually call `.claude/commands/deploy-worker.md` with your AI tool.
+The command handles all the tedious parts:
+- ✅ Validates all your Clerk & Stripe environment variables
+- ✅ Creates your KV namespace for usage tracking
+- ✅ Sets all production secrets securely in Cloudflare
+- ✅ Deploys your Worker to the edge
+- ✅ Returns your live API URL
+- ✅ Generates your webhook endpoint URL for Step 7
 
-The tool will:
-- ✅ Read and validate your `api/.dev.vars` secrets
-- ✅ Create your KV namespace for usage tracking
-- ✅ Set all production secrets in Cloudflare (Clerk & Stripe keys)
-- ✅ Deploy your worker to the edge network
-- ✅ Return your live worker URL
-- ✅ Guide you to configure webhooks next
+Works with Claude Code, Gemini CLI, Codex CLI, or DeepSeek. [See the command →](.claude/commands/deploy-worker.md)
 
-**📝 Manual Deployment**
-
-Prefer manual control? Follow the [Cloudflare Workers Deployment Guide](docs/deployments/cloudflare.md) for step-by-step instructions on:
-- Authenticating with Cloudflare
-- Creating a KV namespace
-- Setting production secrets
-- Deploying and verifying
-
-**✅ When complete, you'll have:**
-- Your API live at: `https://your-worker.workers.dev`
+**✅ When complete:**
+- Your API is live at: `https://your-worker.workers.dev`
 - All secrets configured securely
 - KV namespace created and bound
-- Ready for webhook configuration (Step 7)
+- Ready to configure Stripe webhooks (Step 7)
+
+**Prefer manual control?** Follow the [Cloudflare Workers Deployment Guide](./docs/deployments/cloudflare.md) for step-by-step instructions.
 
 **⭐ Optional - Auto-Deploy with GitHub Actions:**
 
 This repo includes GitHub Actions for automatic Worker deployment on push. To enable it, you'll need to add Cloudflare secrets to your repository.
 
-**📖 See setup guide:** [GitHub Actions Auto-Deploy](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/github.md)
+**📖 See setup guide:** [GitHub Actions Auto-Deploy](./docs/deployments/github.md)
 
 ---
 
 ### 7. Configure Production Webhooks
 
-In local development, you used `stripe listen --forward-to` to simulate webhooks. Now you'll set up real production webhooks so Stripe can notify your API when subscriptions are created, updated, or cancelled.
+Set up real production webhooks so Stripe can notify your API when subscriptions are created, updated, or cancelled. You'll use the webhook URL from Step 6.
 
-**📖 Follow the detailed deployment guide:** [Stripe Webhooks Deployment](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/stripe-deploy.md)
+**📹 Video Guide:** [Watch Step 7 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-7.mp4)
 
-This guide will walk you through:
+**📖 Follow the deployment guide:** [Stripe Webhooks Deployment](./docs/deployments/stripe-deploy.md)
+
+This guide walks you through:
 - Migrating your Stripe products from test mode to live mode
 - Updating environment variables with live Stripe keys and Price IDs
-- Creating a production webhook endpoint in Stripe
-- Adding the webhook signing secret to your worker
+- Creating a production webhook endpoint in Stripe (using your URL from Step 6)
 - Testing webhook delivery and the full upgrade flow
 
-**✅ When complete, you'll have:**
-- All products recreated in Stripe live mode with correct metadata
+**✅ When complete:**
+- All products in Stripe live mode with correct metadata
 - Live Stripe keys and Price IDs configured in your worker
-- Production webhook endpoint pointing to your API
+- Production webhook endpoint live and receiving events
 - Real-time subscription updates working (upgrade/downgrade/cancel)
 
 ---
 
 ### 8. Deploy Frontend
 
-Deploy your React frontend to Cloudflare Pages so users can access your SaaS from anywhere in the world with fast load times.
+Deploy your React frontend to Cloudflare Pages for global access and fast load times.
 
-**📖 Follow the detailed deployment guide:** [Cloudflare Pages Frontend Deployment](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/frontend-deploy.md)
+**📹 Video Guide:** [Watch Step 8 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-8.mp4)
 
-This guide will walk you through:
+**📖 Follow the deployment guide:** [Cloudflare Pages Frontend Deployment](./docs/deployments/frontend-deploy.md)
+
+This guide walks you through:
 - Pushing your code to GitHub and connecting your repository
-- Creating a Cloudflare Pages project (watch for the Workers vs Pages tabs!)
+- Creating a Cloudflare Pages project
 - Configuring build settings for Vite
 - Adding production environment variables (live Clerk keys and API URL)
-- Deploying and verifying your live frontend
-- Testing the full end-to-end flow (sign up, upgrade, billing portal)
+- Verifying your live frontend connects to your backend API
 
-**✅ When complete, you'll have:**
-- Your frontend live at: `https://your-project.pages.dev`
-- Connected to your production backend API
+**✅ When complete:**
+- Your frontend is live at: `https://your-project.pages.dev`
+- Connected to your production backend from Step 6
 - Automatic deployments on every git push
-- Full authentication and subscription flows working
+- Full authentication and subscription flows working end-to-end
 
 ---
 
@@ -476,7 +480,7 @@ This guide will walk you through:
 
 Want to understand how the stateless JWT architecture works? How Stripe webhooks sync with Clerk? How usage tracking works without a database?
 
-**📖 Read the complete architecture guide:** [Architecture Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/features/architecture.md)
+**📖 Read the complete architecture guide:** [Architecture Guide](./docs/features/architecture.md)
 
 This guide covers:
 - JWT as single source of truth (how plan metadata flows)
@@ -508,7 +512,7 @@ This guide covers:
 
 Compare that to typical SaaS stacks costing $75-150/month from day one.
 
-**📖 See the complete cost analysis:** [Cost Breakdown & Comparison](https://github.com/Fruitloop24/plug-saas/blob/master/docs/features/cost-breakdown.md)
+**📖 See the complete cost analysis:** [Cost Breakdown & Comparison](./docs/features/cost-breakdown.md)
 
 This guide includes:
 - Detailed cost breakdown at every scale (0-100k+ users)
@@ -524,7 +528,7 @@ This guide includes:
 
 ## Testing
 
-**📖 See the complete testing guide:** [Testing Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/testing.md)
+**📖 See the complete testing guide:** [Testing Guide](./docs/testing.md)
 
 The testing guide covers:
 - Setting up local development with Stripe webhooks
@@ -557,7 +561,7 @@ This guide includes:
 
 Got questions about the template? How to customize it? What works with what?
 
-**📖 Read the complete FAQ:** [Frequently Asked Questions](https://github.com/Fruitloop24/plug-saas/blob/master/docs/information/faq.md)
+**📖 Read the complete FAQ:** [Frequently Asked Questions](./docs/information/faq.md)
 
 Common topics covered:
 - Framework compatibility (Next.js, Vue, Svelte, React Native)
@@ -577,7 +581,7 @@ Common topics covered:
 Built-in: JWT verification, webhook signing, rate limiting, security headers, PCI compliance.
 Cloudflare: DDoS protection, WAF, Bot Fight Mode, IP restrictions, Access policies - all free.
 
-**📖 Read the complete security guide:** [Security Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/information/security.md)
+**📖 Read the complete security guide:** [Security Guide](./docs/information/security.md)
 
 This guide covers:
 - Why edge deployment means fewer vulnerabilities (no servers to SSH into!)
@@ -628,7 +632,7 @@ Interested in partnerships, revenue shares, or white-label licensing?
 
 This template is optimized for speed and simplicity. We've identified some trade-offs:
 
-**📖 Read the full analysis:** [Known Limitations & Trade-Offs](https://github.com/Fruitloop24/plug-saas/blob/master/docs/information/limitations.md)
+**📖 Read the full analysis:** [Known Limitations & Trade-Offs](./docs/information/limitations.md)
 
 - KV eventual consistency (pay-per-use apps)
 - Multi-dashboard observability
