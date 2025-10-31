@@ -316,6 +316,8 @@ The JWT still handles auth/billing. Database only stores your app's domain data.
 
 ---
 
-**Next Steps:**
-- [Testing Guide](../testing.md) - Verify end-to-end flows
-- [Cost Breakdown](cost-breakdown.md) - See detailed pricing calculations
+## Related Documentation
+
+- **[Cost Breakdown](./cost-breakdown.md)** - Detailed pricing calculations at every scale
+- **[Security Guide](../information/security.md)** - Built-in security features & best practices
+- **[Testing Guide](../testing.md)** - End-to-end testing checklist

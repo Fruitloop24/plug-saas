@@ -668,24 +668,33 @@ MIT - Use this template for commercial or personal SaaS projects.
 
 ## Documentation
 
-- **[Architecture Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/features/architecture.md)** - How JWT routing works, data flow diagrams
-- **[Cost Breakdown](https://github.com/Fruitloop24/plug-saas/blob/master/docs/features/cost-breakdown.md)** - Detailed cost analysis at every scale
-- **[Security Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/information/security.md)** - Built-in security + Cloudflare's free features
-- **[Testing Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/testing.md)** - End-to-end testing checklist, 3-terminal setup
-- **[FAQ](https://github.com/Fruitloop24/plug-saas/blob/master/docs/information/faq.md)** - Common issues, troubleshooting, best practices
+### Core Guides
 
-**Platform Setup Guides:**
-- **[Clerk Setup](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/clerk.md)** - Authentication configuration
-- **[Stripe Setup](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/stripe.md)** - Payment processing configuration
-- **[Cloudflare Workers Deployment](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/cloudflare.md)** - Backend deployment
+- **[Architecture Guide](./docs/features/architecture.md)** - How JWT routing works, data flow diagrams, and system design
+- **[Cost Breakdown](./docs/features/cost-breakdown.md)** - Detailed cost analysis at every scale, pricing comparisons
+- **[Security Guide](./docs/information/security.md)** - Built-in security features + Cloudflare's free enterprise protections
+- **[Testing Guide](./docs/testing.md)** - End-to-end testing checklist, 3-terminal local setup
+- **[FAQ](./docs/information/faq.md)** - Common issues, troubleshooting, best practices
+- **[Known Limitations](./docs/information/limitations.md)** - Trade-offs and upgrade paths as you scale
 
-**Deployment Guides:**
-- **[Stripe Webhooks](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/stripe-deploy.md)** - Production webhook configuration
-- **[Frontend Deployment](https://github.com/Fruitloop24/plug-saas/blob/master/docs/deployments/frontend-deploy.md)** - Cloudflare Pages deployment
+### Platform Setup Guides
 
-**Reference:**
-- **[Manual Tier Setup](https://github.com/Fruitloop24/plug-saas/blob/master/docs/sample-files/manual-tier-setup.md)** - Add/modify pricing tiers manually
-- **[Project File Structure](https://github.com/Fruitloop24/plug-saas/blob/master/docs/sample-files/project-file-structure.md)** - Complete file organization
+- **[Clerk Setup](./docs/platforms/clerk.md)** - Authentication configuration and JWT template setup
+- **[Stripe Setup](./docs/platforms/stripe.md)** - Payment processing and subscription configuration
+
+### Deployment Guides
+
+- **[Cloudflare Workers (Backend)](./docs/deployments/cloudflare.md)** - Deploy your API to the edge
+- **[Stripe Webhooks Setup](./docs/deployments/stripe-deploy.md)** - Production webhook configuration
+- **[Frontend Deployment](./docs/deployments/frontend-deploy.md)** - Deploy to Cloudflare Pages
+- **[GitHub Actions CI/CD](./docs/deployments/github.md)** - Automated deployment pipeline
+
+### Configuration & Reference
+
+- **[Manual Tier Setup](./docs/sample-files/manual-tier-setup.md)** - Add/modify pricing tiers manually
+- **[Project File Structure](./docs/sample-files/project-file-structure.md)** - Complete directory layout and file organization
+- **[Backend Config Example](./docs/sample-files/backend-dev-vars-example.md)** - Sample environment variables (.dev.vars)
+- **[Frontend Config Example](./docs/sample-files/frontend-env-example.md)** - Sample frontend environment (.env)
 
 ---
 

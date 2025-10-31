@@ -779,6 +779,14 @@ Before going live, verify:
 
 ---
 
+## Related Documentation
+
+- **[Architecture Guide](../features/architecture.md)** - How the security-first design works
+- **[FAQ](./faq.md)** - Common security questions and troubleshooting
+- **[Testing Guide](../testing.md)** - Security testing checklist
+
+---
+
 **🔒 Your SaaS is secure by design.**
 
 Small attack surface + built-in hardening + Cloudflare's enterprise security = worry less, ship faster.

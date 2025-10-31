@@ -579,4 +579,13 @@ Stuck on Durable Objects? Want unified observability set up? Need CRM integratio
 
 ---
 
+## Related Documentation
+
+- **[Architecture Guide](../features/architecture.md)** - Understand the core design
+- **[Cost Breakdown](../features/cost-breakdown.md)** - Detailed pricing analysis
+- **[Security Guide](./security.md)** - Security features and best practices
+- **[FAQ](./faq.md)** - Common questions about the template
+
+---
+
 **Start simple. Ship fast. Scale when it matters.**

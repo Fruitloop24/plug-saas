@@ -553,7 +553,9 @@ Open a GitHub issue with:
 
 ---
 
-**Next Steps:**
-- [Setup Guide](setup.md) - Get started locally
-- [Testing Guide](testing.md) - Test your deployment
-- [Architecture Guide](architecture.md) - Understand the system
+## Related Documentation
+
+- **[Architecture Guide](../features/architecture.md)** - Understand how the system works
+- **[Testing Guide](../testing.md)** - Test your deployment
+- **[Security Guide](./security.md)** - Security best practices
+- **[Cost Breakdown](../features/cost-breakdown.md)** - Detailed pricing analysis

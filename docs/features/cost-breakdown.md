@@ -685,6 +685,8 @@ Add one! This template doesn't prevent you from using a database.
 
 ---
 
-**Want to understand the architecture behind these cost savings?**
+## Related Documentation
 
-📖 [Architecture Guide](architecture.md) - See how the stateless JWT design eliminates database costs.
+- **[Architecture Guide](./architecture.md)** - Understand the stateless JWT design and how it eliminates database costs
+- **[Security Guide](../information/security.md)** - Enterprise-grade security features included for free
+- **[FAQ](../information/faq.md)** - Common questions about costs and infrastructure
