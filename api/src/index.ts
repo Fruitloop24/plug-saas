@@ -30,7 +30,6 @@ interface Env {
 	CLERK_PUBLISHABLE_KEY: string;      // Clerk publishable key (pk_test_...)
 	STRIPE_SECRET_KEY: string;          // Stripe secret key (sk_test_...)
 	STRIPE_WEBHOOK_SECRET?: string;     // Stripe webhook signing secret (whsec_...)
-	STRIPE_PRICE_ID_PRO?: string;       // Stripe price ID for Pro tier
 	STRIPE_PRICE_ID_DEVELOPER?: string;       // Stripe price ID for Developer tier
 	STRIPE_PORTAL_CONFIG_ID?: string;   // OPTIONAL: Stripe portal configuration ID (bpc_...)
 	ALLOWED_ORIGINS?: string;           // OPTIONAL: Comma-separated list of allowed origins
@@ -47,7 +46,7 @@ interface Env {
  */
 interface UsageData {
 	usageCount: number;        // Number of requests made in current period
-	plan: 'free' | 'pro' | 'developer';      // User's current plan (synced from Clerk metadata)
+	plan: 'free' | 'developer';      // User's current plan (synced from Clerk metadata)
 	lastUpdated: string;       // ISO timestamp of last update
 	periodStart?: string;      // Billing period start (YYYY-MM-DD)
 	periodEnd?: string;        // Billing period end (YYYY-MM-DD)
@@ -60,23 +59,18 @@ interface UsageData {
 /**
  * Tier configuration - defines limits and pricing for all tiers
  */
-type PlanTier = 'free' | 'pro' | 'developer';
+type PlanTier = 'free' | 'developer';
 
 const TIER_CONFIG: Record<string, { limit: number; price: number; name: string }> = {
 	free: {
 		name: 'Free',
 		price: 0,
-		limit: 3
-	},
-	pro: {
-		name: 'Pro',
-		price: 29,
-		limit: 7
+		limit: 5
 	},
 	developer: {
 		name: 'Developer',
 		price: 50,
-		limit: 15
+		limit: 10
 	}
 };
 
@@ -84,7 +78,6 @@ const TIER_CONFIG: Record<string, { limit: number; price: number; name: string }
  * Map tier names to Stripe Price IDs from environment variables
  */
 const PRICE_ID_MAP: Record<string, (env: Env) => string> = {
-	pro: (env) => env.STRIPE_PRICE_ID_PRO || '',
 	developer: (env) => env.STRIPE_PRICE_ID_DEVELOPER || ''
 };
 

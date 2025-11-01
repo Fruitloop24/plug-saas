@@ -35,16 +35,10 @@ const TIER_DISPLAY: Record<string, {
     badge: 'bg-slate-100 text-slate-600',
     icon: '📄'
   },
-  pro: {
+  developer: {
     gradient: 'from-cyan-500 to-cyan-600',
     shadow: 'shadow-cyan-500/30',
     badge: 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-white',
-    icon: '⚡'
-  },
-  developer: {
-    gradient: 'from-purple-500 to-purple-600',
-    shadow: 'shadow-purple-500/30',
-    badge: 'bg-gradient-to-br from-purple-500 to-purple-600 text-white',
     icon: '🚀'
   }
 };

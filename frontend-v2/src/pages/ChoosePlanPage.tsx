@@ -80,10 +80,8 @@ export default function ChoosePlanPage() {
     switch (tierId) {
       case 'free':
         return 'bg-white border-2 border-slate-200';
-      case 'pro':
-        return 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700';
       case 'developer':
-        return 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700';
+        return 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700';
       default:
         return 'bg-gradient-to-br from-blue-500 to-blue-600';
     }
@@ -96,13 +94,10 @@ export default function ChoosePlanPage() {
 
     if (tier.id === 'free') {
       features.push('testing');
-      features.push('one');
-    } else if (tier.id === 'pro') {
-      features.push('tesing');
-      features.push('two');
+      features.push('angel');
     } else if (tier.id === 'developer') {
-      features.push('tesing');
-      features.push('three');
+      features.push('angel');
+      features.push('sick');
     }
 
     return features;
