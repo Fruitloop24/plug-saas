@@ -1,145 +1,164 @@
 # Configure Pricing Tiers
 
-Ask the user SIMPLE questions, update files, and CHECK for common gotchas!
+**STEP 1: ASK QUESTIONS (one at a time)**
 
-**Ask directly (one question at a time):**
+1. How many tiers? (2-4)
+2. For EACH tier ask:
+   - Tier name? (lowercase, no spaces, e.g., free, pro, business)
+   - Display name? (e.g., Free, Pro, Business)
+   - Price? (dollars, just number, e.g., 0, 29, 99)
+   - Limit? (number or 'unlimited', e.g., 5, 100, unlimited)
+   - Features? (comma-separated, e.g., 'API access, Email support')
+   - Stripe Price ID? (price_xxxxx or 'none' for free tier)
+   - Popular badge? (yes/no)
 
-1. "How many tiers? (2-4)"
-2. For EACH tier, ask in plain text:
-   - "Tier X name? (lowercase, no spaces, e.g., free, pro, plus, business)"
-   - "Display name? (e.g., Free, Pro, Plus, Enterprise)"
-   - "Price? (dollars, just the number, e.g., 0, 29, 199)"
-   - "Limit? (number like 10, 500, or type 'unlimited')"
-   - "Features? (comma-separated list, e.g., 'API access, Email support, Analytics')"
-   - "Stripe Price ID? (e.g., price_xxxxx or type 'none' for free tier)"
-   - "Show Popular badge? (yes/no)"
+**STEP 2: UPDATE EVERYTHING**
 
-**Default colors (DON'T ASK USER):**
-- Free tier: slate
-- Tier 2: cyan
-- Tier 3: purple
-- Tier 4: orange
+**Backend: api/src/index.ts**
 
-**Update these files:**
+1. Line ~50 - Update UsageData plan with ALL tier names:
+   ```typescript
+   plan: 'free' | 'developer' | 'enterprise';  // USE ALL COLLECTED TIER NAMES
+   ```
 
-Backend: `api/src/index.ts`
-- Line ~50: UsageData plan type union
-- Line ~33-34: Env STRIPE_PRICE_ID vars
-- Line ~64: PlanTier type
-- Line ~66: TIER_CONFIG object
-- Line ~86: PRICE_ID_MAP object
-- Line ~758: handleCreateCheckout - MUST use dynamic fallback, not hardcoded tier name
+2. Line ~63 - Update PlanTier type with ALL tier names:
+   ```typescript
+   type PlanTier = 'free' | 'developer' | 'enterprise';  // USE ALL COLLECTED TIER NAMES
+   ```
 
-Frontend Dashboard: `frontend-v2/src/pages/Dashboard.tsx`
-- Line ~26: TIER_DISPLAY object
-- **IMPORTANT:** Only update TIER_DISPLAY object. Do NOT modify template hints, blue callout boxes, or [Your Metric Name Here] text. Those are intentional template messaging.
+3. Line ~33-34 - Add Env STRIPE_PRICE_ID for PAID tiers only:
+   ```typescript
+   STRIPE_PRICE_ID_DEVELOPER?: string;  // ADD FOR EACH PAID TIER
+   STRIPE_PRICE_ID_ENTERPRISE?: string;
+   ```
 
-Frontend Landing: `frontend-v2/src/pages/Landing.tsx`
-- Line ~15: TIER_STYLES object
-- Line ~50: getTierFeatures function
-- **IMPORTANT:** There's a `<DemoInstructions />` component above the pricing cards. Keep it there or move it to make sense with the new tier layout. It shows users how to try the demo with test card 4242 4242 4242 4242. DO NOT delete this component.
+4. Line ~65-81 - Update TIER_CONFIG with ALL tier data (name, price, limit):
+   ```typescript
+   const TIER_CONFIG: Record<string, { limit: number; price: number; name: string }> = {
+     free: { name: 'Free', price: 0, limit: 5 },  // USE COLLECTED VALUES
+     developer: { name: 'Developer', price: 50, limit: 100 },  // USE COLLECTED VALUES
+     enterprise: { name: 'Enterprise', price: 200, limit: Infinity }  // USE COLLECTED VALUES (convert 'unlimited' to Infinity)
+   };
+   ```
 
-Frontend ChoosePlan: `frontend-v2/src/pages/ChoosePlanPage.tsx`
-- Line ~79: getTierGradient function
-- Line ~92: getFeatures function
+5. Line ~86-89 - Update PRICE_ID_MAP with PAID tiers only:
+   ```typescript
+   const PRICE_ID_MAP: Record<string, (env: Env) => string> = {
+     developer: (env) => env.STRIPE_PRICE_ID_DEVELOPER || '',  // PAID TIERS ONLY
+     enterprise: (env) => env.STRIPE_PRICE_ID_ENTERPRISE || ''
+   };
+   ```
 
-Env vars: `api/.dev.vars`
-- Add STRIPE_PRICE_ID_[TIERNAME] lines
+**Frontend: frontend-v2/src/pages/Dashboard.tsx**
 
-**Icons:** 📄 Free, ⚡ Plus, 🚀 Business/Enterprise, ✨ Pro, 💎 Premium
-
-**Convert:** "unlimited" → Infinity in code
-
-**CRITICAL CHECKS (after updating):**
-
-1. **Search for hardcoded tier fallbacks:**
-   - `api/src/index.ts` line ~758: Should be `Object.keys(PRICE_ID_MAP)[0]` NOT `'pro'` or `'plus'`
-   - `api/src/stripe-webhook.ts` lines ~91, ~123: Should fail explicitly if tier missing, NO fallbacks
-
-2. **Verify .dev.vars:**
-   - Check all STRIPE_PRICE_ID_* variables are present for paid tiers
-   - Warn user to restart API server
-
-3. **Check consistency:**
-   - All tier names in TIER_CONFIG match PRICE_ID_MAP
-   - All tier names match type unions (UsageData, PlanTier)
-   - All tier names have frontend styling entries
-   - **IMPORTANT:** Must add features to BOTH Landing.tsx AND ChoosePlanPage.tsx:
-     - `Landing.tsx` line ~50: `getTierFeatures()` function
-     - `ChoosePlanPage.tsx` line ~92: `getFeatures()` function
-     - Features must include the limits (e.g., "13 documents/month")
-
-4. **VALIDATE ENVIRONMENT VARIABLES (Fast check - just verify they exist):**
-
-   **Quick validation rules:**
-   - Backend file: `api/.dev.vars` must exist
-   - Frontend file: `frontend-v2/.env` must exist
-   - Backend must have these lines (grep for them):
-     - `CLERK_SECRET_KEY=sk_`
-     - `CLERK_PUBLISHABLE_KEY=pk_`
-     - `CLERK_JWT_TEMPLATE=pan-api`
-     - `STRIPE_SECRET_KEY=sk_`
-     - `STRIPE_WEBHOOK_SECRET=whsec_`
-     - For each paid tier: `STRIPE_PRICE_ID_[TIERNAME]=price_`
-   - Frontend must have these lines:
-     - `VITE_CLERK_PUBLISHABLE_KEY=pk_`
-     - `VITE_API_URL=http://localhost:8787`
-
-   **Use a single Read on each file** to check all variables at once. Don't run individual bash commands.
-
-   **If validation passes:** Show green checkmarks for all
-   **If validation fails:** Show red X for missing/invalid ones with link to docs
-
-**Report format:**
-```
-✅ Done! Updated 3 tiers: free, pro, enterprise
-
-✅ ENVIRONMENT VALIDATION PASSED
-All required variables present in api/.dev.vars and frontend-v2/.env
-
-⚠️ NEXT STEPS - Start 3 terminals:
-
-Terminal 1 - Backend API:
-cd api && npm run dev
-
-Terminal 2 - Frontend:
-cd frontend-v2 && npm run dev
-
-Terminal 3 - Stripe Webhooks (CRITICAL):
-stripe listen --forward-to http://localhost:8787/webhook/stripe
-
-⚠️ IMPORTANT: After running Terminal 3, Stripe CLI outputs a webhook secret (whsec_...).
-If you haven't already added it to api/.dev.vars, copy it and add:
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-Then restart Terminal 1 (backend) to load the new secret.
-
-Test the upgrade flow:
-1. Open http://localhost:5173
-2. Sign up → Click "Upgrade Plan"
-3. Select Pro or Enterprise tier
-4. Use test card: 4242 4242 4242 4242
-5. Verify tier change after checkout
+Line ~26-50 - Update TIER_DISPLAY with ALL tiers (colors: tier1=slate, tier2=cyan, tier3=purple, tier4=orange):
+```typescript
+const TIER_DISPLAY: Record<string, {...}> = {
+  free: { gradient: 'from-slate-500 to-slate-600', shadow: 'shadow-slate-500/30', badge: 'bg-slate-100 text-slate-600', icon: '📄' },
+  developer: { gradient: 'from-cyan-500 to-cyan-600', shadow: 'shadow-cyan-500/30', badge: 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-white', icon: '⚡' },
+  enterprise: { gradient: 'from-purple-500 to-purple-600', shadow: 'shadow-purple-500/30', badge: 'bg-gradient-to-br from-purple-500 to-purple-600 text-white', icon: '🚀' }
+};  // USE ALL COLLECTED TIER NAMES
 ```
 
-**If validation fails, show errors like:**
+**Frontend: frontend-v2/src/pages/Landing.tsx**
+
+1. Line ~15-47 - Update TIER_STYLES with ALL tiers (set highlighted=true if popular=yes):
+   ```typescript
+   const TIER_STYLES: Record<string, {...}> = {
+     free: { ...colors, highlighted: false },  // USE ALL COLLECTED TIER NAMES, SET highlighted FROM USER ANSWER
+     developer: { ...colors, highlighted: true },  // highlighted=true if user said "yes" to popular badge
+     enterprise: { ...colors, highlighted: false }
+   };
+   ```
+
+2. Line ~50-71 - Update getTierFeatures with ALL tiers AND their features:
+   ```typescript
+   const getTierFeatures = (tier: Tier): string[] => {
+     const features: string[] = [];
+
+     // Add limit as FIRST feature
+     if (tier.limit === 'unlimited') {
+       features.push('Unlimited documents');
+     } else {
+       features.push(`${tier.limit} documents/month`);  // USE COLLECTED LIMIT
+     }
+
+     // Add ALL user features for EACH tier
+     if (tier.id === 'free') {
+       features.push('API access');  // SPLIT USER'S COMMA-SEPARATED FEATURES
+       features.push('Email support');  // AND ADD EACH ONE
+     } else if (tier.id === 'developer') {
+       features.push('Advanced API');  // USE COLLECTED FEATURES FOR THIS TIER
+       features.push('Priority support');
+     } else if (tier.id === 'enterprise') {
+       features.push('Custom API');  // USE COLLECTED FEATURES FOR THIS TIER
+       features.push('Dedicated support');
+     }
+
+     return features;
+   };
+   ```
+
+**Frontend: frontend-v2/src/pages/ChoosePlanPage.tsx**
+
+1. Line ~79-90 - Update getTierGradient with ALL tiers:
+   ```typescript
+   const getTierGradient = (tierId: string) => {
+     switch (tierId) {
+       case 'free': return 'bg-white border-2 border-slate-200';
+       case 'developer': return 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700';
+       case 'enterprise': return 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700';
+       default: return 'bg-gradient-to-br from-blue-500 to-blue-600';
+     }  // USE ALL COLLECTED TIER NAMES
+   };
+   ```
+
+2. Line ~92-109 - Update getFeatures with ALL tiers AND their features:
+   ```typescript
+   const getFeatures = (tier: Tier) => {
+     const limitText = tier.limit === 'unlimited' ? 'Unlimited requests' : `${tier.limit} requests/month`;
+     const features: string[] = [limitText];  // LIMIT IS FIRST
+
+     // Add ALL user features for EACH tier
+     if (tier.id === 'free') {
+       features.push('API access');  // SPLIT USER'S COMMA-SEPARATED FEATURES
+       features.push('Email support');  // AND ADD EACH ONE
+     } else if (tier.id === 'developer') {
+       features.push('Advanced API');  // USE COLLECTED FEATURES FOR THIS TIER
+       features.push('Priority support');
+     } else if (tier.id === 'enterprise') {
+       features.push('Custom API');  // USE COLLECTED FEATURES FOR THIS TIER
+       features.push('Dedicated support');
+     }
+
+     return features;
+   };
+   ```
+
+**Env: api/.dev.vars**
+
+Add STRIPE_PRICE_ID for PAID tiers only:
 ```
-❌ ENVIRONMENT VALIDATION FAILED
-
-Backend (api/.dev.vars):
-✅ CLERK_SECRET_KEY: Valid
-✅ CLERK_PUBLISHABLE_KEY: Valid
-❌ CLERK_JWT_TEMPLATE: Missing or not 'pan-api'
-✅ STRIPE_SECRET_KEY: Valid
-❌ STRIPE_WEBHOOK_SECRET: Missing (required for webhooks)
-❌ STRIPE_PRICE_ID_ENTERPRISE: Missing (required for paid tier)
-
-Frontend (frontend-v2/.env):
-✅ VITE_CLERK_PUBLISHABLE_KEY: Valid
-❌ VITE_API_URL: Missing
-
-📖 Fix these issues before running:
-- Clerk setup: docs/platforms/clerk.md
-- Stripe setup: docs/platforms/stripe.md
-- Sample configs: docs/sample-files/backend-dev-vars-example.md
+STRIPE_PRICE_ID_DEVELOPER=price_1SKpMg2L5f0FfOp2d6zGtYbW  # USE COLLECTED PRICE ID
+STRIPE_PRICE_ID_ENTERPRISE=price_1SKpLH2L5f0FfOp2CU2X4CJU  # USE COLLECTED PRICE ID
 ```
+
+**STEP 3: VALIDATE**
+
+```bash
+grep -n "usageCount >=" api/src/index.ts
+grep -n "const getTierFeatures" frontend-v2/src/pages/Landing.tsx -A 30
+grep -n "const getFeatures" frontend-v2/src/pages/ChoosePlanPage.tsx -A 30
+```
+
+**STEP 4: REPORT**
+
+✅ Updated 3 tiers: free, developer, enterprise
+✅ All tier names updated in backend types
+✅ All tier configs updated (name, price, limit)
+✅ All tier features updated in Landing.tsx
+✅ All tier features updated in ChoosePlanPage.tsx
+✅ All tier styles updated
+✅ All Stripe Price IDs added to .dev.vars
+
+⚠️ RESTART API SERVER: cd api && npm run dev

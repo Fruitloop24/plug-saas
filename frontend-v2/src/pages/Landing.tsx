@@ -28,7 +28,7 @@ const TIER_STYLES: Record<string, {
     buttonText: 'text-slate-600',
     highlighted: false
   },
-  developer: {
+  pro: {
     containerClass: 'relative p-8 bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 rounded-3xl text-white shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all',
     textColor: 'text-white',
     checkColor: 'text-white',
@@ -36,7 +36,7 @@ const TIER_STYLES: Record<string, {
     buttonText: 'text-cyan-600',
     highlighted: true
   },
-  enterprise: {
+  developer: {
     containerClass: 'relative p-8 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl text-white shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all',
     textColor: 'text-white',
     checkColor: 'text-white',
@@ -57,15 +57,14 @@ const getTierFeatures = (tier: Tier): string[] => {
   }
 
   if (tier.id === 'free') {
-    features.push('Basic API access');
-    features.push('Community support');
-    features.push('Standard features');
+    features.push('testing');
+    features.push('one');
+  } else if (tier.id === 'pro') {
+    features.push('tesing');
+    features.push('two');
   } else if (tier.id === 'developer') {
-    features.push('Api Access');
-    features.push('Great work');
-  } else if (tier.id === 'enterprise') {
-    features.push('Email support');
-    features.push('Analytics');
+    features.push('tesing');
+    features.push('three');
   }
 
   return features;
