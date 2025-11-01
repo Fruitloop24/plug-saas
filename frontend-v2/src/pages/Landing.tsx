@@ -28,7 +28,7 @@ const TIER_STYLES: Record<string, {
     buttonText: 'text-slate-600',
     highlighted: false
   },
-  pro: {
+  developer: {
     containerClass: 'relative p-8 bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 rounded-3xl text-white shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all',
     textColor: 'text-white',
     checkColor: 'text-white',
@@ -60,14 +60,12 @@ const getTierFeatures = (tier: Tier): string[] => {
     features.push('Basic API access');
     features.push('Community support');
     features.push('Standard features');
-  } else if (tier.id === 'pro') {
-    features.push("It's awesome");
-    features.push('Priority support');
-    features.push('Advanced features');
+  } else if (tier.id === 'developer') {
+    features.push('Api Access');
+    features.push('Great work');
   } else if (tier.id === 'enterprise') {
-    features.push('Super awesome');
-    features.push('Dedicated support');
-    features.push('Custom integrations');
+    features.push('Email support');
+    features.push('Analytics');
   }
 
   return features;

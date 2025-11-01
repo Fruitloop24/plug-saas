@@ -80,7 +80,7 @@ export default function ChoosePlanPage() {
     switch (tierId) {
       case 'free':
         return 'bg-white border-2 border-slate-200';
-      case 'pro':
+      case 'developer':
         return 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700';
       case 'enterprise':
         return 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700';
@@ -98,14 +98,12 @@ export default function ChoosePlanPage() {
       features.push('Basic API access');
       features.push('Community support');
       features.push('Standard features');
-    } else if (tier.id === 'pro') {
-      features.push("It's awesome");
-      features.push('Priority support');
-      features.push('Advanced features');
+    } else if (tier.id === 'developer') {
+      features.push('Api Access');
+      features.push('Great work');
     } else if (tier.id === 'enterprise') {
-      features.push('Super awesome');
-      features.push('Dedicated support');
-      features.push('Custom integrations');
+      features.push('Email support');
+      features.push('Analytics');
     }
 
     return features;

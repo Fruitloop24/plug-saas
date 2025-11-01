@@ -64,6 +64,10 @@ Env vars: `api/.dev.vars`
    - All tier names in TIER_CONFIG match PRICE_ID_MAP
    - All tier names match type unions (UsageData, PlanTier)
    - All tier names have frontend styling entries
+   - **IMPORTANT:** Must add features to BOTH Landing.tsx AND ChoosePlanPage.tsx:
+     - `Landing.tsx` line ~50: `getTierFeatures()` function
+     - `ChoosePlanPage.tsx` line ~92: `getFeatures()` function
+     - Features must include the limits (e.g., "13 documents/month")
 
 4. **VALIDATE ENVIRONMENT VARIABLES (Fast check - just verify they exist):**
 

@@ -164,31 +164,6 @@ Without this JWT template, your API can't see what tier the user is on. Upgrades
 
 ---
 
-## Step 4: Configure Allowed Origins
-
-### 4.1 Navigate to Allowed Origins
-
-📍 On the same **"API Keys"** page in your Clerk dashboard, scroll down to the **"Allowed origins"** section
-
-### 4.2 Add Local Development Origins
-
-Click **"Add origin"** and add these two URLs:
-
-1. `http://localhost:5173` (Vite's default port)
-2. `http://localhost:3000` (alternative port, in case 5173 is in use)
-
-Click **"Save"** after adding each one.
-
-### 4.3 Production Origins (You'll Add These Later)
-
-When you deploy to production, come back here and add your production domain:
-- `https://yourdomain.com`
-- `https://www.yourdomain.com` (if you use the www subdomain)
-
-⚠️ **Why this is needed:** Without allowed origins, browsers will block your sign-in requests with CORS errors.
-
----
-
 ## What You Have Now
 
 You should have collected these three values:
@@ -227,10 +202,6 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
 ### ❌ Mixed Up the Keys
 **Check:** Publishable key starts with `pk_`, Secret key starts with `sk_`  
 Don't paste the secret key where the publishable key goes (or vice versa)
-
-### ❌ Forgot Allowed Origins
-**Result:** You'll get CORS errors when trying to sign in  
-**Fix:** Make sure you added `http://localhost:5173` to allowed origins
 
 ---
 
