@@ -23,7 +23,7 @@
 
 <div align="center">
 
-**[🎥 What is Plug-SaaS?](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/plug-saas-promo-bg.mp4)** • **[⚡ Clone to Live in 10 Minutes](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/clone-local-test.mp4)** • **[🌍 Deploy to the Global Edge](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/deploy-worker-pages.mp4)**
+**[🎥 What is Plug-SaaS?](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/plug-saas-promo-bg.mp4)** • **[⚡ Clone to Live Testing in 10 Minutes](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/clone-local-test.mp4)** • **[🌍 Deploy to the Global Edge](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/deploy-worker-pages.mp4)**
 
 </div>
 
