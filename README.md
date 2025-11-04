@@ -11,13 +11,21 @@
 
 **Customize your landing page, pricing tiers, and features with AI-powered configuration.**
 
-[🚀 Live Demo](https://clerk-frontend.pages.dev) • [📹 Deployment Video (5 min)](#deployment-video) • [⚡ Quick Start](#quick-start)
+[🚀 Live Demo](https://clerk-frontend.pages.dev) • [⚡ Quick Start](#quick-start)
 
 [![GitHub stars](https://img.shields.io/github/stars/Fruitloop24/plug-saas?style=social)](https://github.com/Fruitloop24/plug-saas/stargazers)
 
 ---
 
 **$0 hosting until 10k users** • **Deploy in 15 minutes** • **Global edge network (300+ cities)**
+
+### 🎬 Watch It In Action
+
+<div align="center">
+
+**[🎥 What is Plug-SaaS?](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/plug-saas-promo-bg.mp4)** • **[⚡ Clone to Live in 10 Minutes](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/clone-local-test.mp4)** • **[🌍 Deploy to the Global Edge](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/deploy-worker-pages.mp4)**
+
+</div>
 
 </div>
 
