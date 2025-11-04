@@ -203,12 +203,14 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <SignedOut>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="px-10 py-5 text-lg bg-white text-blue-600 border-none rounded-xl cursor-pointer font-bold shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all"
+              <a
+                href="https://pansaasstorage.blob.core.windows.net/plug-saas-assets/plug-saas-promo-bg.mp4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-10 py-5 text-lg bg-white text-blue-600 border-none rounded-xl cursor-pointer font-bold shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all no-underline inline-block"
               >
                 View Demo
-              </button>
+              </a>
               <button
                 onClick={() => navigate('/sign-up')}
                 className="px-10 py-5 text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none rounded-xl cursor-pointer font-bold shadow-xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
