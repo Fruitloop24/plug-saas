@@ -67,3 +67,6 @@ temp/
 .vercel
 .cloudflare
 .env.production
+
+# Project Management
+progress.md
