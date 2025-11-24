@@ -23,7 +23,7 @@
 
 <div align="center">
 
-**[🎥 What is Plug-SaaS?](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/plug-saas-promo-bg.mp4)** • **[⚡ Clone to Live Testing in 10 Minutes](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/clone-local-test.mp4)** • **[🌍 Deploy to the Global Edge](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/deploy-worker-pages.mp4)**
+**[🎥 What is Plug-SaaS?](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/plug-saas-promo-bg.mp4)** • **[⚡ Clone to Live Testing in 10 Minutes](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/clone-local-test.mp4)** • **[🌍 Deploy to the Global Edge](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/deploy-worker-pages.mp4)**
 
 </div>
 
@@ -228,7 +228,7 @@ Before you begin, make sure you have:
 
 ### 1. Clone & Install
 
-**📹 Video Guide:** [Watch Step 1 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/Step-1.mp4)
+**📹 Video Guide:** [Watch Step 1 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/Step-1.mp4)
 
 **Open your terminal and run these commands:**
 
@@ -269,7 +269,7 @@ These files will be filled in with your API keys in the next steps.
 
 Clerk handles all user authentication and JWT tokens for this application.
 
-**📹 Video Guide:** [Watch Step 2 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-2.mp4)
+**📹 Video Guide:** [Watch Step 2 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-2.mp4)
 
 **📖 Follow the detailed setup guide:** [Clerk Setup Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/clerk.md)
 
@@ -302,7 +302,7 @@ VITE_API_URL=http://localhost:8787           # Local backend URL
 
 Stripe handles all payment processing and subscription billing for this application.
 
-**📹 Video Guide:** [Watch Step 3 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-3.mp4)
+**📹 Video Guide:** [Watch Step 3 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-3.mp4)
 
 **📖 Follow the detailed setup guide:** [Stripe Setup Guide](https://github.com/Fruitloop24/plug-saas/blob/master/docs/platforms/stripe.md)
 
@@ -338,7 +338,7 @@ STRIPE_PORTAL_CONFIG_ID=bpc_1SK6M             # For customer subscription manage
 
 The default template includes a complete multi-tier system (Free, Pro, Enterprise) with frontend routes, pricing cards, and backend enforcement. Customize it in minutes:
 
-**📹 Video Guide:** [Watch Step 4-5 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-4-5.mp4) (includes Step 5: Run Locally)
+**📹 Video Guide:** [Watch Step 4-5 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-4-5.mp4) (includes Step 5: Run Locally)
 
 **Run the configuration command:**
 ```
@@ -406,7 +406,7 @@ Once local development is working, you're ready to deploy your SaaS to productio
 
 Deploy your API to Cloudflare's global edge network (300+ cities) in minutes:
 
-**📹 Video Guide:** [Watch Step 6 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-6.mp4)
+**📹 Video Guide:** [Watch Step 6 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-6.mp4)
 
 **Run the deployment command:**
 ```
@@ -443,7 +443,7 @@ This repo includes GitHub Actions for automatic Worker deployment on push. To en
 
 Set up real production webhooks so Stripe can notify your API when subscriptions are created, updated, or cancelled. You'll use the webhook URL from Step 6.
 
-**📹 Video Guide:** [Watch Step 7 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-7.mp4)
+**📹 Video Guide:** [Watch Step 7 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-7.mp4)
 
 **📖 Follow the deployment guide:** [Stripe Webhooks Deployment](./docs/deployments/stripe-deploy.md)
 
@@ -465,7 +465,7 @@ This guide walks you through:
 
 Deploy your React frontend to Cloudflare Pages for global access and fast load times.
 
-**📹 Video Guide:** [Watch Step 8 Setup Video](https://pansaasstorage.blob.core.windows.net/plug-saas-assets/step-8.mp4)
+**📹 Video Guide:** [Watch Step 8 Setup Video](https://pub-55b8a70d0dfd4d62880e0bdd35d82251.r2.dev/step-8.mp4)
 
 **📖 Follow the deployment guide:** [Cloudflare Pages Frontend Deployment](./docs/deployments/frontend-deploy.md)
 
