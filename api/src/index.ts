@@ -747,9 +747,11 @@ async function handleCreateCheckout(
 	request: Request
 ): Promise<Response> {
 	try {
-		// Get user email from Clerk
+		// Get user from Clerk (includes metadata with existing subscription info)
 		const user = await clerkClient.users.getUser(userId);
 		const userEmail = user.emailAddresses[0]?.emailAddress || '';
+		const existingSubscriptionId = user.publicMetadata?.subscriptionId as string | undefined;
+		const stripeCustomerId = user.publicMetadata?.stripeCustomerId as string | undefined;
 
 		// Get target tier from request body
 		const body = await request.json().catch((err) => {
@@ -773,29 +775,128 @@ async function handleCreateCheckout(
 			throw new Error(`No price ID configured for tier: ${targetTier}`);
 		}
 
-		// Use origin from request for success/cancel URLs (handles changing hash URLs)
+		// Use origin from request for success/cancel URLs
 		const frontendUrl = origin || 'https://app.panacea-tech.net';
 
-		// Create Stripe checkout session
+		// ============================================================================
+		// UPGRADE/DOWNGRADE: Update existing subscription with proration
+		// ============================================================================
+		if (existingSubscriptionId && stripeCustomerId) {
+			console.log(`🔄 User has existing subscription: ${existingSubscriptionId}, updating...`);
+
+			// First, get the subscription to find the subscription item ID
+			const subResponse = await fetch(`https://api.stripe.com/v1/subscriptions/${existingSubscriptionId}`, {
+				headers: {
+					'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+				},
+			});
+
+			const subscription = await subResponse.json() as {
+				items?: { data: Array<{ id: string; price: { id: string } }> };
+				error?: { message: string };
+			};
+
+			if (!subResponse.ok || !subscription.items?.data?.[0]) {
+				console.error('❌ Failed to fetch subscription:', subscription.error?.message);
+				// Fall through to create new checkout if subscription fetch fails
+			} else {
+				const subscriptionItemId = subscription.items.data[0].id;
+				const currentPriceId = subscription.items.data[0].price.id;
+
+				// Don't update if already on this price
+				if (currentPriceId === priceId) {
+					return new Response(
+						JSON.stringify({ error: 'Already subscribed to this tier' }),
+						{
+							status: 400,
+							headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						}
+					);
+				}
+
+				// Update subscription with new price (proration automatically applied)
+				const updateResponse = await fetch(`https://api.stripe.com/v1/subscriptions/${existingSubscriptionId}`, {
+					method: 'POST',
+					headers: {
+						'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: new URLSearchParams({
+						'items[0][id]': subscriptionItemId,
+						'items[0][price]': priceId,
+						'proration_behavior': 'create_prorations',
+						'metadata[userId]': userId,
+						'metadata[tier]': targetTier,
+					}).toString(),
+				});
+
+				const updatedSub = await updateResponse.json() as {
+					id?: string;
+					error?: { message: string };
+				};
+
+				if (!updateResponse.ok) {
+					console.error('❌ Failed to update subscription:', updatedSub.error?.message);
+					throw new Error(updatedSub.error?.message || 'Failed to update subscription');
+				}
+
+				console.log(`✅ Subscription updated to ${targetTier} with proration`);
+
+				// Update Clerk metadata immediately (webhook will also fire)
+				await clerkClient.users.updateUser(userId, {
+					publicMetadata: {
+						plan: targetTier,
+						stripeCustomerId: stripeCustomerId,
+						subscriptionId: existingSubscriptionId,
+					},
+				});
+
+				return new Response(
+					JSON.stringify({
+						success: true,
+						message: `Subscription updated to ${targetTier}`,
+						prorated: true,
+					}),
+					{
+						status: 200,
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
+				);
+			}
+		}
+
+		// ============================================================================
+		// NEW SUBSCRIPTION: Create checkout session for first-time subscribers
+		// ============================================================================
+		console.log(`🆕 Creating new checkout session for user: ${userId}`);
+
+		const checkoutParams: Record<string, string> = {
+			'success_url': `${frontendUrl}/dashboard?success=true`,
+			'cancel_url': `${frontendUrl}/dashboard?canceled=true`,
+			'client_reference_id': userId,
+			'mode': 'subscription',
+			'line_items[0][price]': priceId,
+			'line_items[0][quantity]': '1',
+			'metadata[userId]': userId,
+			'metadata[tier]': targetTier,
+			'subscription_data[metadata][userId]': userId,
+			'subscription_data[metadata][tier]': targetTier,
+		};
+
+		// Use existing customer if available, otherwise use email for new customer
+		if (stripeCustomerId) {
+			checkoutParams['customer'] = stripeCustomerId;
+		} else {
+			checkoutParams['customer_email'] = userEmail;
+		}
+
 		const checkoutSession = await fetch('https://api.stripe.com/v1/checkout/sessions', {
 			method: 'POST',
 			headers: {
 				'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: new URLSearchParams({
-				'success_url': `${frontendUrl}/dashboard?success=true`,
-				'cancel_url': `${frontendUrl}/dashboard?canceled=true`,
-				'customer_email': userEmail,
-				'client_reference_id': userId,
-				'mode': 'subscription',
-				'line_items[0][price]': priceId,
-				'line_items[0][quantity]': '1',
-				'metadata[userId]': userId,
-				'metadata[tier]': targetTier,
-				'subscription_data[metadata][userId]': userId,
-				'subscription_data[metadata][tier]': targetTier,
-			}).toString(),
+			body: new URLSearchParams(checkoutParams).toString(),
 		});
 
 		const session = await checkoutSession.json() as { url?: string; error?: { message: string } };

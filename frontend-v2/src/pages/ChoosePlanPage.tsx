@@ -47,7 +47,7 @@ export default function ChoosePlanPage() {
       return;
     }
 
-    // Paid tier - create checkout session
+    // Paid tier - create checkout session or upgrade existing subscription
     setUpgrading(tierId);
     try {
       const token = await getToken({ template: 'pan-api' });
@@ -63,10 +63,17 @@ export default function ChoosePlanPage() {
       const data = await response.json();
 
       if (response.ok && data.url) {
-        // Redirect to Stripe checkout
+        // New subscription - redirect to Stripe checkout
         window.location.href = data.url;
+      } else if (response.ok && data.success && data.prorated) {
+        // Existing subscription updated with proration - refresh user and go to dashboard
+        await user?.reload();
+        navigate('/dashboard?success=true&upgraded=true');
+      } else if (data.error === 'Already subscribed to this tier') {
+        setError('You are already subscribed to this tier');
+        setUpgrading(null);
       } else {
-        setError('Failed to create checkout session');
+        setError(data.error || 'Failed to process request');
         setUpgrading(null);
       }
     } catch (err) {

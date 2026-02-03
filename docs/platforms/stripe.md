@@ -76,72 +76,70 @@ You'll add this to:
 
 ---
 
-## Step 3: Create Products for Your Tiers
+## Step 3: Create ONE Product with Multiple Prices
 
-You need to create a Stripe product for **each paid tier** in your SaaS.
+⚠️ **IMPORTANT: For upgrade/downgrade with proration to work, all your tier prices MUST be on the SAME product.**
 
-**Default setup:** Create a "Pro" product (the free tier doesn't need a Stripe product)
+You'll create ONE product (e.g., "SaaS Subscription") and add multiple prices to it (Free, Pro, Developer, etc.).
 
-**If you have multiple paid tiers:** Create a product for each one (Pro, Enterprise, etc.)
+### 3.1 Create the Product
 
-### 3.1 Navigate to Products
-
-📍 Click **"Products"** in the left sidebar → Click **"Add product"**
+📍 Click **"Product catalog"** in the left sidebar → Click **"Add product"**
 
 Direct link: **https://dashboard.stripe.com/test/products**
 
-### 3.2 Create Your First Product (Pro Tier)
+Fill in:
+- **Name:** `Your SaaS Subscription` (or your product name)
+- **Description:** (optional) `Subscribe to access premium features`
+- **Price:** `$0.00` USD, Monthly, Recurring (this will be your Free tier)
 
-Fill in these fields:
+Click **"Add product"** to save.
 
-**Name:** `Pro Plan` (or whatever you want to call it)
+### 3.2 Go Back and Edit the Product
 
-**Description:** (optional) `Unlimited API requests and premium features`
+1. Go back to **Product catalog**
+2. Click on the product you just created
+3. Click the **"Edit"** button (top right corner)
 
-**Pricing:**
-- Click **"Add pricing"**
-- **Price:** `29.00` USD (or your monthly price)
-- **Billing period:** Select **"Monthly"**
-- **Payment type:** Keep as **"Recurring"**
+Now you'll see the full product editor with the Pricing section.
 
-Click **"Save product"**
+### 3.3 Add Your Tier Prices
 
-### 3.3 Get the Price ID (CRITICAL)
+In the edit view, find the **Pricing** section and add each tier:
 
-After saving, you'll see your product details page.
+1. Click **"Add another price"**
+2. Set: `$20.00` USD, Monthly, Recurring → This is your **Pro** tier
+3. Click **"Add another price"** again
+4. Set: `$50.00` USD, Monthly, Recurring → This is your **Developer** tier
 
-Scroll down to the **"Pricing"** section.
+Click **"Save"** when done.
 
-You'll see something like:
+### 3.4 Get the Price IDs (CRITICAL)
+
+You should now have ONE product with multiple prices:
 ```
-$29.00 / month
-price_1Abc23DEfg45HIjk  ← This is what you need
+Product: "Your SaaS Subscription" (prod_xxx)
+  ├── Free:      $0/month   → price_abc123
+  ├── Pro:       $20/month  → price_def456
+  └── Developer: $50/month  → price_ghi789
 ```
 
-⚠️ **IMPORTANT:** Copy the **PRICE ID** (starts with `price_`)
+Copy EACH **Price ID** (starts with `price_`). Add them to `api/.dev.vars`:
+```bash
+STRIPE_PRICE_ID_FREE=price_xxx
+STRIPE_PRICE_ID_PRO=price_yyy
+STRIPE_PRICE_ID_DEVELOPER=price_zzz
+```
 
-**Do NOT copy the Product ID** (starts with `prod_`) - you need the **PRICE ID**.
+⚠️ Copy **PRICE IDs** (start with `price_`), NOT the Product ID (starts with `prod_`)
 
-**Why this matters:** The price ID is what you use in checkout. The product can have multiple prices (monthly/yearly), so you need the specific price ID.
+### Why One Product with Multiple Prices?
 
-You'll add this to:
-- `api/dev.env` as `STRIPE_PRICE_ID_PRO`
+This enables **automatic proration** when users upgrade or downgrade:
 
-### 3.4 Create Additional Tiers (If Needed)
-
-If you have more paid tiers (like Enterprise at $99/month), repeat steps 3.2-3.3:
-
-**For Enterprise tier:**
-- Name: `Enterprise Plan`
-- Price: `99.00` USD monthly
-- Get Price ID → Add to `api/dev.env` as `STRIPE_PRICE_ID_ENTERPRISE`
-
-**For Starter tier:**
-- Name: `Starter Plan`
-- Price: `9.00` USD monthly
-- Get Price ID → Add to `api/dev.env` as `STRIPE_PRICE_ID_STARTER`
-
-💡 The free tier doesn't need a Stripe product since users aren't charged.
+- **Upgrade (Pro → Developer):** User pays the prorated difference
+- **Downgrade (Developer → Pro):** User gets credit on next invoice
+- **No duplicate subscriptions:** Existing subscription is updated, not replaced
 
 ---
 
@@ -204,28 +202,27 @@ This will give you a webhook secret that starts with `whsec_...`
 
 You should have collected these values:
 
-### For One Tier (Pro):
+### One Product with Multiple Prices:
 1. **STRIPE_SECRET_KEY** = `sk_test_abc123...` (your actual key)
-2. **STRIPE_PRICE_ID_PRO** = `price_xyz789...` (your actual price ID)
-3. **STRIPE_PORTAL_CONFIG_ID** = `bpc_def456...` (your actual config ID)
+2. **STRIPE_PRICE_ID_FREE** = `price_xxx...` (Free tier - $0/month)
+3. **STRIPE_PRICE_ID_PRO** = `price_yyy...` (Pro tier - $20/month)
+4. **STRIPE_PRICE_ID_DEVELOPER** = `price_zzz...` (Developer tier - $50/month)
+5. **STRIPE_PORTAL_CONFIG_ID** = `bpc_def456...` (your actual config ID)
 
-### For Multiple Tiers (Pro + Enterprise):
-1. **STRIPE_SECRET_KEY** = `sk_test_abc123...`
-2. **STRIPE_PRICE_ID_PRO** = `price_xyz789...`
-3. **STRIPE_PRICE_ID_ENTERPRISE** = `price_uvw123...`
-4. **STRIPE_PORTAL_CONFIG_ID** = `bpc_def456...`
+All price IDs should be from the **same product**.
 
 ### Where These Go
 
-**Backend** (`api/dev.env`):
+**Backend** (`api/.dev.vars`):
 ```bash
 STRIPE_SECRET_KEY=sk_test_YOUR_KEY_HERE
-STRIPE_PRICE_ID_PRO=price_YOUR_ID_HERE
-STRIPE_PORTAL_CONFIG_ID=bpc_YOUR_ID_HERE
 
-# If you have additional tiers:
-# STRIPE_PRICE_ID_ENTERPRISE=price_YOUR_ID_HERE
-# STRIPE_PRICE_ID_STARTER=price_YOUR_ID_HERE
+# All prices from ONE product (enables proration)
+STRIPE_PRICE_ID_FREE=price_YOUR_FREE_ID
+STRIPE_PRICE_ID_PRO=price_YOUR_PRO_ID
+STRIPE_PRICE_ID_DEVELOPER=price_YOUR_DEV_ID
+
+STRIPE_PORTAL_CONFIG_ID=bpc_YOUR_ID_HERE
 ```
 
 📋 **See complete example:** [Backend ENV File](../sample-files/backend-dev-vars-example.md)
@@ -235,21 +232,31 @@ STRIPE_PORTAL_CONFIG_ID=bpc_YOUR_ID_HERE
 ## Common Mistakes to Avoid
 
 ### ❌ Copied Product ID Instead of Price ID
-**Wrong:** `prod_abc123...` (product ID)  
+**Wrong:** `prod_abc123...` (product ID)
 **Correct:** `price_xyz789...` (price ID)
 
 **Where to find it:** On the product page, scroll to "Pricing" section - the ID under the price amount.
 
+### ❌ Created Separate Products for Each Tier
+**Wrong:** Pro Product, Developer Product, Enterprise Product (separate products)
+**Correct:** ONE product with multiple prices (Free, Pro, Developer prices)
+
+**Why it matters:** Proration only works when switching between prices on the SAME product. Separate products = no proration, potential duplicate subscriptions.
+
 ### ❌ Used Live Mode Keys for Local Dev
-**Check:** Your secret key should start with `sk_test_` (not `sk_live_`)  
+**Check:** Your secret key should start with `sk_test_` (not `sk_live_`)
 **Check:** Top-right corner shows "TEST MODE" banner
 
 ### ❌ Forgot to Activate Customer Portal
-**Symptom:** Users click "Manage Billing" and get an error  
+**Symptom:** Users click "Manage Billing" and get an error
 **Fix:** Go to Settings → Billing → Customer portal → Click "Activate"
 
-### ❌ Created Multiple Prices for One Product
-**Issue:** If you created both monthly and yearly prices, make sure you copy the right price ID (probably the monthly one)
+### ❌ Can't Find "Add Another Price" Button
+**Fix:** You must EDIT the product after creating it:
+1. Go to Product catalog
+2. Click on your product
+3. Click **Edit** (top right)
+4. Now you'll see the option to add more prices
 
 ---
 

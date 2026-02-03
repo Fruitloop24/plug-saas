@@ -1,5 +1,21 @@
 # Configure Pricing Tiers
 
+**IMPORTANT: Stripe Product Setup for Proration**
+
+For upgrade/downgrade with proration to work, you MUST create ONE Stripe Product with MULTIPLE Prices:
+
+1. Go to Stripe Dashboard → Products → Add product
+2. Create ONE product (e.g., "Your SaaS Subscription")
+3. Add MULTIPLE PRICES to that SAME product:
+   - Pro: $29/month (recurring)
+   - Developer: $50/month (recurring)
+   - etc.
+4. Copy each Price ID (starts with `price_`)
+
+This allows Stripe to automatically calculate prorated amounts when users upgrade/downgrade.
+
+---
+
 **STEP 1: ASK QUESTIONS (one at a time)**
 
 1. How many tiers? (2-4)
@@ -9,7 +25,7 @@
    - Price? (dollars, just number, e.g., 0, 29, 99)
    - Limit? (number or 'unlimited', e.g., 5, 100, unlimited)
    - Features? (comma-separated, e.g., 'API access, Email support')
-   - Stripe Price ID? (price_xxxxx or 'none' for free tier)
+   - Stripe Price ID? (price_xxxxx or 'none' for free tier) - MUST be from same Stripe Product!
    - Popular badge? (yes/no)
 
 **STEP 2: UPDATE EVERYTHING**
@@ -160,5 +176,11 @@ grep -n "const getFeatures" frontend-v2/src/pages/ChoosePlanPage.tsx -A 30
 ✅ All tier features updated in ChoosePlanPage.tsx
 ✅ All tier styles updated
 ✅ All Stripe Price IDs added to .dev.vars
+✅ Upgrade/downgrade with proration supported (prices must be from same Stripe Product)
 
 ⚠️ RESTART API SERVER: cd api && npm run dev
+
+**UPGRADE/DOWNGRADE BEHAVIOR:**
+- New users → Stripe Checkout (redirects to Stripe)
+- Existing subscribers → Subscription updated instantly with proration (no redirect)
+- Proration is automatic when switching between prices on the same Stripe Product
