@@ -95,15 +95,16 @@ export async function handleStripeWebhook(
 				return new Response(JSON.stringify({ error: 'Missing tier metadata' }), { status: 400 });
 			}
 
-			// Update Clerk user metadata with purchased tier
+			// Update Clerk user metadata with purchased tier AND subscriptionId
 			try {
 				await clerkClient.users.updateUser(userId, {
 					publicMetadata: {
 						plan: tier,
 						stripeCustomerId: session.customer as string,
+						subscriptionId: session.subscription as string,
 					},
 				});
-				console.log(`✅ Updated user ${userId} to ${tier} plan after checkout`);
+				console.log(`✅ Updated user ${userId} to ${tier} plan after checkout (subscription: ${session.subscription})`);
 			} catch (err: any) {
 				console.error(`❌ Failed to update user ${userId}:`, err.message);
 				return new Response(
